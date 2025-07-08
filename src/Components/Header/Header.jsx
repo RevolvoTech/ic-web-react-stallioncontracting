@@ -1,4 +1,3 @@
-import React from "react";
 import "./Header.scss";
 import bgVideo from "../../assets/Videos/0708.mp4";
 const Header = () => {

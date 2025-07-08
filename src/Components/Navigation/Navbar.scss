@@ -63,6 +63,9 @@
     
     .navbar-logo {
       a {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
         color: #fff; /* Black color */
         font-size: 1.5rem;
         font-weight: 700;
@@ -72,6 +75,11 @@
         transition: all 0.3s ease;
         text-transform: uppercase;
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
+        img {
+          height: 40px;
+          width: auto;
+        }
         
         &:hover {
           text-shadow: 0 0 10px rgba(255, 255, 255, 0.7), 0 2px 4px rgba(0, 0, 0, 0.3);
