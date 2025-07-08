@@ -1,0 +1,229 @@
+/* Navbar Styles */
+.navbar {
+  width: 100%;
+  background-color: transparent;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  transition: all 0.4s ease;
+  color: #fff;
+  
+  &.scrolled {
+    background-color: #000;
+    padding: 0;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    
+    .navbar-container {
+      padding: 0.6rem 2rem;
+      
+      .navbar-logo a {
+        font-size: 1.2rem;
+        color: #fff;
+      }
+      
+      .navbar-links {
+        color: #fff;
+        font-size: 0.95rem;
+        
+        &:after {
+          background-color: #fff;
+        }
+        
+        &:hover, &.active {
+          color: #fff;
+          
+          &:after {
+            background-color: #fff;
+          }
+        }
+      }
+      
+      .navbar-quote {
+        .quote-btn {
+          background-color: #000;
+          color: #fff;
+          
+          &:hover {
+            background-color: #333;
+            color: #fff;
+          }
+        }
+      }
+    }
+  }
+  
+  .navbar-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.2rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    .navbar-logo {
+      a {
+        color: #fff; /* Black color */
+        font-size: 1.5rem;
+        font-weight: 700;
+        text-decoration: none;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        
+        &:hover {
+          text-shadow: 0 0 10px rgba(255, 255, 255, 0.7), 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+      }
+    }
+    
+    .navbar-links {
+      display: flex;
+      gap: 3rem;
+      margin: 0 1rem;
+      
+      a {
+        color: #fff;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 1.05rem;
+        padding: 0.5rem 0;
+        position: relative;
+        transition: all 0.3s ease;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        
+        &:after {
+          content: '';
+          position: absolute;
+          width: 0;
+          height: 2px;
+          background-color: #fff;
+          bottom: 0;
+          left: 0;
+          transition: width 0.3s ease;
+        }
+        
+        &:hover, &.active {
+          color: #fff;
+          
+          &:after {
+            width: 100%;
+          }
+        }
+      }
+    }
+    
+    .navbar-quote {
+      margin-left: 1rem;
+      
+      .quote-btn {
+        padding: 0.6rem 1.2rem;
+        background-color: #000;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        
+        &:hover {
+          background-color: #333;
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+      }
+    }
+    
+    .navbar-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 30px;
+      height: 21px;
+      cursor: pointer;
+      
+      .bar {
+        height: 3px;
+        width: 100%;
+        background-color: #fff;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+      }
+    }
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .navbar {
+    background-color: rgba(0, 0, 0, 0.8); /* Always have some background on mobile for better visibility */
+    
+    &.scrolled {
+      background-color: #000;
+      
+      .navbar-container {
+        .navbar-toggle .bar {
+          background-color: #fff;
+        }
+      }
+    }
+    
+    .navbar-container {
+      padding: 1rem;
+      
+      .navbar-links {
+        position: absolute;
+        top: 70px;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        background-color: rgba(0, 0, 0, 0.95);
+        padding: 1.5rem;
+        gap: 1.5rem;
+        transform: translateY(-150%);
+        transition: transform 0.3s ease;
+        text-align: center;
+        border-bottom: 2px solid #2563eb;
+        
+        a {
+          font-size: 1.2rem;
+          color: #fff;
+          
+          &:after {
+            display: none;
+          }
+        }
+        
+        &.active {
+          transform: translateY(0);
+        }
+      }
+      
+      .navbar-quote {
+        display: none;
+      }
+      
+      .navbar-toggle {
+        display: flex;
+        
+        &.active {
+          .bar:nth-child(1) {
+            transform: translateY(9px) rotate(45deg);
+          }
+          
+          .bar:nth-child(2) {
+            opacity: 0;
+          }
+          
+          .bar:nth-child(3) {
+            transform: translateY(-9px) rotate(-45deg);
+          }
+        }
+      }
+    }
+  }
+}
