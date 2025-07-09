@@ -79,14 +79,20 @@
             text-decoration: none;
             
             &:hover {
-              background: #000;
+              background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
               transform: translateY(-2px);
+              box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
               text-decoration: none;
+              
+              .material-icons {
+                color: #fff;
+              }
             }
             
             .material-icons {
               font-size: 1.25rem;
               color: #1f2937;
+              transition: color 0.3s ease;
             }
           }
         }

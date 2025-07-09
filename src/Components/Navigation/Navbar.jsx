@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./Navbar.scss";
-import logo from "../../assets/logo.png";
+import logo from "../../assets/logo-horse.png";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -26,16 +26,34 @@ const Navbar = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const handleLinkClick = (link) => {
+  const smoothScrollTo = (elementId) => {
+    const element = document.getElementById(elementId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
+
+  const handleLinkClick = (link, event) => {
+    event.preventDefault();
     setActiveLink(link);
     setIsMenuOpen(false); // Close menu on link click
+    smoothScrollTo(link);
+  };
+
+  const handleQuoteClick = () => {
+    setActiveLink("contact");
+    setIsMenuOpen(false);
+    smoothScrollTo("contact");
   };
 
   return (
     <div className={`navbar ${scrolled ? "scrolled" : ""}`}>
       <div className="navbar-container">
         <div className="navbar-logo">
-          <a href="#home" onClick={() => handleLinkClick("home")}>
+          <a href="#home" onClick={(e) => handleLinkClick("home", e)}>
             <img src={logo} alt="Stallion Contracting" />
             Stallion Contracting
           </a>
@@ -45,49 +63,51 @@ const Navbar = () => {
           <a
             href="#home"
             className={activeLink === "home" ? "active" : ""}
-            onClick={() => handleLinkClick("home")}
+            onClick={(e) => handleLinkClick("home", e)}
           >
             Home
           </a>
           <a
             href="#services"
             className={activeLink === "services" ? "active" : ""}
-            onClick={() => handleLinkClick("services")}
+            onClick={(e) => handleLinkClick("services", e)}
           >
             Services
           </a>
           <a
             href="#projects"
             className={activeLink === "projects" ? "active" : ""}
-            onClick={() => handleLinkClick("projects")}
+            onClick={(e) => handleLinkClick("projects", e)}
           >
             Projects
           </a>
           <a
             href="#testimonials"
             className={activeLink === "testimonials" ? "active" : ""}
-            onClick={() => handleLinkClick("testimonials")}
+            onClick={(e) => handleLinkClick("testimonials", e)}
           >
             Testimonials
           </a>
           <a
             href="#about"
             className={activeLink === "about" ? "active" : ""}
-            onClick={() => handleLinkClick("about")}
+            onClick={(e) => handleLinkClick("about", e)}
           >
             About Us
           </a>
           <a
             href="#contact"
             className={activeLink === "contact" ? "active" : ""}
-            onClick={() => handleLinkClick("contact")}
+            onClick={(e) => handleLinkClick("contact", e)}
           >
             Contact
           </a>
         </div>
 
         <div className="navbar-quote">
-          <button className="quote-btn">Get a Free Quote</button>
+          <button className="quote-btn" onClick={handleQuoteClick}>
+            Get a Free Quote
+          </button>
         </div>
 
         <div

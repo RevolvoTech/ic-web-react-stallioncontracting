@@ -28,6 +28,20 @@ const Services = () => {
     };
   }, []);
 
+  const smoothScrollTo = (elementId) => {
+    const element = document.getElementById(elementId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
+
+  const handleQuoteClick = () => {
+    smoothScrollTo("contact");
+  };
+
   const services = [
     {
       id: 1,
@@ -111,7 +125,9 @@ const Services = () => {
             <h3>Ready to Get Started?</h3>
             <p>Contact us today for a free consultation and quote</p>
           </div>
-          <button className="cta-button">Get Free Quote</button>
+          <button className="cta-button" onClick={handleQuoteClick}>
+            Get Free Quote
+          </button>
         </div>
       </div>
     </section>

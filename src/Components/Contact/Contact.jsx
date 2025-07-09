@@ -7,7 +7,7 @@ const Contact = () => {
   const [phone, setPhone] = useState("");
 
   return (
-    <div className="contact-container">
+    <div id="contact" className="contact-container">
       <div className="contact-header">
         <div className="section-label">Contact Us</div>
         <h2>Get in Touch</h2>

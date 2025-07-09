@@ -82,22 +82,22 @@ const Footer = () => {
             <div className="contact-item">
               <span className="material-icons">place</span>
               <div>
-                <p>123 Construction Ave</p>
-                <p>Building City, BC 12345</p>
+                <p>195 West 170 North</p>
+                <p>Orem, Utah 84057</p>
               </div>
             </div>
             <div className="contact-item">
               <span className="material-icons">phone</span>
               <div>
-                <p>(555) 123-4567</p>
+                <p>801-800-5311</p>
                 <p>24/7 Emergency Line</p>
               </div>
             </div>
             <div className="contact-item">
               <span className="material-icons">email</span>
               <div>
-                <p>info@zenithroofing.com</p>
-                <p>quotes@zenithroofing.com</p>
+                <p>hizenithliving@gmail.com</p>
+                <p>Email address</p>
               </div>
             </div>
           </div>

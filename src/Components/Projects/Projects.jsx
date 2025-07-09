@@ -18,6 +18,20 @@ const Projects = () => {
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  const smoothScrollTo = (elementId) => {
+    const element = document.getElementById(elementId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
+
+  const handleProjectClick = () => {
+    smoothScrollTo("contact");
+  };
+
   const toggleVideo = () => {
     if (!videoRef.current) return;
 
@@ -260,7 +274,7 @@ const Projects = () => {
               roofing needs
             </p>
           </div>
-          <button className="cta-button">
+          <button className="cta-button" onClick={handleProjectClick}>
             Start Your Project
             <span className="material-icons">arrow_forward</span>
           </button>

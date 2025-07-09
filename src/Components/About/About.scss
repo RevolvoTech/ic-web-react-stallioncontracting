@@ -3,6 +3,14 @@
   background: white;
   overflow: hidden;
 
+  @media (max-width: 768px) {
+    padding: 60px 0;
+  }
+
+  @media (max-width: 480px) {
+    padding: 40px 0;
+  }
+
   .about-container {
     max-width: 1400px;
     margin: 0 auto;

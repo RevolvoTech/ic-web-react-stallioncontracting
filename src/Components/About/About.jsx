@@ -13,7 +13,8 @@ const About = () => {
         }
       },
       {
-        threshold: 0.3,
+        threshold: 0.1,
+        rootMargin: "50px 0px -50px 0px",
       }
     );
 
@@ -21,12 +22,32 @@ const About = () => {
       observer.observe(aboutRef.current);
     }
 
+    // Fallback timeout to ensure visibility on mobile devices
+    const fallbackTimer = setTimeout(() => {
+      setIsVisible(true);
+    }, 2000);
+
     return () => {
       if (aboutRef.current) {
         observer.unobserve(aboutRef.current);
       }
+      clearTimeout(fallbackTimer);
     };
   }, []);
+
+  const smoothScrollTo = (elementId) => {
+    const element = document.getElementById(elementId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
+
+  const handleContactClick = () => {
+    smoothScrollTo("contact");
+  };
 
   const teamMembers = [
     {
@@ -159,9 +180,9 @@ const About = () => {
                     <div>
                       <h4>Address</h4>
                       <p>
-                        123 Roofing Street
+                        195 West 170 North
                         <br />
-                        Construction City, CC 12345
+                        Orem, Utah 84057
                       </p>
                     </div>
                   </div>
@@ -169,7 +190,7 @@ const About = () => {
                     <span className="material-icons">phone</span>
                     <div>
                       <h4>Phone</h4>
-                      <p>(555) 123-ROOF</p>
+                      <p>801-800-5311</p>
                     </div>
                   </div>
                   <div className="contact-item">
@@ -246,11 +267,11 @@ const About = () => {
                 difference
               </p>
               <div className="cta-buttons">
-                <button className="cta-primary">
+                <button className="cta-primary" onClick={handleContactClick}>
                   Free Estimate
                   <span className="material-icons">arrow_forward</span>
                 </button>
-                <button className="cta-secondary">
+                <button className="cta-secondary" onClick={handleContactClick}>
                   <span className="material-icons">phone</span>
                   Call Now
                 </button>
