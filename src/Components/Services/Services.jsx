@@ -45,46 +45,52 @@ const Services = () => {
   const services = [
     {
       id: 1,
-      title: "Residential Roofing",
-      description:
-        "Expert installation and replacement of residential roofing systems. We work with asphalt shingles, metal roofing, tile, and slate to protect your home with durable, weather-resistant solutions.",
-      icon: "home",
+      title: "Electrical",
+      description: "Custom electrical solutions, including wiring, panel upgrades, and lighting installation for both residential and commercial properties.",
+      icon: "electrical_services",
     },
     {
       id: 2,
-      title: "Commercial Roofing",
-      description:
-        "Professional commercial roofing services for businesses and industrial facilities. Specializing in flat roofs, membrane systems, and large-scale installations with minimal business disruption.",
-      icon: "business",
+      title: "HVAC",
+      description: "Expert HVAC services, including installation, maintenance, and repair to ensure your comfort in all seasons.",
+      icon: "hvac",
     },
     {
       id: 3,
-      title: "Emergency Repairs",
-      description:
-        "24/7 emergency roofing services for storm damage, leaks, and urgent repairs. Our rapid response team provides immediate solutions to protect your property from further damage.",
-      icon: "emergency",
+      title: "Plumbing",
+      description: "Comprehensive plumbing services, from fixing leaks to full-scale installations for kitchens and bathrooms.",
+      icon: "plumbing",
     },
     {
       id: 4,
-      title: "Roof Maintenance",
-      description:
-        "Comprehensive maintenance programs to extend your roof's lifespan. Regular inspections, cleaning, minor repairs, and preventive care to avoid costly replacements.",
-      icon: "tune",
+      title: "Framing",
+      description: "High-quality framing for new constructions and remodeling projects, ensuring a solid structure for your building.",
+      icon: "construction",
     },
     {
       id: 5,
-      title: "Gutter Services",
-      description:
-        "Complete gutter installation, repair, and cleaning services. Protect your foundation with properly functioning gutters and downspouts designed for your specific roofing system.",
-      icon: "water_drop",
+      title: "Roofing",
+      description: "Durable roofing solutions, including repairs and new installations to protect your property from the elements.",
+      icon: "roofing",
     },
     {
       id: 6,
-      title: "Roof Inspections",
-      description:
-        "Thorough roof inspections using advanced techniques and equipment. Detailed reports with photographic evidence and recommendations for maintenance or repairs.",
-      icon: "search",
+      title: "Concrete",
+      description: "Professional concrete work for foundations, driveways, and patios, providing a long-lasting and stable base.",
+      icon: "foundation",
     },
+    {
+        id: 7,
+        title: "Drywall",
+        description: "Seamless drywall installation and repair for a flawless finish in your home or office.",
+        icon: "check_box_outline_blank",
+      },
+      {
+        id: 8,
+        title: "Flooring",
+        description: "A wide range of flooring options and installation services to enhance the beauty and value of your space.",
+        icon: "layers",
+      },
   ];
 
   return (
@@ -92,10 +98,9 @@ const Services = () => {
       <div className="services-container">
         <div className={`services-header ${isVisible ? "animate" : ""}`}>
           <div className="section-label">Services</div>
-          <h2>Complete Roofing Solutions</h2>
+          <h2>Our Expertise</h2>
           <p>
-            Professional roofing services for residential and commercial
-            properties with over 20 years of experience
+          At Stallion Contracting, we specialize in custom remodeling, restoring, fixing, and developing residential and commercial properties.
           </p>
         </div>
 

@@ -49,38 +49,7 @@ const About = () => {
     smoothScrollTo("contact");
   };
 
-  const teamMembers = [
-    {
-      id: 1,
-      name: "Mark Johnson",
-      title: "Founder & CEO",
-      experience: "20+ Years",
-      image:
-        "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-      description:
-        "Master roofer with decades of experience in commercial and residential projects.",
-    },
-    {
-      id: 2,
-      name: "Sarah Mitchell",
-      title: "Project Manager",
-      experience: "12+ Years",
-      image:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-      description:
-        "Expert in project coordination and customer satisfaction management.",
-    },
-    {
-      id: 3,
-      name: "David Rodriguez",
-      title: "Lead Technician",
-      experience: "15+ Years",
-      image:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-      description:
-        "Specialist in emergency repairs and advanced roofing installations.",
-    },
-  ];
+  
 
   const achievements = [
     {
@@ -230,34 +199,7 @@ const About = () => {
             </div>
           </div>
 
-          <div className={`team-section ${isVisible ? "animate" : ""}`}>
-            <h3>Meet Our Team</h3>
-            <div className="team-grid">
-              {teamMembers.map((member, index) => (
-                <div
-                  key={member.id}
-                  className="team-card"
-                  style={{ animationDelay: `${index * 0.2}s` }}
-                >
-                  <div className="team-image">
-                    <img src={member.image} alt={member.name} />
-                    <div className="team-overlay">
-                      <span className="material-icons">person</span>
-                    </div>
-                  </div>
-                  <div className="team-info">
-                    <h4>{member.name}</h4>
-                    <p className="team-title">{member.title}</p>
-                    <div className="team-experience">
-                      <span className="material-icons">work</span>
-                      {member.experience}
-                    </div>
-                    <p className="team-description">{member.description}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          
 
           <div className={`cta-section ${isVisible ? "animate" : ""}`}>
             <div className="cta-content">
