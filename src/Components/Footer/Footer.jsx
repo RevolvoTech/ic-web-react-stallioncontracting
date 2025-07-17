@@ -7,7 +7,7 @@ const Footer = () => {
       <div className="footer-container">
         <div className="footer-content">
           <div className="footer-section footer-brand">
-            <h3>Zenith Roofing</h3>
+            <h3>Stallion Contracting</h3>
             <p>
               Professional roofing solutions with over 20 years of experience.
               Your trusted partner for all residential and commercial roofing
