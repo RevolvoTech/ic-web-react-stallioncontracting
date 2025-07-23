@@ -110,17 +110,17 @@
       }
 
       &:hover {
-        border-color: #dc2626;
-        color: #dc2626;
+        border-color: #fcba03;
+        color: #fcba03;
         transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(220, 38, 38, 0.15);
+        box-shadow: 0 4px 15px rgba(252, 186, 3, 0.15);
       }
 
       &.active {
-        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-        border-color: #dc2626;
+        background: linear-gradient(135deg, #fcba03 0%, #e6a800 100%);
+        border-color: #fcba03;
         color: white;
-        box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+        box-shadow: 0 4px 15px rgba(252, 186, 3, 0.3);
       }
     }
   }
@@ -325,7 +325,7 @@
     transition: all 0.3s ease;
 
     &:hover {
-      background: #dc2626;
+      background: #fcba03;
       transform: scale(1.1);
     }
 
@@ -352,7 +352,7 @@
     transition: all 0.3s ease;
 
     &:hover {
-      background: #dc2626;
+      background: #fcba03;
       transform: translateY(-50%) scale(1.1);
     }
 

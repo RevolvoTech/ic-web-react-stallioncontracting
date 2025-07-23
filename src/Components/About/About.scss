@@ -242,8 +242,16 @@
 
       .achievements-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
         gap: 2rem;
+        max-width: 800px;
+        margin: 0 auto;
+
+        @media (max-width: 768px) {
+          grid-template-columns: 1fr;
+          grid-template-rows: auto;
+        }
 
         .achievement-card {
           display: flex;
@@ -259,8 +267,8 @@
           animation: fadeInUp 0.8s ease forwards;
 
           &:hover {
-            border-color: #000;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-color: #1f3b57;
+            box-shadow: 0 10px 30px rgba(31, 59, 87, 0.1);
             transform: translateY(-5px);
           }
 

@@ -49,8 +49,6 @@ const About = () => {
     smoothScrollTo("contact");
   };
 
-  
-
   const achievements = [
     {
       icon: "verified",
@@ -60,20 +58,21 @@ const About = () => {
     },
     {
       icon: "eco",
-      title: "Eco-Friendly Solutions",
+      title: "Quality Materials",
       description:
-        "Sustainable roofing materials and energy-efficient installations",
+        "Premium materials and energy-efficient solutions for all projects",
     },
     {
       icon: "schedule",
       title: "24/7 Emergency Service",
       description:
-        "Round-the-clock emergency response for urgent roofing issues",
+        "Round-the-clock emergency response for urgent construction needs",
     },
     {
-      icon: "verified",
-      title: "Extended Warranties",
-      description: "Industry-leading warranty coverage on all our roofing work",
+      icon: "handyman",
+      title: "Expert Craftsmanship",
+      description:
+        "Skilled professionals delivering superior workmanship on every project",
     },
   ];
 
@@ -82,9 +81,9 @@ const About = () => {
       <div className="about-container">
         <div className={`about-header ${isVisible ? "animate" : ""}`}>
           <div className="section-label">About Us</div>
-          <h2>Roofing Excellence Since 2008</h2>
+          <h2>Contracting Excellence Since 2008</h2>
           <p>
-            Your trusted local roofing experts committed to protecting what
+            Your trusted local contracting experts committed to building what
             matters most
           </p>
         </div>
@@ -95,11 +94,11 @@ const About = () => {
               <div className="story-content">
                 <h3>Our Story</h3>
                 <p>
-                  Founded in 2008, Zenith Roofing has been serving our community
-                  with unwavering commitment to quality and integrity. What
-                  started as a small family business has grown into the region's
-                  most trusted roofing company, completing over 500 successful
-                  projects.
+                  Founded in 2008, Stallion Contracting UT has been serving our
+                  community with unwavering commitment to quality and integrity.
+                  What started as a small family business has grown into the
+                  region's most trusted contracting company, completing over 500
+                  successful projects.
                 </p>
                 <p>
                   We believe that every roof tells a story of protection,
@@ -140,7 +139,7 @@ const About = () => {
                     allowFullScreen=""
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
-                    title="Zenith Roofing Location"
+                    title="Stallion Contracting UT Location"
                   ></iframe>
                 </div>
                 <div className="contact-info">
@@ -179,7 +178,7 @@ const About = () => {
           </div>
 
           <div className={`achievements-section ${isVisible ? "animate" : ""}`}>
-            <h3>Why Choose Zenith Roofing</h3>
+            <h3>Why Choose Stallion Contracting UT</h3>
             <div className="achievements-grid">
               {achievements.map((achievement, index) => (
                 <div
@@ -199,14 +198,12 @@ const About = () => {
             </div>
           </div>
 
-          
-
           <div className={`cta-section ${isVisible ? "animate" : ""}`}>
             <div className="cta-content">
               <h3>Ready to Get Started?</h3>
               <p>
-                Contact us today for a free estimate and experience the Zenith
-                difference
+                Contact us today for a free estimate and experience the Stallion
+                Contracting UT difference
               </p>
               <div className="cta-buttons">
                 <button className="cta-primary" onClick={handleContactClick}>
