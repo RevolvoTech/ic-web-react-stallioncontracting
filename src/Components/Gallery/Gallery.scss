@@ -5,13 +5,14 @@
   overflow: hidden;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="%23e2e8f0" opacity="0.3"/></svg>') repeat;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="%23e2e8f0" opacity="0.3"/></svg>')
+      repeat;
     background-size: 50px 50px;
     pointer-events: none;
   }
@@ -38,7 +39,7 @@
 
     .section-label {
       display: inline-block;
-      background: linear-gradient(135deg, #000 0%, #000 100%);
+      background: linear-gradient(135deg, #1f3b57 0%, #1f3b57 100%);
       color: white;
       padding: 8px 16px;
       border-radius: 25px;
@@ -173,7 +174,11 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.4) 100%);
+        background: linear-gradient(
+          135deg,
+          rgba(0, 0, 0, 0.7) 0%,
+          rgba(0, 0, 0, 0.4) 100%
+        );
         display: flex;
         align-items: center;
         justify-content: center;
@@ -510,4 +515,3 @@
     }
   }
 }
-  

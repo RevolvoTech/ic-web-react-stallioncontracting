@@ -1,163 +1,161 @@
 .contact-container {
-    padding: 100px 2rem;
-    background: #f9fafb;
-  
-    .contact-header {
-      max-width: 1200px;
-      margin: 0 auto;
-      text-align: center;
-  
-      .section-label {
-        display: inline-block;
-        background: #000;
-        color: #fff;
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 0.875rem;
-        margin-bottom: 1rem;
-        text-transform: uppercase;
-      }
-  
-      h2 {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-        color: #1f2937;
-      }
-  
-      p {
-        max-width: 600px;
-        margin: 0 auto 40px;
-        color: #6b7280;
-      }
-  
-      .form {
-        display: flex;
-        gap: 3rem;
-        flex-wrap: wrap;
-        justify-content: center;
-        margin-top: 40px;
-  
-        .left {
-          flex: 1;
-          min-width: 280px;
-          max-width: 400px;
-          text-align: left;
-  
-          h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-          }
-  
-          p {
-            color: #4b5563;
-          }
+  padding: 100px 2rem;
+  background: #f9fafb;
+
+  .contact-header {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+
+    .section-label {
+      display: inline-block;
+      background: #1f3b57;
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: #1f2937;
+    }
+
+    p {
+      max-width: 600px;
+      margin: 0 auto 40px;
+      color: #6b7280;
+    }
+
+    .form {
+      display: flex;
+      gap: 3rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 40px;
+
+      .left {
+        flex: 1;
+        min-width: 280px;
+        max-width: 400px;
+        text-align: left;
+
+        h3 {
+          font-size: 1.5rem;
+          margin-bottom: 1rem;
         }
-  
-        .right {
-          flex: 1;
-          min-width: 300px;
-          max-width: 600px;
-  
-          .contact-form {
+
+        p {
+          color: #4b5563;
+        }
+      }
+
+      .right {
+        flex: 1;
+        min-width: 300px;
+        max-width: 600px;
+
+        .contact-form {
+          display: flex;
+          flex-direction: column;
+          gap: 1.25rem;
+
+          .form-group {
             display: flex;
             flex-direction: column;
-            gap: 1.25rem;
-  
-            .form-group {
-              display: flex;
-              flex-direction: column;
-              text-align: left;
-  
-              label {
-                margin-bottom: 0.5rem;
-                font-weight: 600;
-                color: #374151;
+            text-align: left;
+
+            label {
+              margin-bottom: 0.5rem;
+              font-weight: 600;
+              color: #374151;
+            }
+
+            input,
+            textarea,
+            .phone-input {
+              padding: 0.75rem;
+              border: 1px solid #d1d5db;
+              border-radius: 8px;
+              font-size: 1rem;
+              outline: none;
+              transition: border 0.3s ease;
+
+              &:focus {
+                border-color: #4f46e5;
               }
-  
-              input,
-              textarea, .phone-input {
+            }
+
+            .phone-input {
+            }
+            .react-tel-input {
+              background: transparent !important;
+              box-shadow: none !important;
+
+              .flag-dropdown {
+                border: none !important;
+                background: transparent !important;
+                box-shadow: none !important;
+              }
+
+              .form-control {
+                border: none !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                outline: none !important;
+                padding-left: 50px;
+              }
+            }
+          }
+
+          .submit-button {
+            background: #1f2937;
+            color: white;
+            font-weight: 600;
+            padding: 14px 32px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+
+            &:hover {
+              background: #111827;
+            }
+          }
+
+          .phone-group {
+            .phone-input-wrapper {
+              display: flex;
+              gap: 0.5rem;
+
+              select {
                 padding: 0.75rem;
                 border: 1px solid #d1d5db;
                 border-radius: 8px;
                 font-size: 1rem;
+                background: white;
+                min-width: 100px;
+                appearance: none;
+                background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23343a40'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 0.75rem center;
+                background-size: 10px;
                 outline: none;
-                transition: border 0.3s ease;
-  
+
                 &:focus {
                   border-color: #4f46e5;
                 }
               }
 
-              .phone-input{
-
-              }
-              .react-tel-input {
-                background: transparent !important;
-                box-shadow: none !important;
-              
-                .flag-dropdown {
-                  border: none !important;
-                  background: transparent !important;
-                  box-shadow: none !important;
-                }
-              
-                .form-control {
-                  border: none !important;
-                  background: transparent !important;
-                  box-shadow: none !important;
-                  outline: none !important;
-                  padding-left: 50px;
-                }
+              input {
+                flex: 1;
               }
             }
-  
-            .submit-button {
-                    background: #1f2937;
-                    color: white;
-                    font-weight: 600;
-                    padding: 14px 32px;
-                    border-radius: 8px;
-                    transition: background 0.3s ease;
-                  
-                    &:hover {
-                      background: #111827;
-                  }     
-            }
-
-            .phone-group {
-                .phone-input-wrapper {
-                  display: flex;
-                  gap: 0.5rem;
-              
-                  select {
-                    padding: 0.75rem;
-                    border: 1px solid #d1d5db;
-                    border-radius: 8px;
-                    font-size: 1rem;
-                    background: white;
-                    min-width: 100px;
-                    appearance: none;
-                    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23343a40'/%3E%3C/svg%3E");
-                    background-repeat: no-repeat;
-                    background-position: right 0.75rem center;
-                    background-size: 10px;
-                    outline: none;
-              
-                    &:focus {
-                      border-color: #4f46e5;
-                    }
-                  }
-              
-                  input {
-                    flex: 1;
-                  }
-                }
-              }
-              
           }
         }
       }
     }
   }
-  
+}

@@ -31,7 +31,7 @@
 
     .section-label {
       display: inline-block;
-      background: #000;
+      background: #1f3b57;
       color: white;
       padding: 8px 16px;
       border-radius: 20px;
@@ -118,11 +118,11 @@
               padding: 1rem;
               background: #f8f9fa;
               border-radius: 12px;
-              border-left: 4px solid #000;
+              border-left: 4px solid #1f3b57;
 
               .material-icons {
                 font-size: 2rem;
-                color: #000;
+                color: #1f3b57;
               }
 
               div {
@@ -191,7 +191,7 @@
 
               .material-icons {
                 font-size: 1.5rem;
-                color: #000;
+                color: #1f3b57;
                 margin-top: 0.25rem;
               }
 
@@ -260,7 +260,7 @@
 
           &:hover {
             border-color: #000;
-                          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             transform: translateY(-5px);
           }
 
@@ -268,7 +268,7 @@
             flex-shrink: 0;
             width: 60px;
             height: 60px;
-            background: linear-gradient(135deg, #000, #333);
+            background: linear-gradient(135deg, #1f3b57, #2d4a6b);
             border-radius: 16px;
             display: flex;
             align-items: center;
@@ -301,8 +301,6 @@
         }
       }
     }
-
-    
 
     .cta-section {
       background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
@@ -369,11 +367,11 @@
             }
 
             &.cta-primary {
-              background: #000;
+              background: #1f3b57;
               color: white;
 
               &:hover {
-                background: #333;
+                background: #2d4a6b;
                 transform: translateY(-2px);
                 box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
               }
@@ -420,4 +418,4 @@
       gap: 1rem;
     }
   }
-} 
+}
