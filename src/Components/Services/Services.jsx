@@ -46,51 +46,59 @@ const Services = () => {
     {
       id: 1,
       title: "Electrical",
-      description: "Custom electrical solutions, including wiring, panel upgrades, and lighting installation for both residential and commercial properties.",
+      description:
+        "Custom electrical solutions, including wiring, panel upgrades, and lighting installation for both residential and commercial properties.",
       icon: "electrical_services",
     },
     {
       id: 2,
       title: "HVAC",
-      description: "Expert HVAC services, including installation, maintenance, and repair to ensure your comfort in all seasons.",
+      description:
+        "Expert HVAC services, including installation, maintenance, and repair to ensure your comfort in all seasons.",
       icon: "hvac",
     },
     {
       id: 3,
       title: "Plumbing",
-      description: "Comprehensive plumbing services, from fixing leaks to full-scale installations for kitchens and bathrooms.",
+      description:
+        "Comprehensive plumbing services, from fixing leaks to full-scale installations for kitchens and bathrooms.",
       icon: "plumbing",
     },
     {
       id: 4,
       title: "Framing",
-      description: "High-quality framing for new constructions and remodeling projects, ensuring a solid structure for your building.",
+      description:
+        "High-quality framing for new constructions and remodeling projects, ensuring a solid structure for your building.",
       icon: "construction",
     },
     {
       id: 5,
       title: "Roofing",
-      description: "Durable roofing solutions, including repairs and new installations to protect your property from the elements.",
+      description:
+        "Durable roofing solutions, including repairs and new installations to protect your property from the elements.",
       icon: "roofing",
     },
     {
       id: 6,
       title: "Concrete",
-      description: "Professional concrete work for foundations, driveways, and patios, providing a long-lasting and stable base.",
+      description:
+        "Professional concrete work for foundations, driveways, and patios, providing a long-lasting and stable base.",
       icon: "foundation",
     },
     {
-        id: 7,
-        title: "Drywall",
-        description: "Seamless drywall installation and repair for a flawless finish in your home or office.",
-        icon: "check_box_outline_blank",
-      },
-      {
-        id: 8,
-        title: "Flooring",
-        description: "A wide range of flooring options and installation services to enhance the beauty and value of your space.",
-        icon: "layers",
-      },
+      id: 7,
+      title: "Drywall",
+      description:
+        "Seamless drywall installation and repair for a flawless finish in your home or office.",
+      icon: "check_box_outline_blank",
+    },
+    {
+      id: 8,
+      title: "Flooring",
+      description:
+        "A wide range of flooring options and installation services to enhance the beauty and value of your space.",
+      icon: "layers",
+    },
   ];
 
   return (
@@ -100,7 +108,9 @@ const Services = () => {
           <div className="section-label">Services</div>
           <h2>Our Expertise</h2>
           <p>
-          At Stallion Contracting, we specialize in custom remodeling, restoring, fixing, and developing residential and commercial properties.
+            At Stallion Contracting UT, we specialize in custom remodeling,
+            restoring, fixing, and developing residential and commercial
+            properties.
           </p>
         </div>
 

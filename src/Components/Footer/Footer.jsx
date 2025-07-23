@@ -7,7 +7,7 @@ const Footer = () => {
       <div className="footer-container">
         <div className="footer-content">
           <div className="footer-section footer-brand">
-            <h3>Stallion Contracting</h3>
+            <h3>Stallion Contracting UT</h3>
             <p>
               Professional roofing solutions with over 20 years of experience.
               Your trusted partner for all residential and commercial roofing
@@ -106,7 +106,7 @@ const Footer = () => {
         <div className="footer-bottom">
           <div className="footer-bottom-content">
             <div className="footer-legal">
-              <p>&copy; 2024 Zenith Roofing. All rights reserved.</p>
+              <p>&copy; 2025 Stallion Contracting UT. All rights reserved.</p>
               <div className="footer-links">
                 <a href="#privacy">Privacy Policy</a>
                 <a href="#terms">Terms of Service</a>

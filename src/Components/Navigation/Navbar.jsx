@@ -54,8 +54,8 @@ const Navbar = () => {
       <div className="navbar-container">
         <div className="navbar-logo">
           <a href="#home" onClick={(e) => handleLinkClick("home", e)}>
-            <img src={logo} alt="Stallion Contracting" />
-            Stallion Contracting
+            <img src={logo} alt="Stallion Contracting UT" />
+            Stallion Contracting UT
           </a>
         </div>
 

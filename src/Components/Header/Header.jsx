@@ -32,7 +32,7 @@ const Header = () => {
 
       <div className="header-content">
         <div className="header-logo">
-          <img src={logo} alt="Stallion Contracting" />
+          <img src={logo} alt="Stallion Contracting UT" />
         </div>
         <h1>Quality Roofing Solutions</h1>
         <p>Professional Roof Installation, Repair & Maintenance Services</p>
