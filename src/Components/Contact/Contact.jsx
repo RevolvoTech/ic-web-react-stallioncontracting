@@ -5,6 +5,53 @@ import "./Contact.scss";
 
 const Contact = () => {
   const [phone, setPhone] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus(null);
+
+    const formData = new FormData(e.target);
+    formData.append("phone", phone);
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          access_key: formData.get("access_key"),
+          name: formData.get("name"),
+          email: formData.get("email"),
+          address: formData.get("address"),
+          phone: phone,
+          message: formData.get("message"),
+          subject: formData.get("subject"),
+          from_name: formData.get("from_name"),
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setSubmitStatus("success");
+        e.target.reset();
+        setPhone("");
+      } else {
+        console.error("Web3Forms error:", result);
+        setSubmitStatus("error");
+      }
+    } catch (error) {
+      console.error("Form submission error:", error);
+      setSubmitStatus("error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div id="contact" className="contact-container">
@@ -12,7 +59,7 @@ const Contact = () => {
         <div className="section-label">Contact Us</div>
         <h2>Get in Touch</h2>
         <p>
-          We're here to answer your questions and help you with your roofing
+          We're here to answer your questions and help you with your contracting
           needs.
         </p>
 
@@ -26,11 +73,34 @@ const Contact = () => {
           </div>
 
           <div className="right">
-            <form
-              action="https://formspree.io/f/YOUR_FORM_ID"
-              method="POST"
-              className="contact-form"
-            >
+            <form onSubmit={handleSubmit} className="contact-form">
+              {/* Web3Forms Access Key - Replace with your actual access key */}
+              <input
+                type="hidden"
+                name="access_key"
+                value="34b6f320-9782-4074-8625-1137553c5c9a"
+              />
+
+              {/* Optional: Redirect URL after successful submission */}
+              <input
+                type="hidden"
+                name="redirect"
+                value="https://web3forms.com/success"
+              />
+
+              {/* Optional: Subject line for the email */}
+              <input
+                type="hidden"
+                name="subject"
+                value="New Contact Form Submission from Stallion Contracting UT"
+              />
+
+              {/* Optional: From name */}
+              <input
+                type="hidden"
+                name="from_name"
+                value="Stallion Contracting UT Website"
+              />
               <div className="form-group">
                 <label htmlFor="name">Name</label>
                 <input type="text" id="name" name="name" required />
@@ -69,9 +139,30 @@ const Contact = () => {
                 <textarea id="message" name="message" rows="5" />
               </div>
 
-              <button type="submit" className="submit-button">
-                Send Message
+              <button
+                type="submit"
+                className="submit-button"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Sending..." : "Send Message"}
               </button>
+
+              {/* Status Messages */}
+              {submitStatus === "success" && (
+                <div className="form-message success">
+                  <span className="material-icons">check_circle</span>
+                  Thank you! Your message has been sent successfully. We'll get
+                  back to you soon.
+                </div>
+              )}
+
+              {submitStatus === "error" && (
+                <div className="form-message error">
+                  <span className="material-icons">error</span>
+                  Sorry, there was an error sending your message. Please try
+                  again or contact us directly.
+                </div>
+              )}
             </form>
           </div>
         </div>
