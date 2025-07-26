@@ -96,7 +96,7 @@ const Footer = () => {
             <div className="contact-item">
               <span className="material-icons">email</span>
               <div>
-                <p>hizenithliving@gmail.com</p>
+                <p>info@stallioncontractingut.com</p>
                 <p>Email address</p>
               </div>
             </div>

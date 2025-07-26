@@ -360,7 +360,7 @@
       display: inline-flex;
       align-items: center;
       gap: 12px;
-      background: #1f3b57;
+      background: linear-gradient(135deg, #fcba03, #e6a800);
       color: white;
       border: none;
       padding: 16px 32px;
@@ -377,9 +377,9 @@
       }
 
       &:hover {
-        background: #2d4a6b;
+        background: linear-gradient(135deg, #ffd633, #fcba03);
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 8px 25px rgba(252, 186, 3, 0.3);
 
         .material-icons {
           transform: translateX(4px);

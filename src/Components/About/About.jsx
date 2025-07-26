@@ -63,12 +63,6 @@ const About = () => {
         "Premium materials and energy-efficient solutions for all projects",
     },
     {
-      icon: "schedule",
-      title: "24/7 Emergency Service",
-      description:
-        "Round-the-clock emergency response for urgent construction needs",
-    },
-    {
       icon: "handyman",
       title: "Expert Craftsmanship",
       description:
@@ -81,7 +75,7 @@ const About = () => {
       <div className="about-container">
         <div className={`about-header ${isVisible ? "animate" : ""}`}>
           <div className="section-label">About Us</div>
-          <h2>Contracting Excellence Since 2008</h2>
+          <h2>Contracting Excellence Since 1996</h2>
           <p>
             Your trusted local contracting experts committed to building what
             matters most

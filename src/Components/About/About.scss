@@ -242,15 +242,18 @@
 
       .achievements-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 2rem;
-        max-width: 800px;
+        max-width: 1000px;
         margin: 0 auto;
 
-        @media (max-width: 768px) {
+        @media (max-width: 968px) {
           grid-template-columns: 1fr;
-          grid-template-rows: auto;
+          gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+          gap: 1rem;
         }
 
         .achievement-card {
@@ -375,13 +378,13 @@
             }
 
             &.cta-primary {
-              background: #1f3b57;
+              background: linear-gradient(135deg, #fcba03, #e6a800);
               color: white;
 
               &:hover {
-                background: #2d4a6b;
+                background: linear-gradient(135deg, #ffd633, #fcba03);
                 transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+                box-shadow: 0 8px 25px rgba(252, 186, 3, 0.3);
               }
             }
 
