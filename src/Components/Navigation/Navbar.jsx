@@ -6,19 +6,40 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeLink, setActiveLink] = useState("home");
+  const [showQuoteOnMobile, setShowQuoteOnMobile] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 50) {
+      const scrollY = window.scrollY;
+      const isMobile = window.innerWidth <= 768;
+      const heroSection = document.getElementById('home');
+      const heroHeight = heroSection ? heroSection.offsetHeight : 600;
+      
+      // Don't change navbar styling on mobile when quote button should show
+      if (isMobile && scrollY > 700) {
+        setScrolled(false); // Keep original navbar styling
+      } else if (scrollY > 50) {
         setScrolled(true);
       } else {
         setScrolled(false);
       }
+      
+      // Show quote button on mobile when scrolled down enough
+      if (isMobile && scrollY > 700) {
+        setShowQuoteOnMobile(true);
+      } else {
+        setShowQuoteOnMobile(false);
+      }
     };
 
     window.addEventListener("scroll", handleScroll);
+    window.addEventListener("resize", handleScroll);
+    // Initial check
+    handleScroll();
+    
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
     };
   }, []);
 
@@ -52,11 +73,19 @@ const Navbar = () => {
   return (
     <div className={`navbar ${scrolled ? "scrolled" : ""}`}>
       <div className="navbar-container">
-        <div className="navbar-logo">
+        {/* Logo - hidden when quote button shows on mobile */}
+        <div className={`navbar-logo ${showQuoteOnMobile ? "hide-mobile" : ""}`}>
           <a href="#home" onClick={(e) => handleLinkClick("home", e)}>
-            <img src={logo} alt="Stallion Contracting UT" />
-            Stallion Contracting UT
+            <img src={logo} alt="Stallion Contracting" />
+            Stallion Contracting
           </a>
+        </div>
+        
+        {/* Centered Quote Button for Mobile */}
+        <div className={`navbar-quote-center ${showQuoteOnMobile ? "show" : ""}`}>
+          <button className="quote-btn-center" onClick={handleQuoteClick}>
+            GET YOUR QUOTE
+          </button>
         </div>
 
         <div className={`navbar-links ${isMenuOpen ? "active" : ""}`}>
@@ -106,9 +135,10 @@ const Navbar = () => {
 
         <div className="navbar-quote">
           <button className="quote-btn" onClick={handleQuoteClick}>
-            Get a Free Quote
+            GET YOUR QUOTE
           </button>
         </div>
+
 
         <div
           className={`navbar-toggle ${isMenuOpen ? "active" : ""}`}

@@ -7,7 +7,7 @@ const Footer = () => {
       <div className="footer-container">
         <div className="footer-content">
           <div className="footer-section footer-brand">
-            <h3>Stallion Contracting UT</h3>
+            <h3>Stallion Contracting</h3>
             <p>
               Professional roofing solutions with over 20 years of experience.
               Your trusted partner for all residential and commercial roofing
@@ -80,17 +80,10 @@ const Footer = () => {
           <div className="footer-section footer-contact">
             <h4>Contact Info</h4>
             <div className="contact-item">
-              <span className="material-icons">place</span>
-              <div>
-                <p>195 West 170 North</p>
-                <p>Orem, Utah 84057</p>
-              </div>
-            </div>
-            <div className="contact-item">
               <span className="material-icons">phone</span>
               <div>
                 <p>801-800-5311</p>
-                <p>24/7 Emergency Line</p>
+                <p>Phone number</p>
               </div>
             </div>
             <div className="contact-item">
@@ -106,7 +99,7 @@ const Footer = () => {
         <div className="footer-bottom">
           <div className="footer-bottom-content">
             <div className="footer-legal">
-              <p>&copy; 2025 Stallion Contracting UT. All rights reserved.</p>
+              <p>&copy; {new Date().getFullYear()} Stallion Contracting. All rights reserved.</p>
               <div className="footer-links">
                 <a href="#privacy">Privacy Policy</a>
                 <a href="#terms">Terms of Service</a>

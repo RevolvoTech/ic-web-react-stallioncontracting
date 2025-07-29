@@ -18,9 +18,9 @@ const Testimonials = () => {
       title: "Homeowner",
       location: "Downtown District",
       rating: 5,
-      text: "Zenith Roofing exceeded our expectations! They replaced our entire roof after storm damage and the quality is outstanding. Professional, punctual, and affordable.",
+      text: "After the big storm last spring, I was stressed about finding someone reliable to fix our roof. These guys showed up when they said they would and didn't try to upsell me on anything I didn't need. The work looks great and we haven't had a single leak since.",
       avatar:
-        "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
+        "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
     },
     {
       id: 2,
@@ -28,9 +28,9 @@ const Testimonials = () => {
       title: "Business Owner",
       location: "Business Park",
       rating: 5,
-      text: "Our commercial building needed a complete roof overhaul. Zenith handled everything seamlessly with minimal disruption to our operations. Highly recommend!",
+      text: "Running a business, the last thing you want is construction dragging on forever. They finished our roof in just three days and my employees barely noticed the work was happening. Really impressed with how they handled everything.",
       avatar:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
+        "https://images.unsplash.com/photo-1556157382-97eda2d62296?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
     },
     {
       id: 3,
@@ -38,9 +38,9 @@ const Testimonials = () => {
       title: "Property Manager",
       location: "Suburban Area",
       rating: 5,
-      text: "Fast emergency response when we had a leak during the storm. They had it fixed the same day and followed up with a full inspection. True professionals.",
+      text: "Water was literally dripping into our living room at 9 PM on a Saturday. I called them expecting to leave a voicemail, but someone actually answered and came out that night with a tarp. Fixed it properly the next week - saved our hardwood floors.",
       avatar:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
+        "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
     },
     {
       id: 4,
@@ -48,9 +48,9 @@ const Testimonials = () => {
       title: "Homeowner",
       location: "Heritage District",
       rating: 5,
-      text: "They restored our historic home's slate roof beautifully. Attention to detail was incredible and they respected the original architecture perfectly.",
+      text: "We bought this 1920s house and the slate roof was a mess. I was worried they'd want to just tear it all off, but they actually knew how to work with the original materials. Looks exactly like it should - you'd never know it was repaired.",
       avatar:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
+        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
     },
     {
       id: 5,
@@ -58,9 +58,9 @@ const Testimonials = () => {
       title: "Real Estate Agent",
       location: "City Center",
       rating: 5,
-      text: "I recommend Zenith to all my clients. They consistently deliver quality work on time and within budget. Their warranties give peace of mind.",
+      text: "I've been selling houses for 15 years and I've seen every kind of roofing job you can imagine. When my clients need work done, these are the only guys I trust. They do what they say they'll do, when they say they'll do it.",
       avatar:
-        "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
+        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
     },
     {
       id: 6,
@@ -68,9 +68,9 @@ const Testimonials = () => {
       title: "Contractor",
       location: "Industrial Zone",
       rating: 5,
-      text: "As a fellow contractor, I appreciate their professionalism and craftsmanship. Zenith sets the standard for roofing excellence in our area.",
+      text: "I do electrical work, so I'm on a lot of job sites. You can always tell quality work when you see it. These guys know what they're doing - clean work, no shortcuts, and they actually clean up after themselves. That's rare these days.",
       avatar:
-        "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
     },
   ];
 
@@ -83,7 +83,8 @@ const Testimonials = () => {
         }
       },
       {
-        threshold: 0.3,
+        threshold: 0.1,
+        rootMargin: "50px 0px -50px 0px",
       }
     );
 
@@ -91,10 +92,16 @@ const Testimonials = () => {
       observer.observe(testimonialsRef.current);
     }
 
+    // Fallback timeout to ensure visibility on mobile devices
+    const fallbackTimer = setTimeout(() => {
+      setIsVisible(true);
+    }, 2000);
+
     return () => {
       if (testimonialsRef.current) {
         observer.unobserve(testimonialsRef.current);
       }
+      clearTimeout(fallbackTimer);
     };
   }, []);
 
@@ -133,28 +140,6 @@ const Testimonials = () => {
     goToSlide(newIndex);
   };
 
-  // Touch/Swipe functionality
-  const handleTouchStart = (e) => {
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchMove = (e) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
-
-    if (isLeftSwipe) {
-      goToNext();
-    } else if (isRightSwipe) {
-      goToPrevious();
-    }
-  };
 
   // Keyboard navigation
   useEffect(() => {
@@ -170,25 +155,7 @@ const Testimonials = () => {
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [currentIndex]);
 
-  // Calculate how many slides to show based on screen size
-  const getSlidesToShow = () => {
-    if (window.innerWidth >= 1200) return 3;
-    if (window.innerWidth >= 768) return 2;
-    return 1;
-  };
-
-  const [slidesToShow, setSlidesToShow] = useState(getSlidesToShow());
-
-  useEffect(() => {
-    const handleResize = () => {
-      setSlidesToShow(getSlidesToShow());
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const maxIndex = Math.max(0, testimonials.length - slidesToShow);
+  const maxIndex = testimonials.length - 1;
 
   return (
     <section id="testimonials" className="testimonials" ref={testimonialsRef}>
@@ -200,88 +167,79 @@ const Testimonials = () => {
         </div>
 
         <div className="testimonials-slider">
-          <div className="slider-container">
-            {/* Previous Button */}
-            <button
-              className="slider-nav prev"
-              onClick={goToPrevious}
-              disabled={currentIndex === 0}
-              aria-label="Previous testimonial"
-            >
-              <span className="material-icons">chevron_left</span>
-            </button>
+          {/* Previous Button */}
+          <button
+            className="slider-nav prev"
+            onClick={goToPrevious}
+            disabled={currentIndex === 0}
+            aria-label="Previous testimonial"
+          >
+            <span className="material-icons">chevron_left</span>
+          </button>
 
-            {/* Slider Track */}
-            <div
-              className="testimonials-wrapper"
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
+          {/* Slider Container */}
+          <div className="testimonials-container-slider">
+            <div 
+              className="testimonials-track"
+              style={{
+                transform: `translateX(-${currentIndex * 100}%)`,
+              }}
             >
-              <div
-                className="testimonials-track"
-                ref={sliderRef}
-                style={{
-                  transform: `translateX(-${
-                    (currentIndex * 100) / slidesToShow
-                  }%)`,
-                  width: `${(testimonials.length * 100) / slidesToShow}%`,
-                }}
-              >
-                {testimonials.map((testimonial, index) => (
-                  <div
-                    key={testimonial.id}
-                    className={`testimonial-card ${isVisible ? "animate" : ""}`}
-                    style={{
-                      animationDelay: `${index * 0.1}s`,
-                      width: `${100 / testimonials.length}%`,
-                    }}
-                  >
-                    <div className="testimonial-content">
-                      <div className="quote-icon">
-                        <span className="material-icons">format_quote</span>
-                      </div>
-                      <p className="testimonial-text">{testimonial.text}</p>
-                      <div className="rating">
-                        {[...Array(testimonial.rating)].map((_, i) => (
-                          <span key={i} className="material-icons star">
-                            star
-                          </span>
-                        ))}
-                      </div>
+              {testimonials.map((testimonial, index) => (
+                <div
+                  key={testimonial.id}
+                  className={`testimonial-card ${isVisible ? "animate" : ""}`}
+                  style={{
+                    animationDelay: `${index * 0.1}s`,
+                  }}
+                >
+                  <div className="testimonial-content">
+                    <div className="quote-icon">
+                      <span className="material-icons">format_quote</span>
                     </div>
-                    <div className="testimonial-author">
-                      <div className="author-avatar">
-                        <img src={testimonial.avatar} alt={testimonial.name} />
-                      </div>
-                      <div className="author-info">
-                        <h4>{testimonial.name}</h4>
-                        <p className="author-title">{testimonial.title}</p>
-                        <div className="author-location">
-                          <span className="material-icons">place</span>
-                          {testimonial.location}
-                        </div>
+                    <p className="testimonial-text">{testimonial.text}</p>
+                    <div className="rating">
+                      {[...Array(testimonial.rating)].map((_, i) => (
+                        <span key={i} className="material-icons star">
+                          star
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="testimonial-author">
+                    <div className="author-avatar">
+                      <img src={testimonial.avatar} alt={testimonial.name} />
+                    </div>
+                    <div className="author-info">
+                      <h4>{testimonial.name}</h4>
+                      <p className="author-title">{testimonial.title}</p>
+                      <div className="author-location">
+                        <span className="material-icons">place</span>
+                        {testimonial.location}
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
-
-            {/* Next Button */}
-            <button
-              className="slider-nav next"
-              onClick={goToNext}
-              disabled={currentIndex >= maxIndex}
-              aria-label="Next testimonial"
-            >
-              <span className="material-icons">chevron_right</span>
-            </button>
           </div>
 
+          {/* Next Button */}
+          <button
+            className="slider-nav next"
+            onClick={goToNext}
+            disabled={currentIndex >= maxIndex}
+            aria-label="Next testimonial"
+          >
+            <span className="material-icons">chevron_right</span>
+          </button>
+        </div>
+
+        {/* Carousel Controls Below Cards */}
+        <div className="carousel-controls">
           {/* Dots Indicator */}
           <div className="slider-dots">
-            {Array.from({ length: maxIndex + 1 }, (_, index) => (
+            {testimonials.map((_, index) => (
               <button
                 key={index}
                 className={`dot ${index === currentIndex ? "active" : ""}`}
@@ -290,28 +248,15 @@ const Testimonials = () => {
               />
             ))}
           </div>
-
-          {/* Auto-play Controls */}
-          <div className="slider-controls">
-            <button
-              className={`play-pause ${isAutoPlaying ? "playing" : "paused"}`}
-              onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-              aria-label={isAutoPlaying ? "Pause auto-play" : "Start auto-play"}
-            >
-              <span className="material-icons">
-                {isAutoPlaying ? "pause" : "play_arrow"}
-              </span>
-            </button>
-          </div>
         </div>
 
         <div className={`testimonials-stats ${isVisible ? "animate" : ""}`}>
           <div className="stat">
-            <div className="stat-number">500+</div>
-            <div className="stat-label">Happy Customers</div>
+            <div className="stat-number">305+</div>
+            <div className="stat-label">Happy Clients</div>
           </div>
           <div className="stat">
-            <div className="stat-number">15+</div>
+            <div className="stat-number">25+</div>
             <div className="stat-label">Years Experience</div>
           </div>
           <div className="stat">
@@ -319,8 +264,8 @@ const Testimonials = () => {
             <div className="stat-label">Satisfaction Rate</div>
           </div>
           <div className="stat">
-            <div className="stat-number">24/7</div>
-            <div className="stat-label">Emergency Service</div>
+            <div className="stat-number">15+</div>
+            <div className="stat-label">Team Members</div>
           </div>
         </div>
       </div>

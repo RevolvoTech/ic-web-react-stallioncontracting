@@ -92,14 +92,14 @@ const Contact = () => {
               <input
                 type="hidden"
                 name="subject"
-                value="New Contact Form Submission from Stallion Contracting UT"
+                value="New Contact Form Submission from Stallion Contracting"
               />
 
               {/* Optional: From name */}
               <input
                 type="hidden"
                 name="from_name"
-                value="Stallion Contracting UT Website"
+                value="Stallion Contracting Website"
               />
               <div className="form-group">
                 <label htmlFor="name">Name</label>
@@ -127,6 +127,7 @@ const Contact = () => {
                   inputProps={{
                     name: "phone",
                     required: true,
+                    placeholder: "",
                   }}
                 />
               </div>

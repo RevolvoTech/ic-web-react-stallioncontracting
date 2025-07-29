@@ -275,7 +275,7 @@ const Projects = () => {
             </p>
           </div>
           <button className="cta-button" onClick={handleProjectClick}>
-            Start Your Project
+            Schedule your consultation today
             <span className="material-icons">arrow_forward</span>
           </button>
         </div>

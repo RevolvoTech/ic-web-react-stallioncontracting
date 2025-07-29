@@ -49,6 +49,10 @@ const About = () => {
     smoothScrollTo("contact");
   };
 
+  const handleCallClick = () => {
+    window.location.href = "tel:801-800-5311";
+  };
+
   const achievements = [
     {
       icon: "verified",
@@ -75,10 +79,10 @@ const About = () => {
       <div className="about-container">
         <div className={`about-header ${isVisible ? "animate" : ""}`}>
           <div className="section-label">About Us</div>
-          <h2>Contracting Excellence Since 1996</h2>
+          <h2>Trusted for Results</h2>
+          <h3>Delivering Contracting Excellence Since 1996</h3>
           <p>
-            Your trusted local contracting experts committed to building what
-            matters most
+            When it comes to your home or project, cutting corners isn't an option. That's why families and property owners across Utah turn to Stallion Contracting — a team with decades of hands-on experience, precision craftsmanship, and a reputation built on results.
           </p>
         </div>
 
@@ -88,25 +92,21 @@ const About = () => {
               <div className="story-content">
                 <h3>Our Story</h3>
                 <p>
-                  Founded in 2008, Stallion Contracting UT has been serving our
-                  community with unwavering commitment to quality and integrity.
-                  What started as a small family business has grown into the
-                  region's most trusted contracting company, completing over 500
-                  successful projects.
+                  Stallion Contracting was officially founded in 2023, but our roots go back to 1996 — when our founder first stepped into the industry with a simple mission: Do it right, or don't do it at all.
                 </p>
                 <p>
-                  We believe that every roof tells a story of protection,
-                  durability, and craftsmanship. Our team of certified
-                  professionals combines traditional techniques with modern
-                  innovations to deliver roofing solutions that stand the test
-                  of time.
+                  What began as a small family operation has grown into one of Utah's most reliable and respected contracting teams — trusted by 305 homeowners, investors, and families (and counting). From roofing and remodeling to full-scale renovations, we've earned our reputation by showing up on time, staying on budget, and treating every project like it's our own home.
+                </p>
+                <p>
+                  Because to us, it's never just construction —<br />
+                  it's building trust.
                 </p>
 
                 <div className="story-highlights">
                   <div className="highlight">
                     <span className="material-icons">home_work</span>
                     <div>
-                      <h4>500+ Projects</h4>
+                      <h4>305+ Projects</h4>
                       <p>Successfully completed</p>
                     </div>
                   </div>
@@ -126,28 +126,17 @@ const About = () => {
               <div className="map-container">
                 <div className="map-placeholder">
                   <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3151.8354345093747!2d144.9537353153167!3d-37.81720997975195!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad65d43f3f5eb49%3A0x40579a430a0e620!2sQueen%20Victoria%20Market!5e0!3m2!1sen!2sau!4v1635820159831!5m2!1sen!2sau"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d48606.08254899684!2d-111.93050571743425!3d40.61083920486988!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x874d90748c1ba6ed%3A0x7c35d7cf79b992e5!2sOrem%2C%20UT!5e0!3m2!1sen!2sus!4v1643820159831!5m2!1sen!2sus"
                     width="100%"
                     height="300"
                     style={{ border: 0, borderRadius: "12px" }}
                     allowFullScreen=""
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
-                    title="Stallion Contracting UT Location"
+                    title="Stallion Contracting Location"
                   ></iframe>
                 </div>
                 <div className="contact-info">
-                  <div className="contact-item">
-                    <span className="material-icons">place</span>
-                    <div>
-                      <h4>Address</h4>
-                      <p>
-                        195 West 170 North
-                        <br />
-                        Orem, Utah 84057
-                      </p>
-                    </div>
-                  </div>
                   <div className="contact-item">
                     <span className="material-icons">phone</span>
                     <div>
@@ -172,7 +161,7 @@ const About = () => {
           </div>
 
           <div className={`achievements-section ${isVisible ? "animate" : ""}`}>
-            <h3>Why Choose Stallion Contracting UT</h3>
+            <h3>Why Choose Stallion Contracting</h3>
             <div className="achievements-grid">
               {achievements.map((achievement, index) => (
                 <div
@@ -194,17 +183,13 @@ const About = () => {
 
           <div className={`cta-section ${isVisible ? "animate" : ""}`}>
             <div className="cta-content">
-              <h3>Ready to Get Started?</h3>
-              <p>
-                Contact us today for a free estimate and experience the Stallion
-                Contracting UT difference
-              </p>
+              <h3>Get your quote at no cost today</h3>
               <div className="cta-buttons">
                 <button className="cta-primary" onClick={handleContactClick}>
-                  Free Estimate
+                  Get your Quote
                   <span className="material-icons">arrow_forward</span>
                 </button>
-                <button className="cta-secondary" onClick={handleContactClick}>
+                <button className="cta-secondary" onClick={handleCallClick}>
                   <span className="material-icons">phone</span>
                   Call Now
                 </button>

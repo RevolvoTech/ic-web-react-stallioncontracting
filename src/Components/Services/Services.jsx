@@ -94,9 +94,9 @@ const Services = () => {
     },
     {
       id: 8,
-      title: "Flooring",
+      title: "More",
       description:
-        "A wide range of flooring options and installation services to enhance the beauty and value of your space.",
+        "Additional specialized services including flooring, painting, landscaping, and custom solutions tailored to your specific project needs.",
       icon: "layers",
     },
   ];
@@ -108,7 +108,7 @@ const Services = () => {
           <div className="section-label">Services</div>
           <h2>Our Expertise</h2>
           <p>
-            At Stallion Contracting UT, we specialize in custom remodeling,
+            At Stallion Contracting, we specialize in custom remodeling,
             restoring, fixing, and developing residential and commercial
             properties.
           </p>
@@ -137,11 +137,10 @@ const Services = () => {
 
         <div className={`services-cta ${isVisible ? "animate" : ""}`}>
           <div className="cta-content">
-            <h3>Ready to Get Started?</h3>
-            <p>Contact us today for a free consultation and quote</p>
+            <h3>Get your quote at no cost today</h3>
           </div>
           <button className="cta-button" onClick={handleQuoteClick}>
-            Get Free Quote
+            Get your Quote
           </button>
         </div>
       </div>

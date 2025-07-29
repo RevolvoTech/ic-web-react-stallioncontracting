@@ -32,13 +32,13 @@ const Header = () => {
 
       <div className="header-content">
         <div className="header-logo">
-          <img src={logo} alt="Stallion Contracting UT" />
+          <img src={logo} alt="Stallion Contracting" />
         </div>
         <h1>Quality Roofing Solutions</h1>
         <p>Professional Roof Installation, Repair & Maintenance Services</p>
         <div className="header-buttons">
           <button className="btn btn-primary" onClick={handleFreeEstimateClick}>
-            Free Estimate
+            Get your Quote
           </button>
           <button className="btn btn-secondary" onClick={handleServicesClick}>
             Our Services

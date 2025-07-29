@@ -171,10 +171,14 @@
       .bar {
         height: 3px;
         width: 100%;
-        background-color: #fff;
+        background: linear-gradient(135deg, #fcba03 0%, #e6a800 100%);
         border-radius: 10px;
         transition: all 0.3s ease;
       }
+    }
+    
+    .navbar-quote-center {
+      display: none; /* Hidden on desktop */
     }
   }
 }
@@ -186,10 +190,21 @@
 
     &.scrolled {
       background-color: #1f3b57;
+      padding: 0; /* Override main scrolled padding */
 
       .navbar-container {
+        padding: 1rem; /* Keep consistent mobile padding */
+        
+        .navbar-logo a {
+          font-size: 0.9rem !important; /* Override main scrolled font size */
+          
+          img {
+            height: 24px !important; /* Override main scrolled image height */
+          }
+        }
+        
         .navbar-toggle .bar {
-          background-color: #fff;
+          background: linear-gradient(135deg, #fcba03 0%, #e6a800 100%);
         }
       }
     }
@@ -197,12 +212,21 @@
     .navbar-container {
       padding: 1rem;
 
-      .navbar-logo a {
-        font-size: 0.9rem;
-        gap: 0.3rem;
+      .navbar-logo {
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+        
+        &.hide-mobile {
+          opacity: 0;
+          visibility: hidden;
+        }
+        
+        a {
+          font-size: 0.9rem;
+          gap: 0.3rem;
 
-        img {
-          height: 24px;
+          img {
+            height: 24px;
+          }
         }
       }
 
@@ -212,7 +236,7 @@
         left: 0;
         right: 0;
         flex-direction: column;
-        background-color: rgba(0, 0, 0, 0.95);
+        background-color: #1f3b57;
         padding: 1.5rem;
         gap: 1.5rem;
         transform: translateY(-150%);
@@ -223,9 +247,15 @@
         a {
           font-size: 1.2rem;
           color: #fff;
+          transition: color 0.3s ease;
 
           &:after {
             display: none;
+          }
+          
+          &:hover,
+          &.active {
+            color: #fcba03;
           }
         }
 
@@ -236,6 +266,46 @@
 
       .navbar-quote {
         display: none;
+      }
+      
+      .navbar-quote-center {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 10;
+        
+        &.show {
+          opacity: 1 !important;
+          visibility: visible !important;
+          display: block !important;
+          animation: slideInCenter 0.3s ease;
+        }
+        
+        .quote-btn-center {
+          padding: 0.6rem 1.2rem;
+          background: linear-gradient(135deg, #fcba03 0%, #e6a800 100%);
+          color: #fff;
+          border: none;
+          border-radius: 4px;
+          font-weight: 600;
+          font-size: 0.85rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          box-shadow: 0 2px 8px rgba(252, 186, 3, 0.3);
+          white-space: nowrap;
+
+          &:hover {
+            background: linear-gradient(135deg, #ffd633 0%, #fcba03 100%);
+            box-shadow: 0 4px 12px rgba(252, 186, 3, 0.4);
+            transform: translateY(-1px);
+          }
+        }
       }
 
       .navbar-toggle {
@@ -272,5 +342,17 @@
         }
       }
     }
+  }
+}
+
+/* Animation for centered quote button */
+@keyframes slideInCenter {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
   }
 }
