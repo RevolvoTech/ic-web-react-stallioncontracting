@@ -45,6 +45,12 @@ const Projects = () => {
   };
 
   useEffect(() => {
+    // Fallback for devices without IntersectionObserver support
+    if (!window.IntersectionObserver) {
+      setIsVisible(true);
+      return;
+    }
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -52,7 +58,7 @@ const Projects = () => {
         }
       },
       {
-        threshold: 0.3,
+        threshold: 0.1, // Lower threshold for better mobile compatibility
       }
     );
 
@@ -60,10 +66,16 @@ const Projects = () => {
       observer.observe(projectsRef.current);
     }
 
+    // Fallback timer in case IntersectionObserver fails
+    const fallbackTimer = setTimeout(() => {
+      setIsVisible(true);
+    }, 1000);
+
     return () => {
       if (projectsRef.current) {
         observer.unobserve(projectsRef.current);
       }
+      clearTimeout(fallbackTimer);
     };
   }, []);
 
@@ -167,18 +179,19 @@ const Projects = () => {
       description:
         "Rapid emergency response and complete roof reconstruction after severe storm damage with durable metal roofing.",
     },
-    {
-      id: 4,
-      title: "Historic Home Restoration",
-      location: "Heritage District",
-      type: "Slate Tiles",
-      beforeImage:
-        "https://images.unsplash.com/photo-1416331108676-a22ccb276e35?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      afterImage:
-        "https://images.unsplash.com/photo-1494526585095-c41746248156?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-      description:
-        "Careful restoration of historic slate roof maintaining original character while improving structural integrity.",
-    },
+    // Temporarily remove external Unsplash images - they might be causing loading issues
+    // {
+    //   id: 4,
+    //   title: "Historic Home Restoration",
+    //   location: "Heritage District",
+    //   type: "Slate Tiles",
+    //   beforeImage:
+    //     "https://images.unsplash.com/photo-1416331108676-a22ccb276e35?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    //   afterImage:
+    //     "https://images.unsplash.com/photo-1494526585095-c41746248156?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    //   description:
+    //     "Careful restoration of historic slate roof maintaining original character while improving structural integrity.",
+    // },
   ];
 
   return (

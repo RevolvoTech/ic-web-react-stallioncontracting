@@ -31,7 +31,7 @@
 
     .section-label {
       display: inline-block;
-      background: #1f3b57;
+      background: #F36900;
       color: white;
       padding: 8px 16px;
       border-radius: 20px;
@@ -118,11 +118,11 @@
               padding: 1rem;
               background: #f8f9fa;
               border-radius: 12px;
-              border-left: 4px solid #1f3b57;
+              border-left: 4px solid #131313;
 
               .material-icons {
                 font-size: 2rem;
-                color: #1f3b57;
+                color: #131313;
               }
 
               div {
@@ -191,7 +191,7 @@
 
               .material-icons {
                 font-size: 1.5rem;
-                color: #1f3b57;
+                color: #131313;
                 margin-top: 0.25rem;
               }
 
@@ -264,26 +264,31 @@
           background: white;
           border: 1px solid #e5e7eb;
           border-radius: 16px;
-          transition: all 0.3s ease;
+          transition: all 0.25s ease;
           opacity: 0;
           transform: translateY(20px);
           animation: fadeInUp 0.8s ease forwards;
 
           &:hover {
-            border-color: #1f3b57;
-            box-shadow: 0 10px 30px rgba(31, 59, 87, 0.1);
+            border-color: #F36900;
+            box-shadow: 0 10px 30px rgba(243, 105, 0, 0.1);
             transform: translateY(-5px);
+
+            .achievement-icon {
+              background: #F36900;
+            }
           }
 
           .achievement-icon {
             flex-shrink: 0;
             width: 60px;
             height: 60px;
-            background: linear-gradient(135deg, #1f3b57, #2d4a6b);
+            background: #131313;
             border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.25s ease;
 
             .material-icons {
               font-size: 1.75rem;
@@ -314,7 +319,7 @@
     }
 
     .cta-section {
-      background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+      background: #131313;
       border-radius: 24px;
       padding: 4rem 3rem;
       text-align: center;
@@ -378,11 +383,11 @@
             }
 
             &.cta-primary {
-              background: linear-gradient(135deg, #fcba03, #e6a800);
-              color: white;
+              background: #F36900;
+              color: #fff;
 
               &:hover {
-                background: linear-gradient(135deg, #ffd633, #fcba03);
+                background: #F36900;
                 transform: translateY(-2px);
                 box-shadow: 0 8px 25px rgba(252, 186, 3, 0.3);
               }

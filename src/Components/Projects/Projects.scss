@@ -23,7 +23,7 @@
 
     .section-label {
       display: inline-block;
-      background: #1f3b57;
+      background: #F36900;
       color: white;
       padding: 8px 16px;
       border-radius: 20px;
@@ -138,7 +138,7 @@
         }
 
         &.after-image .image-label {
-          background: #1f3b57;
+          background: #131313;
         }
 
         &.before-image .image-label {
@@ -148,6 +148,12 @@
 
       .before-image {
         z-index: 2;
+        
+        // Fallback for browsers that don't support clip-path
+        @supports not (clip-path: inset(0 0 0 0)) {
+          width: 50%;
+          overflow: hidden;
+        }
       }
 
       .after-image {
@@ -195,13 +201,18 @@
           transition: all 0.3s ease;
 
           .material-icons {
-            color: #1f3b57;
+            color: #F36900;
             font-size: 20px;
           }
 
           &:hover {
             transform: translate(-50%, -50%) scale(1.1);
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+            background: #F36900;
+            
+            .material-icons {
+              color: white;
+            }
           }
         }
       }
@@ -235,7 +246,7 @@
           gap: 0.5rem;
 
           .project-type {
-            background: #1f3b57;
+            background: #131313;
             color: white;
             padding: 4px 12px;
             border-radius: 20px;
@@ -315,7 +326,7 @@
     }
   }
   .projects-cta {
-    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    background: #131313;
     border-radius: 20px;
     padding: 60px 40px;
     text-align: center;
@@ -360,8 +371,8 @@
       display: inline-flex;
       align-items: center;
       gap: 12px;
-      background: linear-gradient(135deg, #fcba03, #e6a800);
-      color: white;
+      background: #F36900;
+      color: #fff;
       border: none;
       padding: 16px 32px;
       border-radius: 12px;
@@ -377,13 +388,25 @@
       }
 
       &:hover {
-        background: linear-gradient(135deg, #ffd633, #fcba03);
+        background: #F36900;
         transform: translateY(-2px);
         box-shadow: 0 8px 25px rgba(252, 186, 3, 0.3);
 
         .material-icons {
           transform: translateX(4px);
         }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .projects {
+      // Force visibility on mobile if animations fail
+      .projects-header,
+      .project-card,
+      .projects-cta {
+        opacity: 1 !important;
+        transform: translateY(0) !important;
       }
     }
   }
@@ -397,14 +420,25 @@
       grid-template-columns: 1fr;
     }
 
-    .project-card .before-after-slider {
-      .slider-handle {
-        .slider-button {
-          width: 36px;
-          height: 36px;
+    .project-card {
+      // Ensure cards are visible even if animation fails
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+      
+      .before-after-slider {
+        // Simplify slider on very small screens
+        .before-image {
+          clip-path: inset(0 50% 0 0) !important;
+        }
+        
+        .slider-handle {
+          .slider-button {
+            width: 36px;
+            height: 36px;
 
-          .material-icons {
-            font-size: 18px;
+            .material-icons {
+              font-size: 18px;
+            }
           }
         }
       }

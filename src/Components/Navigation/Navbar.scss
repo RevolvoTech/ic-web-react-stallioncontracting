@@ -10,7 +10,7 @@
   color: #fff;
 
   &.scrolled {
-    background-color: #1f3b57;
+    background-color: #131313;
     padding: 0;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 
@@ -31,27 +31,27 @@
         font-size: 0.95rem;
 
         &:after {
-          background-color: #fff;
+          background-color: #F36900;
         }
 
         &:hover,
         &.active {
-          color: #fff;
+          color: #F36900;
 
           &:after {
-            background-color: #fff;
+            background-color: #F36900;
           }
         }
       }
 
       .navbar-quote {
         .quote-btn {
-          background: linear-gradient(135deg, #fcba03 0%, #e6a800 100%);
+          background: #F36900;
           color: #fff;
           box-shadow: 0 2px 8px rgba(252, 186, 3, 0.3);
 
           &:hover {
-            background: linear-gradient(135deg, #ffd633 0%, #fcba03 100%);
+            background: #F36900;
             box-shadow: 0 4px 16px rgba(252, 186, 3, 0.4);
             transform: translateY(-1px);
           }
@@ -118,7 +118,7 @@
           position: absolute;
           width: 0;
           height: 2px;
-          background-color: #fff;
+          background-color: #F36900;
           bottom: 0;
           left: 0;
           transition: width 0.3s ease;
@@ -126,7 +126,7 @@
 
         &:hover,
         &.active {
-          color: #fff;
+          color: #F36900;
 
           &:after {
             width: 100%;
@@ -140,7 +140,7 @@
 
       .quote-btn {
         padding: 0.6rem 1.2rem;
-        background: linear-gradient(135deg, #fcba03 0%, #e6a800 100%);
+        background: #F36900;
         color: #fff;
         border: none;
         border-radius: 6px;
@@ -153,7 +153,7 @@
         box-shadow: 0 2px 8px rgba(252, 186, 3, 0.3);
 
         &:hover {
-          background: linear-gradient(135deg, #ffd633 0%, #fcba03 100%);
+          background: #F36900;
           box-shadow: 0 4px 16px rgba(252, 186, 3, 0.4);
           transform: translateY(-1px);
         }
@@ -171,7 +171,7 @@
       .bar {
         height: 3px;
         width: 100%;
-        background: linear-gradient(135deg, #fcba03 0%, #e6a800 100%);
+        background: #fff;
         border-radius: 10px;
         transition: all 0.3s ease;
       }
@@ -186,10 +186,10 @@
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .navbar {
-    background-color: #1f3b57; /* Always have some background on mobile for better visibility */
+    background-color: #131313; /* Always have some background on mobile for better visibility */
 
     &.scrolled {
-      background-color: #1f3b57;
+      background-color: #131313;
       padding: 0; /* Override main scrolled padding */
 
       .navbar-container {
@@ -204,7 +204,7 @@
         }
         
         .navbar-toggle .bar {
-          background: linear-gradient(135deg, #fcba03 0%, #e6a800 100%);
+          background: #fff;
         }
       }
     }
@@ -236,13 +236,13 @@
         left: 0;
         right: 0;
         flex-direction: column;
-        background-color: #1f3b57;
+        background-color: #131313;
         padding: 1.5rem;
         gap: 1.5rem;
         transform: translateY(-150%);
         transition: transform 0.3s ease;
         text-align: center;
-        border-bottom: 2px solid #1f3b57;
+        border-bottom: 2px solid #131313;
 
         a {
           font-size: 1.2rem;
@@ -255,7 +255,7 @@
           
           &:hover,
           &.active {
-            color: #fcba03;
+            color: #F36900;
           }
         }
 
@@ -287,7 +287,7 @@
         
         .quote-btn-center {
           padding: 0.6rem 1.2rem;
-          background: linear-gradient(135deg, #fcba03 0%, #e6a800 100%);
+          background: #F36900;
           color: #fff;
           border: none;
           border-radius: 4px;
@@ -301,7 +301,7 @@
           white-space: nowrap;
 
           &:hover {
-            background: linear-gradient(135deg, #ffd633 0%, #fcba03 100%);
+            background: #F36900;
             box-shadow: 0 4px 12px rgba(252, 186, 3, 0.4);
             transform: translateY(-1px);
           }

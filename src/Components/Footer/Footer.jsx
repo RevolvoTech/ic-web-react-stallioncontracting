@@ -1,5 +1,7 @@
 import React from "react";
 import "./Footer.scss";
+import logo from "../../assets/logo.svg";
+import revolvoLogo from "../../assets/revolvo_logo.png";
 
 const Footer = () => {
   return (
@@ -7,7 +9,7 @@ const Footer = () => {
       <div className="footer-container">
         <div className="footer-content">
           <div className="footer-section footer-brand">
-            <h3>Stallion Contracting</h3>
+            <img src={logo} alt="Stallion Contracting" className="footer-logo" />
             <p>
               Professional roofing solutions with over 20 years of experience.
               Your trusted partner for all residential and commercial roofing
@@ -110,6 +112,19 @@ const Footer = () => {
               <p>Licensed • Bonded • Insured</p>
               <p>License #ROF-2024-001</p>
             </div>
+          </div>
+          <div className="footer-powered-by">
+            <span>Developed by</span>
+            <a 
+              href="https://revolvo.tech" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              aria-label="Revolvo Tech - Web Development Agency"
+              title="See more of our work"
+            >
+              <span>Revolvo Tech</span>
+              <img src={revolvoLogo} alt="Revolvo Tech Web Design & Development Logo" />
+            </a>
           </div>
         </div>
       </div>

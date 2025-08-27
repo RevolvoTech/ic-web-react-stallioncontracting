@@ -1,6 +1,6 @@
 import "./Header.scss";
 import bgVideo from "../../assets/Videos/0708.mp4";
-import logo from "../../assets/logo.png";
+import logo from "../../assets/logo_hero.svg";
 
 const Header = () => {
   const smoothScrollTo = (elementId) => {

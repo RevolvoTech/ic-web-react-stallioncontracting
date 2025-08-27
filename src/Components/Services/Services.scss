@@ -21,7 +21,7 @@
 
       .section-label {
         display: inline-block;
-        background: linear-gradient(135deg, #1f3b57, #2d4a6b);
+        background: #F36900;
         color: #ffffff;
         padding: 0.5rem 1.5rem;
         border-radius: 30px;
@@ -61,7 +61,7 @@
         border: 1px solid #e2e8f0;
         border-radius: 12px;
         padding: 2.5rem;
-        transition: all 0.3s ease;
+        transition: all 0.25s ease;
         opacity: 0;
         transform: translateY(30px);
         position: relative;
@@ -73,31 +73,35 @@
         }
 
         &:hover {
-          border-color: #1f3b57;
-          box-shadow: 0 10px 40px rgba(31, 59, 87, 0.1);
+          border-color: #F36900;
+          box-shadow: 0 10px 40px rgba(243, 105, 0, 0.1);
           transform: translateY(-5px);
 
           .service-icon {
-            background: linear-gradient(135deg, #2d4a6b, #1f3b57);
+            background: #F36900;
             transform: scale(1.05);
           }
 
           .service-arrow {
             opacity: 1;
             transform: translateX(5px);
+
+            .material-icons {
+              color: #F36900;
+            }
           }
         }
 
         .service-icon {
           width: 60px;
           height: 60px;
-          background: linear-gradient(135deg, #1f3b57, #2d4a6b);
+          background: #131313;
           border-radius: 12px;
           display: flex;
           align-items: center;
           justify-content: center;
           margin-bottom: 1.5rem;
-          transition: all 0.3s ease;
+          transition: all 0.25s ease;
 
           .material-icons {
             font-size: 1.75rem;
@@ -129,18 +133,18 @@
           top: 2.5rem;
           right: 2.5rem;
           opacity: 0;
-          transition: all 0.3s ease;
+          transition: all 0.25s ease;
 
           .material-icons {
             font-size: 1.25rem;
-            color: #1f3b57;
+            color: #131313;
           }
         }
       }
     }
 
     .services-cta {
-      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      background: #131313;
       border-radius: 16px;
       padding: 3rem;
       text-align: center;
@@ -171,8 +175,8 @@
       }
 
       .cta-button {
-        background: linear-gradient(135deg, #fcba03, #e6a800);
-        color: #ffffff;
+        background: #F36900;
+        color: #fff;
         border: none;
         padding: 1rem 2.5rem;
         border-radius: 8px;
@@ -182,7 +186,7 @@
         transition: all 0.3s ease;
 
         &:hover {
-          background: linear-gradient(135deg, #ffd633, #fcba03);
+          background: #F36900;
           transform: translateY(-2px);
           box-shadow: 0 8px 25px rgba(252, 186, 3, 0.3);
         }

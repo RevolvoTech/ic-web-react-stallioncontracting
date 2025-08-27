@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./Navbar.scss";
-import logo from "../../assets/logo-horse.png";
+import logo from "../../assets/logo.svg";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -77,7 +77,6 @@ const Navbar = () => {
         <div className={`navbar-logo ${showQuoteOnMobile ? "hide-mobile" : ""}`}>
           <a href="#home" onClick={(e) => handleLinkClick("home", e)}>
             <img src={logo} alt="Stallion Contracting" />
-            Stallion Contracting
           </a>
         </div>
         

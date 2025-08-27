@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css"; // Use 'style.css' for basic style or another theme
 import "./Contact.scss";
@@ -7,6 +7,16 @@ const Contact = () => {
   const [phone, setPhone] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
+
+  // Auto-hide success message after 3 seconds
+  useEffect(() => {
+    if (submitStatus === "success") {
+      const timer = setTimeout(() => {
+        setSubmitStatus(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [submitStatus]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -125,6 +135,7 @@ const Contact = () => {
                   value={phone}
                   onChange={setPhone}
                   inputProps={{
+                    id: "phone",
                     name: "phone",
                     required: true,
                     placeholder: "",
@@ -152,16 +163,20 @@ const Contact = () => {
               {submitStatus === "success" && (
                 <div className="form-message success">
                   <span className="material-icons">check_circle</span>
-                  Thank you! Your message has been sent successfully. We'll get
-                  back to you soon.
+                  <div className="message-content">
+                    <strong>Message Sent Successfully!</strong>
+                    <p>Thank you for contacting Stallion Contracting. We've received your inquiry and will get back to you within 24 hours.</p>
+                  </div>
                 </div>
               )}
 
               {submitStatus === "error" && (
                 <div className="form-message error">
                   <span className="material-icons">error</span>
-                  Sorry, there was an error sending your message. Please try
-                  again or contact us directly.
+                  <div className="message-content">
+                    <strong>Oops! Something went wrong.</strong>
+                    <p>Please try again or contact us directly at info@stallioncontractingut.com</p>
+                  </div>
                 </div>
               )}
             </form>
