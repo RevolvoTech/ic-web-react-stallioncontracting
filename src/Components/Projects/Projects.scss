@@ -148,12 +148,6 @@
 
       .before-image {
         z-index: 2;
-        
-        // Fallback for browsers that don't support clip-path
-        @supports not (clip-path: inset(0 0 0 0)) {
-          width: 50%;
-          overflow: hidden;
-        }
       }
 
       .after-image {
@@ -399,18 +393,6 @@
     }
   }
 
-  @media (max-width: 768px) {
-    .projects {
-      // Force visibility on mobile if animations fail
-      .projects-header,
-      .project-card,
-      .projects-cta {
-        opacity: 1 !important;
-        transform: translateY(0) !important;
-      }
-    }
-  }
-
   @media (max-width: 480px) {
     .projects-container {
       padding: 0 1rem;
@@ -420,25 +402,14 @@
       grid-template-columns: 1fr;
     }
 
-    .project-card {
-      // Ensure cards are visible even if animation fails
-      opacity: 1 !important;
-      transform: translateY(0) !important;
-      
-      .before-after-slider {
-        // Simplify slider on very small screens
-        .before-image {
-          clip-path: inset(0 50% 0 0) !important;
-        }
-        
-        .slider-handle {
-          .slider-button {
-            width: 36px;
-            height: 36px;
+    .project-card .before-after-slider {
+      .slider-handle {
+        .slider-button {
+          width: 36px;
+          height: 36px;
 
-            .material-icons {
-              font-size: 18px;
-            }
+          .material-icons {
+            font-size: 18px;
           }
         }
       }
