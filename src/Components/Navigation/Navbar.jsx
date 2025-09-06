@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Navbar.scss";
 import logo from "../../assets/logo.svg";
 
@@ -7,6 +8,8 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [activeLink, setActiveLink] = useState("home");
   const [showQuoteOnMobile, setShowQuoteOnMobile] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -15,10 +18,8 @@ const Navbar = () => {
       const heroSection = document.getElementById('home');
       const heroHeight = heroSection ? heroSection.offsetHeight : 600;
       
-      // Don't change navbar styling on mobile when quote button should show
-      if (isMobile && scrollY > 700) {
-        setScrolled(false); // Keep original navbar styling
-      } else if (scrollY > 50) {
+      // Simple scroll behavior for consistent styling
+      if (scrollY > 50) {
         setScrolled(true);
       } else {
         setScrolled(false);
@@ -57,11 +58,24 @@ const Navbar = () => {
     }
   };
 
-  const handleLinkClick = (link, event) => {
+  const handleLinkClick = (link, event, isRoute = false) => {
     event.preventDefault();
     setActiveLink(link);
     setIsMenuOpen(false); // Close menu on link click
-    smoothScrollTo(link);
+    
+    if (isRoute) {
+      // Navigate to different page
+      navigate(link);
+    } else {
+      // Same page scrolling - ensure we're on home page first
+      if (location.pathname !== '/') {
+        navigate('/');
+        // Wait for navigation then scroll
+        setTimeout(() => smoothScrollTo(link), 100);
+      } else {
+        smoothScrollTo(link);
+      }
+    }
   };
 
   const handleQuoteClick = () => {
@@ -75,9 +89,9 @@ const Navbar = () => {
       <div className="navbar-container">
         {/* Logo - hidden when quote button shows on mobile */}
         <div className={`navbar-logo ${showQuoteOnMobile ? "hide-mobile" : ""}`}>
-          <a href="#home" onClick={(e) => handleLinkClick("home", e)}>
+          <Link to="/" onClick={() => { setActiveLink("home"); setIsMenuOpen(false); }}>
             <img src={logo} alt="Stallion Contracting" />
-          </a>
+          </Link>
         </div>
         
         {/* Centered Quote Button for Mobile */}
@@ -103,11 +117,11 @@ const Navbar = () => {
             Services
           </a>
           <a
-            href="#projects"
-            className={activeLink === "projects" ? "active" : ""}
-            onClick={(e) => handleLinkClick("projects", e)}
+            href="/roofing"
+            className={location.pathname === "/roofing" ? "active" : ""}
+            onClick={(e) => handleLinkClick("/roofing", e, true)}
           >
-            Projects
+            Roofing
           </a>
           <a
             href="#testimonials"

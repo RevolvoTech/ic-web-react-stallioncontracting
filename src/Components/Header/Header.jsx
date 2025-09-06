@@ -34,8 +34,9 @@ const Header = () => {
         <div className="header-logo">
           <img src={logo} alt="Stallion Contracting" />
         </div>
-        <h1>Quality Roofing Solutions</h1>
-        <p>Professional Roof Installation, Repair & Maintenance Services</p>
+        <h1>COMPLETE CONTRACTING & CONSTRUCTION SOLUTIONS</h1>
+        <p className="services-line">CONSTRUCTION • REMODELING • RENOVATION</p>
+        <p>One Call. One Team. Zero Stress.</p>
         <div className="header-buttons">
           <button className="btn btn-primary" onClick={handleFreeEstimateClick}>
             Get your Quote

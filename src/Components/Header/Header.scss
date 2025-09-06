@@ -86,13 +86,34 @@
       }
     }
 
+    .services-line {
+      color: #e2e8f0;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      line-height: 1.6;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+
+      @media (max-width: 768px) {
+        font-size: 1rem;
+        letter-spacing: 1px;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+      }
+    }
+
     p {
       color: #e2e8f0;
       font-size: 1.4rem;
       margin-bottom: 3rem;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
       line-height: 1.6;
-      font-weight: 300;
+      font-weight: 500;
 
       @media (max-width: 768px) {
         font-size: 1.2rem;

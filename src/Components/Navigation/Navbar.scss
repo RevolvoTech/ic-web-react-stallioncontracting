@@ -15,14 +15,14 @@
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 
     .navbar-container {
-      padding: 0.6rem 2rem;
+      padding: 1.2rem 2rem;
 
       .navbar-logo a {
         font-size: 1rem;
         color: #fff;
 
         img {
-          height: 28px;
+          height: 32px;
         }
       }
 
@@ -188,18 +188,16 @@
   .navbar {
     background-color: #131313; /* Always have some background on mobile for better visibility */
 
+    /* Override all desktop scrolled styles for mobile */
     &.scrolled {
-      background-color: #131313;
-      padding: 0; /* Override main scrolled padding */
-
       .navbar-container {
-        padding: 1rem; /* Keep consistent mobile padding */
+        padding: 1rem !important; /* Force consistent mobile padding */
         
         .navbar-logo a {
-          font-size: 0.9rem !important; /* Override main scrolled font size */
+          font-size: 0.9rem !important; /* Force consistent mobile font size */
           
           img {
-            height: 24px !important; /* Override main scrolled image height */
+            height: 24px !important; /* Force consistent mobile logo height */
           }
         }
         

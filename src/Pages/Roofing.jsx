@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import "./Projects.scss";
-import Before1 from "../../assets/img/before-1.jpg";
-import After1 from "../../assets/img/after-1.jpg";
-import Before2 from "../../assets/img/before-2.jpg";
-import After2 from "../../assets/img/after-2.jpg";
-import Before3 from "../../assets/img/before-3.jpg";
-import After3 from "../../assets/img/after-3.jpg";
-import video from "../../assets/img/video.mp4";
+import "./Roofing.scss";
+import Before1 from "../assets/img/before-1.jpg";
+import After1 from "../assets/img/after-1.jpg";
+import Before2 from "../assets/img/before-2.jpg";
+import After2 from "../assets/img/after-2.jpg";
+import Before3 from "../assets/img/before-3.jpg";
+import After3 from "../assets/img/after-3.jpg";
+import video from "../assets/img/video.mp4";
 
-const Projects = () => {
+const Roofing = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [activeProject, setActiveProject] = useState(0);
   const [sliderPositions, setSliderPositions] = useState({});
@@ -123,6 +123,8 @@ const Projects = () => {
   };
 
   const handleTouchStart = (projectId) => (event) => {
+    // Don't use preventDefault at all to avoid passive event issues
+    
     const handleTouchMove = (moveEvent) => {
       if (moveEvent.touches && moveEvent.touches[0]) {
         const touchEvent = {
@@ -137,7 +139,8 @@ const Projects = () => {
       document.removeEventListener("touchend", handleTouchEnd);
     };
 
-    document.addEventListener("touchmove", handleTouchMove, { passive: false });
+    // Remove passive: false to avoid conflicts
+    document.addEventListener("touchmove", handleTouchMove);
     document.addEventListener("touchend", handleTouchEnd);
 
     if (event.touches && event.touches[0]) {
@@ -151,49 +154,50 @@ const Projects = () => {
   const projects = [
     {
       id: 1,
-      title: "Kitchen Renovation & Remodeling",
-      location: "Residential Project",
-      type: "Complete Remodel",
-      beforeImage: Before1, // This will be replaced with kitchen photo when provided
+      title: "Residential Roof Replacement",
+      location: "Downtown District",
+      type: "Asphalt Shingles",
+      beforeImage: Before1,
       afterImage: After1,
       description:
-        "Complete kitchen transformation with modern fixtures, custom cabinetry, and premium countertops for enhanced functionality and style.",
+        "Complete roof replacement with premium architectural shingles, improving both aesthetics and weather protection.",
     },
     {
       id: 2,
-      title: "Bathroom Renovation",
-      location: "Master Suite",
-      type: "Full Renovation",
+      title: "Commercial Flat Roof Restoration",
+      location: "Business Park",
+      type: "EPDM Membrane",
       beforeImage: Before2,
       afterImage: After2,
       description:
-        "Luxury bathroom renovation featuring modern tile work, custom vanities, and premium fixtures for a spa-like experience.",
+        "Professional commercial roof restoration with energy-efficient membrane system and improved drainage.",
     },
     {
       id: 3,
-      title: "Home Addition & Extension",
-      location: "Family Home",
-      type: "Construction",
+      title: "Emergency Storm Damage Repair",
+      location: "Suburban Area",
+      type: "Metal Roofing",
       beforeImage: Before3,
       afterImage: After3,
       description:
-        "Seamless home addition providing extra living space while maintaining architectural integrity and enhancing property value.",
+        "Rapid emergency response and complete roof reconstruction after severe storm damage with durable metal roofing.",
     },
   ];
 
   return (
-    <section id="projects" className="projects" ref={projectsRef}>
-      <div className="projects-container">
-        <div className={`projects-header ${isVisible ? "animate" : ""}`}>
-          <div className="section-label">Our Work</div>
-          <h2>Recent Projects</h2>
+    <section id="roofing" className="roofing" ref={projectsRef}>
+      <div className="roofing-container">
+        <div className={`roofing-header ${isVisible ? "animate" : ""}`}>
+          <div className="section-label">Roofing Services</div>
+          <h2>Professional Roofing Solutions</h2>
           <p>
-            Diverse contracting solutions from kitchen remodels to home additions.
-            See the quality craftsmanship and attention to detail in every project.
+            Expert roofing services for residential and commercial properties.
+            From emergency repairs to complete roof replacements, we deliver
+            quality craftsmanship with industry-leading materials.
           </p>
         </div>
 
-        <div className="projects-grid">
+        <div className="roofing-grid">
           {projects.map((project, index) => (
             <div
               key={project.id}
@@ -254,16 +258,28 @@ const Projects = () => {
             </div>
           ))}
         </div>
-        <div className={`projects-cta ${isVisible ? "animate" : ""}`}>
+        
+        <div className="video-container">
+          <div className="video-wrapper">
+            <video src={video} ref={videoRef} muted playsInline />
+            <button className="video-play-button" onClick={toggleVideo}>
+              <span className="material-icons">
+                {isPlaying ? "pause" : "play_arrow"}
+              </span>
+            </button>
+          </div>
+        </div>
+        
+        <div className={`roofing-cta ${isVisible ? "animate" : ""}`}>
           <div className="cta-content">
-            <h3>Ready to Transform Your Space?</h3>
+            <h3>Ready to Transform Your Roof?</h3>
             <p>
               Join hundreds of satisfied customers who trust us with their
-              construction and renovation needs
+              roofing needs
             </p>
           </div>
           <button className="cta-button" onClick={handleProjectClick}>
-            Get your free consultation
+            Schedule your consultation today
             <span className="material-icons">arrow_forward</span>
           </button>
         </div>
@@ -272,4 +288,4 @@ const Projects = () => {
   );
 };
 
-export default Projects;
+export default Roofing;
