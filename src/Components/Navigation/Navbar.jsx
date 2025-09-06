@@ -18,11 +18,16 @@ const Navbar = () => {
       const heroSection = document.getElementById('home');
       const heroHeight = heroSection ? heroSection.offsetHeight : 600;
       
-      // Simple scroll behavior for consistent styling
-      if (scrollY > 50) {
+      // If not on home page, always show dark background
+      if (location.pathname !== '/') {
         setScrolled(true);
       } else {
-        setScrolled(false);
+        // Home page behavior - simple scroll behavior for consistent styling
+        if (scrollY > 50) {
+          setScrolled(true);
+        } else {
+          setScrolled(false);
+        }
       }
       
       // Show quote button on mobile when scrolled down enough
@@ -42,7 +47,7 @@ const Navbar = () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleScroll);
     };
-  }, []);
+  }, [location.pathname]); // Added location.pathname as dependency
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -79,9 +84,8 @@ const Navbar = () => {
   };
 
   const handleQuoteClick = () => {
-    setActiveLink("contact");
     setIsMenuOpen(false);
-    smoothScrollTo("contact");
+    navigate("/contact");
   };
 
   return (
@@ -90,7 +94,7 @@ const Navbar = () => {
         {/* Logo - hidden when quote button shows on mobile */}
         <div className={`navbar-logo ${showQuoteOnMobile ? "hide-mobile" : ""}`}>
           <Link to="/" onClick={() => { setActiveLink("home"); setIsMenuOpen(false); }}>
-            <img src={logo} alt="Stallion Contracting" />
+            <img src={logo} alt="Logo" />
           </Link>
         </div>
         
@@ -110,18 +114,11 @@ const Navbar = () => {
             Home
           </a>
           <a
-            href="#services"
-            className={activeLink === "services" ? "active" : ""}
-            onClick={(e) => handleLinkClick("services", e)}
+            href="/services"
+            className={location.pathname === "/services" || location.pathname.startsWith("/services") ? "active" : ""}
+            onClick={(e) => handleLinkClick("/services", e, true)}
           >
             Services
-          </a>
-          <a
-            href="/roofing"
-            className={location.pathname === "/roofing" ? "active" : ""}
-            onClick={(e) => handleLinkClick("/roofing", e, true)}
-          >
-            Roofing
           </a>
           <a
             href="#testimonials"
@@ -138,11 +135,11 @@ const Navbar = () => {
             About Us
           </a>
           <a
-            href="#contact"
-            className={activeLink === "contact" ? "active" : ""}
-            onClick={(e) => handleLinkClick("contact", e)}
+            href="/contact"
+            className={location.pathname === "/contact" ? "active" : ""}
+            onClick={(e) => handleLinkClick("/contact", e, true)}
           >
-            Contact
+            Contact Us
           </a>
         </div>
 

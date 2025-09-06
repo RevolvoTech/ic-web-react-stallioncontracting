@@ -9,7 +9,7 @@ const Footer = () => {
       <div className="footer-container">
         <div className="footer-content">
           <div className="footer-section footer-brand">
-            <img src={logo} alt="Stallion Contracting" className="footer-logo" />
+            <img src={logo} alt="Logo" className="footer-logo" />
             <p>
               Professional roofing solutions with over 20 years of experience.
               Your trusted partner for all residential and commercial roofing

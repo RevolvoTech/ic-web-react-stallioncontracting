@@ -250,24 +250,6 @@ const Testimonials = () => {
           </div>
         </div>
 
-        <div className={`testimonials-stats ${isVisible ? "animate" : ""}`}>
-          <div className="stat">
-            <div className="stat-number">305+</div>
-            <div className="stat-label">Happy Clients</div>
-          </div>
-          <div className="stat">
-            <div className="stat-number">25+</div>
-            <div className="stat-label">Years Experience</div>
-          </div>
-          <div className="stat">
-            <div className="stat-number">100%</div>
-            <div className="stat-label">Satisfaction Rate</div>
-          </div>
-          <div className="stat">
-            <div className="stat-number">15+</div>
-            <div className="stat-label">Team Members</div>
-          </div>
-        </div>
       </div>
     </section>
   );

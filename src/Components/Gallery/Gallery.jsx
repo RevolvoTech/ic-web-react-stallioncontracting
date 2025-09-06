@@ -1,19 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./Gallery.scss";
 
-import after1 from "../../assets/img/after-1.jpg";
-import after2 from "../../assets/img/after-2.jpg";
-import after3 from "../../assets/img/after-3.jpg";
-import before1 from "../../assets/img/before-1.jpg";
-import before2 from "../../assets/img/before-2.jpg";
-import before3 from "../../assets/img/before-3.jpg";
+import PresidentialClose from "../../assets/img/services/roofing/presidential-shingles-close.jpg";
+import PresidentialFar from "../../assets/img/services/roofing/presidential-shingles-far.jpg";
+import TPOClose from "../../assets/img/services/roofing/tpo-close.jpg";
+import TPOFar from "../../assets/img/services/roofing/tpo-far.jpg";
+import CedarClose from "../../assets/img/services/roofing/cedar-shake-close.jpg";
+import CedarFar from "../../assets/img/services/roofing/cedar-shake-far.jpg";
 
 const Gallery = () => {
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [activeFilter, setActiveFilter] = useState("all");
   const [isVisible, setIsVisible] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [sliderPositions, setSliderPositions] = useState({});
   const galleryRef = useRef(null);
+  const sliderRefs = useRef({});
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -41,119 +40,95 @@ const Gallery = () => {
   const projects = [
     {
       id: 1,
-      src: after1,
-      title: "Residential Roof Replacement",
-      category: "residential",
-      location: "Downtown District",
-      type: "Asphalt Shingles",
-      description:
-        "Complete roof replacement with premium architectural shingles providing enhanced durability and weather protection.",
+      title: "Presidential Shingles",
+      beforeImage: PresidentialClose,
+      afterImage: PresidentialFar,
+      description: "High-quality presidential shingles offering superior durability and aesthetic appeal with a lifetime warranty.",
     },
     {
       id: 2,
-      src: before1,
-      title: "Historic Home Restoration",
-      category: "residential",
-      location: "Heritage District",
-      type: "Cedar Shingles",
-      description:
-        "Careful restoration maintaining original character while improving structural integrity.",
+      title: "TPO Roofing",
+      beforeImage: TPOClose,
+      afterImage: TPOFar,
+      description: "Energy-efficient TPO roofing system ideal for commercial and flat roof applications with excellent weather resistance.",
     },
     {
       id: 3,
-      src: after2,
-      title: "Commercial Flat Roof",
-      category: "commercial",
-      location: "Business Park",
-      type: "EPDM Membrane",
-      description:
-        "Professional commercial roof installation with energy-efficient membrane system and improved drainage.",
-    },
-    {
-      id: 4,
-      src: before2,
-      title: "Industrial Complex",
-      category: "commercial",
-      location: "Industrial Zone",
-      type: "Metal Roofing",
-      description:
-        "Large-scale industrial roofing project with durable metal roofing systems.",
-    },
-    {
-      id: 5,
-      src: after3,
-      title: "Storm Damage Repair",
-      category: "repair",
-      location: "Suburban Area",
-      type: "Emergency Repair",
-      description:
-        "Emergency response and complete roof reconstruction after severe storm damage.",
-    },
-    {
-      id: 6,
-      src: before3,
-      title: "Roof Maintenance",
-      category: "repair",
-      location: "Residential Area",
-      type: "Maintenance",
-      description:
-        "Comprehensive roof maintenance and repair services to extend roof lifespan.",
+      title: "Cedar Shake",
+      beforeImage: CedarClose,
+      afterImage: CedarFar,
+      description: "Authentic cedar shake roofing providing natural beauty and excellent insulation properties for traditional homes.",
     },
   ];
-
-  const filters = [
-    { key: "all", label: "All Projects", icon: "grid_view" },
-    { key: "residential", label: "Residential", icon: "home" },
-    { key: "commercial", label: "Commercial", icon: "business" },
-    { key: "repair", label: "Repairs", icon: "build" },
-  ];
-
-  const filteredProjects =
-    activeFilter === "all"
-      ? projects
-      : projects.filter((project) => project.category === activeFilter);
-
-  const openPopup = (project) => {
-    setSelectedImage(project);
-    const projectIndex = filteredProjects.findIndex((p) => p.id === project.id);
-    setCurrentImageIndex(projectIndex);
-  };
-
-  const closePopup = () => {
-    setSelectedImage(null);
-  };
-
-  const navigateImage = (direction) => {
-    const newIndex =
-      direction === "next"
-        ? (currentImageIndex + 1) % filteredProjects.length
-        : (currentImageIndex - 1 + filteredProjects.length) %
-          filteredProjects.length;
-
-    setCurrentImageIndex(newIndex);
-    setSelectedImage(filteredProjects[newIndex]);
-  };
 
   useEffect(() => {
-    const handleKeyPress = (e) => {
-      if (!selectedImage) return;
+    // Initialize slider positions to 50% for all projects
+    const initialPositions = {};
+    projects.forEach((project) => {
+      initialPositions[project.id] = 50;
+    });
+    setSliderPositions(initialPositions);
+  }, []);
 
-      switch (e.key) {
-        case "Escape":
-          closePopup();
-          break;
-        case "ArrowLeft":
-          navigateImage("prev");
-          break;
-        case "ArrowRight":
-          navigateImage("next");
-          break;
+  const handleSliderMove = (projectId, event, isDragging = false) => {
+    if (!isDragging && event.type !== "click") return;
+
+    const slider = sliderRefs.current[projectId];
+    if (!slider) return;
+
+    const rect = slider.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+
+    setSliderPositions((prev) => ({
+      ...prev,
+      [projectId]: percentage,
+    }));
+  };
+
+  const handleMouseDown = (projectId) => (event) => {
+    event.preventDefault();
+
+    const handleMouseMove = (moveEvent) => {
+      handleSliderMove(projectId, moveEvent, true);
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+
+    handleSliderMove(projectId, event, true);
+  };
+
+  const handleTouchStart = (projectId) => (event) => {
+    const handleTouchMove = (moveEvent) => {
+      if (moveEvent.touches && moveEvent.touches[0]) {
+        const touchEvent = {
+          clientX: moveEvent.touches[0].clientX,
+        };
+        handleSliderMove(projectId, touchEvent, true);
       }
     };
 
-    document.addEventListener("keydown", handleKeyPress);
-    return () => document.removeEventListener("keydown", handleKeyPress);
-  }, [selectedImage, currentImageIndex, filteredProjects]);
+    const handleTouchEnd = () => {
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchend", handleTouchEnd);
+    };
+
+    document.addEventListener("touchmove", handleTouchMove);
+    document.addEventListener("touchend", handleTouchEnd);
+
+    if (event.touches && event.touches[0]) {
+      const touchEvent = {
+        clientX: event.touches[0].clientX,
+      };
+      handleSliderMove(projectId, touchEvent, true);
+    }
+  };
 
   return (
     <section id="gallery" className="gallery" ref={galleryRef}>
@@ -162,51 +137,56 @@ const Gallery = () => {
           <div className="section-label">Our Work</div>
           <h2>Project Gallery</h2>
           <p>
-            Explore our portfolio of successful roofing projects and see the
-            quality craftsmanship we deliver
+            See our quality craftsmanship in action with these before and after transformations
           </p>
         </div>
 
-        <div className={`gallery-filters ${isVisible ? "animate" : ""}`}>
-          {filters.map((filter) => (
-            <button
-              key={filter.key}
-              className={`filter-btn ${
-                activeFilter === filter.key ? "active" : ""
-              }`}
-              onClick={() => setActiveFilter(filter.key)}
-            >
-              <span className="material-icons">{filter.icon}</span>
-              {filter.label}
-            </button>
-          ))}
-        </div>
-
         <div className="gallery-grid">
-          {filteredProjects.map((project, index) => (
+          {projects.map((project, index) => (
             <div
               key={project.id}
               className={`gallery-project ${isVisible ? "animate" : ""}`}
-              style={{ animationDelay: `${index * 0.1}s` }}
-              onClick={() => openPopup(project)}
+              style={{ animationDelay: `${index * 0.2}s` }}
             >
-              <div className="project-image">
-                <img src={project.src} alt={project.title} />
-                <div className="image-overlay">
-                  <div className="overlay-content">
-                    <span className="material-icons">visibility</span>
-                    <span className="view-text">View Project</span>
+              <div className="project-images">
+                <div
+                  className="before-after-slider"
+                  ref={(el) => (sliderRefs.current[project.id] = el)}
+                  onClick={(e) => handleSliderMove(project.id, e)}
+                >
+                  <div className="after-image">
+                    <img
+                      src={project.afterImage}
+                      alt={`${project.title} - After`}
+                    />
+                  </div>
+                  <div
+                    className="before-image"
+                    style={{
+                      clipPath: `inset(0 ${
+                        100 - (sliderPositions[project.id] || 50)
+                      }% 0 0)`,
+                    }}
+                  >
+                    <img
+                      src={project.beforeImage}
+                      alt={`${project.title} - Before`}
+                    />
+                  </div>
+                  <div
+                    className="slider-handle"
+                    style={{ left: `${sliderPositions[project.id] || 50}%` }}
+                    onMouseDown={handleMouseDown(project.id)}
+                    onTouchStart={handleTouchStart(project.id)}
+                  >
+                    <div className="slider-line"></div>
+                    <div className="slider-button">
+                      <span className="material-icons">compare</span>
+                    </div>
                   </div>
                 </div>
               </div>
               <div className="project-info">
-                <div className="project-meta">
-                  <span className="project-type">{project.type}</span>
-                  <span className="project-location">
-                    <span className="material-icons">place</span>
-                    {project.location}
-                  </span>
-                </div>
                 <h3>{project.title}</h3>
                 <p>{project.description}</p>
               </div>
@@ -214,58 +194,6 @@ const Gallery = () => {
           ))}
         </div>
       </div>
-
-      {selectedImage && (
-        <div className="popup" onClick={closePopup}>
-          <div className="popup-content" onClick={(e) => e.stopPropagation()}>
-            <button className="popup-close" onClick={closePopup}>
-              <span className="material-icons">close</span>
-            </button>
-
-            <button
-              className="popup-nav prev"
-              onClick={() => navigateImage("prev")}
-            >
-              <span className="material-icons">chevron_left</span>
-            </button>
-
-            <button
-              className="popup-nav next"
-              onClick={() => navigateImage("next")}
-            >
-              <span className="material-icons">chevron_right</span>
-            </button>
-
-            <div className="popup-image-container">
-              <img src={selectedImage.src} alt={selectedImage.title} />
-
-              <div className="popup-info">
-                <div className="project-details">
-                  <h3>{selectedImage.title}</h3>
-                  <div className="project-meta">
-                    <span className="project-type">{selectedImage.type}</span>
-                    <span className="project-location">
-                      <span className="material-icons">place</span>
-                      {selectedImage.location}
-                    </span>
-                  </div>
-                  <p>{selectedImage.description}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="popup-controls">
-              <span className="popup-counter">
-                {currentImageIndex + 1} / {filteredProjects.length}
-              </span>
-              <div className="popup-hints">
-                <span>← → Navigate</span>
-                <span>Esc: Close</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 };

@@ -1,8 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import "./Header.scss";
 import bgVideo from "../../assets/Videos/0708.mp4";
-import logo from "../../assets/logo_hero.svg";
 
 const Header = () => {
+  const navigate = useNavigate();
+  
   const smoothScrollTo = (elementId) => {
     const element = document.getElementById(elementId);
     if (element) {
@@ -18,7 +20,7 @@ const Header = () => {
   };
 
   const handleServicesClick = () => {
-    smoothScrollTo("services");
+    navigate("/services");
   };
 
   return (
@@ -31,9 +33,6 @@ const Header = () => {
       <div className="header-overlay"></div>
 
       <div className="header-content">
-        <div className="header-logo">
-          <img src={logo} alt="Stallion Contracting" />
-        </div>
         <h1>COMPLETE CONTRACTING & CONSTRUCTION SOLUTIONS</h1>
         <p className="services-line">CONSTRUCTION • REMODELING • RENOVATION</p>
         <p>One Call. One Team. Zero Stress.</p>

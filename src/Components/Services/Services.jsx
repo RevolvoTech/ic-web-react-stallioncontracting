@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Services.scss";
 
 const Services = () => {
   const [isVisible, setIsVisible] = useState(false);
   const servicesRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -39,44 +41,64 @@ const Services = () => {
   };
 
   const handleQuoteClick = () => {
-    smoothScrollTo("contact");
+    navigate("/contact");
+  };
+
+  const handleServiceClick = (serviceTitle) => {
+    const serviceMap = {
+      "Roofing": "roofing",
+      "Electrical": "electrical",
+      "HVAC": "hvac", 
+      "Plumbing": "plumbing",
+      "Framing": "framing",
+      "Concrete": "concrete",
+      "Drywall": "drywall",
+      "More": "more"
+    };
+    
+    const categoryKey = serviceMap[serviceTitle];
+    if (categoryKey) {
+      navigate(`/services/${categoryKey}`);
+    } else {
+      navigate("/services");
+    }
   };
 
   const services = [
     {
       id: 1,
+      title: "Roofing",
+      description:
+        "Durable roofing solutions, including repairs and new installations to protect your property from the elements.",
+      icon: "roofing",
+    },
+    {
+      id: 2,
       title: "Electrical",
       description:
         "Custom electrical solutions, including wiring, panel upgrades, and lighting installation for both residential and commercial properties.",
       icon: "electrical_services",
     },
     {
-      id: 2,
+      id: 3,
       title: "HVAC",
       description:
         "Expert HVAC services, including installation, maintenance, and repair to ensure your comfort in all seasons.",
       icon: "hvac",
     },
     {
-      id: 3,
+      id: 4,
       title: "Plumbing",
       description:
         "Comprehensive plumbing services, from fixing leaks to full-scale installations for kitchens and bathrooms.",
       icon: "plumbing",
     },
     {
-      id: 4,
+      id: 5,
       title: "Framing",
       description:
         "High-quality framing for new constructions and remodeling projects, ensuring a solid structure for your building.",
       icon: "construction",
-    },
-    {
-      id: 5,
-      title: "Roofing",
-      description:
-        "Durable roofing solutions, including repairs and new installations to protect your property from the elements.",
-      icon: "roofing",
     },
     {
       id: 6,
@@ -120,6 +142,7 @@ const Services = () => {
               key={service.id}
               className={`service-card ${isVisible ? "animate" : ""}`}
               style={{ animationDelay: `${index * 0.1}s` }}
+              onClick={() => handleServiceClick(service.title)}
             >
               <div className="service-icon">
                 <span className="material-icons">{service.icon}</span>
@@ -135,14 +158,6 @@ const Services = () => {
           ))}
         </div>
 
-        <div className={`services-cta ${isVisible ? "animate" : ""}`}>
-          <div className="cta-content">
-            <h3>Get your quote at no cost today</h3>
-          </div>
-          <button className="cta-button" onClick={handleQuoteClick}>
-            Get your Quote
-          </button>
-        </div>
       </div>
     </section>
   );

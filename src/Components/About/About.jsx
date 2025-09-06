@@ -66,12 +66,6 @@ const About = () => {
       description:
         "Premium materials and energy-efficient solutions for all projects",
     },
-    {
-      icon: "handyman",
-      title: "Expert Craftsmanship",
-      description:
-        "Skilled professionals delivering superior workmanship on every project",
-    },
   ];
 
   return (
@@ -121,39 +115,25 @@ const About = () => {
               </div>
             </div>
 
-            <div className={`about-map-section ${isVisible ? "animate" : ""}`}>
+            <div className={`about-contact-section ${isVisible ? "animate" : ""}`}>
               <h3>Find Us</h3>
-              <div className="map-container">
-                <div className="map-placeholder">
-                  <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d48606.08254899684!2d-111.93050571743425!3d40.61083920486988!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x874d90748c1ba6ed%3A0x7c35d7cf79b992e5!2sOrem%2C%20UT!5e0!3m2!1sen!2sus!4v1643820159831!5m2!1sen!2sus"
-                    width="100%"
-                    height="300"
-                    style={{ border: 0, borderRadius: "12px" }}
-                    allowFullScreen=""
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title="Stallion Contracting Location"
-                  ></iframe>
-                </div>
-                <div className="contact-info">
-                  <div className="contact-item">
-                    <span className="material-icons">phone</span>
-                    <div>
-                      <h4>Phone</h4>
-                      <p>801-800-5311</p>
-                    </div>
+              <div className="contact-info">
+                <div className="contact-item">
+                  <span className="material-icons">phone</span>
+                  <div>
+                    <h4>Phone</h4>
+                    <p>801-800-5311</p>
                   </div>
-                  <div className="contact-item">
-                    <span className="material-icons">schedule</span>
-                    <div>
-                      <h4>Hours</h4>
-                      <p>
-                        Mon-Fri: 7AM-6PM
-                        <br />
-                        Emergency: 24/7
-                      </p>
-                    </div>
+                </div>
+                <div className="contact-item">
+                  <span className="material-icons">schedule</span>
+                  <div>
+                    <h4>Hours</h4>
+                    <p>
+                      Mon-Fri: 7AM-6PM
+                      <br />
+                      Emergency: 24/7
+                    </p>
                   </div>
                 </div>
               </div>

@@ -4,7 +4,6 @@ import Services from "../Components/Services/Services";
 import About from "../Components/About/About";
 import Testimonials from "../Components/Testimonials/Testimonials";
 import Gallery from "../Components/Gallery/Gallery";
-import Contact from "../Components/Contact/Contact";
 import "./Home.scss";
 
 const Home = () => {
@@ -43,10 +42,9 @@ const Home = () => {
     <>
       <Header />
       <Services />
+      <Gallery />
       <Testimonials />
       <About />
-      <Gallery />
-      <Contact />
       
       {/* Scroll to top button - only visible when mobile quote button shows */}
       <button 

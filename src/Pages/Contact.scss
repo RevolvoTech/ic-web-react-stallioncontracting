@@ -1,0 +1,281 @@
+.contact-page {
+  padding-top: 80px; // Account for fixed navbar
+  min-height: 100vh;
+
+  .contact-container {
+    padding: 100px 2rem;
+    background: #f9fafb;
+
+    .contact-header {
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+
+      .section-label {
+        display: inline-block;
+        background: #F36900;
+        color: #fff;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: #1f2937;
+      }
+
+      p {
+        max-width: 600px;
+        margin: 0 auto 40px;
+        color: #6b7280;
+      }
+
+      .form {
+        display: flex;
+        gap: 3rem;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 40px;
+
+        .left {
+          flex: 1;
+          min-width: 280px;
+          max-width: 400px;
+          text-align: left;
+
+          h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+          }
+
+          p {
+            color: #4b5563;
+          }
+        }
+
+        .right {
+          flex: 1;
+          min-width: 300px;
+          max-width: 600px;
+
+          .contact-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+
+            .form-group {
+              display: flex;
+              flex-direction: column;
+              text-align: left;
+
+              label {
+                margin-bottom: 0.5rem;
+                font-weight: 600;
+                color: #374151;
+              }
+
+              input,
+              textarea,
+              .phone-input {
+                padding: 0.75rem;
+                border: 1px solid #d1d5db;
+                border-radius: 8px;
+                font-size: 1rem;
+                outline: none;
+                transition: border 0.3s ease;
+
+                &:focus {
+                  border-color: #131313;
+                }
+              }
+
+              .phone-input {
+              }
+              .react-tel-input {
+                background: transparent !important;
+                box-shadow: none !important;
+
+                .flag-dropdown {
+                  border: none !important;
+                  background: transparent !important;
+                  box-shadow: none !important;
+                }
+
+                .form-control {
+                  border: none !important;
+                  background: transparent !important;
+                  box-shadow: none !important;
+                  outline: none !important;
+                  padding-left: 50px;
+                }
+              }
+            }
+
+            .submit-button {
+              background: #F36900;
+              color: white;
+              font-weight: 600;
+              padding: 14px 32px;
+              border-radius: 8px;
+              border: none;
+              cursor: pointer;
+              transition: all 0.3s ease;
+
+              &:hover:not(:disabled) {
+                background: #F36900;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 16px rgba(243, 105, 0, 0.3);
+              }
+
+              &:disabled {
+                background: #9ca3af;
+                cursor: not-allowed;
+                transform: none;
+              }
+            }
+
+            .form-message {
+              display: flex;
+              align-items: flex-start;
+              gap: 0.75rem;
+              padding: 1.25rem;
+              border-radius: 12px;
+              font-size: 0.95rem;
+              margin-top: 1rem;
+              animation: slideInFadeIn 0.4s ease-out;
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+              .material-icons {
+                font-size: 1.5rem;
+                margin-top: 0.125rem;
+                flex-shrink: 0;
+              }
+
+              .message-content {
+                flex: 1;
+                
+                strong {
+                  display: block;
+                  font-weight: 700;
+                  margin-bottom: 0.5rem;
+                  font-size: 1rem;
+                }
+
+                p {
+                  margin: 0;
+                  line-height: 1.5;
+                  opacity: 0.9;
+                }
+              }
+
+              &.success {
+                background: #dcfce7;
+                color: #166534;
+                border: 1px solid #bbf7d0;
+
+                .material-icons {
+                  color: #16a34a;
+                }
+              }
+
+              &.error {
+                background: #fef2f2;
+                color: #991b1b;
+                border: 1px solid #fecaca;
+
+                .material-icons {
+                  color: #dc2626;
+                }
+              }
+            }
+
+            @keyframes slideInFadeIn {
+              from {
+                opacity: 0;
+                transform: translateY(-10px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+
+            .phone-group {
+              .phone-input-wrapper {
+                display: flex;
+                gap: 0.5rem;
+
+                select {
+                  padding: 0.75rem;
+                  border: 1px solid #d1d5db;
+                  border-radius: 8px;
+                  font-size: 1rem;
+                  background: white;
+                  min-width: 100px;
+                  appearance: none;
+                  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23343a40'/%3E%3C/svg%3E");
+                  background-repeat: no-repeat;
+                  background-position: right 0.75rem center;
+                  background-size: 10px;
+                  outline: none;
+
+                  &:focus {
+                    border-color: #131313;
+                  }
+                }
+
+                input {
+                  flex: 1;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Hide the special-label Phone div generated by PhoneInput
+.special-label {
+  display: none !important;
+}
+
+// Style phone input to match other form fields
+.phone-input {
+  .react-tel-input {
+    .form-control {
+      background-color: white !important;
+      border: 1px solid #d1d5db !important;
+      border-radius: 8px !important;
+      padding: 12px 16px !important;
+      font-size: 1rem !important;
+      width: 100% !important;
+      
+      &:focus {
+        outline: none !important;
+        border-color: #131313 !important;
+        box-shadow: 0 0 0 3px rgba(31, 59, 87, 0.1) !important;
+      }
+    }
+    
+    .flag-dropdown {
+      background-color: white !important;
+      border: 1px solid #d1d5db !important;
+      border-radius: 8px 0 0 8px !important;
+      
+      .selected-flag {
+        background-color: white !important;
+        
+        &:hover {
+          background-color: #f9fafb !important;
+        }
+      }
+    }
+  }
+}
