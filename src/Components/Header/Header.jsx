@@ -16,7 +16,7 @@ const Header = () => {
   };
 
   const handleFreeEstimateClick = () => {
-    smoothScrollTo("contact");
+    navigate("/contact");
   };
 
   const handleServicesClick = () => {
