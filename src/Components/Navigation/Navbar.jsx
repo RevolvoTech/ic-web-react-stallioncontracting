@@ -121,16 +121,16 @@ const Navbar = () => {
             Services
           </a>
           <a
-            href="/testimonials"
-            className={location.pathname === "/testimonials" ? "active" : ""}
-            onClick={(e) => handleLinkClick("/testimonials", e, true)}
+            href="#testimonials"
+            className={activeLink === "testimonials" ? "active" : ""}
+            onClick={(e) => handleLinkClick("testimonials", e)}
           >
             Testimonials
           </a>
           <a
-            href="/about"
-            className={location.pathname === "/about" ? "active" : ""}
-            onClick={(e) => handleLinkClick("/about", e, true)}
+            href="#about"
+            className={activeLink === "about" ? "active" : ""}
+            onClick={(e) => handleLinkClick("about", e)}
           >
             About Us
           </a>
