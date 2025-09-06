@@ -14,6 +14,8 @@ import ServiceFraming from "./Pages/ServiceFraming";
 import ServiceConcrete from "./Pages/ServiceConcrete";
 import ServiceDrywall from "./Pages/ServiceDrywall";
 import ServiceMore from "./Pages/ServiceMore";
+import TestimonialsPage from "./Pages/Testimonials";
+import AboutPage from "./Pages/About";
 
 function App() {
   return (
@@ -33,6 +35,8 @@ function App() {
           <Route path="/services/drywall" element={<ServiceDrywall />} />
           <Route path="/services/more" element={<ServiceMore />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/testimonials" element={<TestimonialsPage />} />
+          <Route path="/about" element={<AboutPage />} />
         </Routes>
         <Footer />
       </div>
