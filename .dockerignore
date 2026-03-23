@@ -1,0 +1,8 @@
+node_modules
+dist
+.git
+.gitignore
+npm-debug.log
+.env
+ic-crm-backend/node_modules
+ic-crm-backend/.env
