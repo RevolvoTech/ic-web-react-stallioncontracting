@@ -1,0 +1,17 @@
+CRM RBAC (Simple)
+
+Roles
+- Admin: full access across all organizations
+- Employer: full access inside own organization
+- Employee: can create and update only customers they own or are assigned to
+- Investor: read-only access for organization-level visibility
+
+Sensitive controls
+- Role management: Admin + Employer
+- Customer assignment: Admin + Employer
+- Archive/restore customer: Admin + Employer
+- Notes/contacts/addresses update: Admin/Employer/assigned Employee
+
+Security model
+- All customer records are scoped by ownerOrgId
+- Important changes are logged in customer_activity for auditability

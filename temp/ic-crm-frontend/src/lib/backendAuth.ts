@@ -1,0 +1,173 @@
+export type AuthSessionUser = {
+  id: string;
+  email: string | null;
+};
+
+export type AuthSession = {
+  accessToken: string;
+  refreshToken: string | null;
+  expiresAt: number | null;
+  expiresIn: number | null;
+  tokenType: string | null;
+  user: AuthSessionUser | null;
+};
+
+const AUTH_SESSION_KEY = 'crm_auth_session';
+
+const resolveApiBaseUrl = () => {
+  const raw = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  return String(raw).replace(/\/+$/, '').replace(/\/api$/, '');
+};
+
+const API_BASE_URL = resolveApiBaseUrl();
+
+const getStorage = () => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  return window.sessionStorage;
+};
+
+const normalizeAuthSession = (value: any): AuthSession | null => {
+  if (!value || typeof value !== 'object' || !value.accessToken) {
+    return null;
+  }
+
+  return {
+    accessToken: String(value.accessToken),
+    refreshToken: value.refreshToken ? String(value.refreshToken) : null,
+    expiresAt: Number.isFinite(Number(value.expiresAt)) ? Number(value.expiresAt) : null,
+    expiresIn: Number.isFinite(Number(value.expiresIn)) ? Number(value.expiresIn) : null,
+    tokenType: value.tokenType ? String(value.tokenType) : null,
+    user:
+      value.user && typeof value.user === 'object' && value.user.id
+        ? {
+            id: String(value.user.id),
+            email: value.user.email ? String(value.user.email) : null,
+          }
+        : null,
+  };
+};
+
+export const readStoredAuthSession = () => {
+  const storage = getStorage();
+  if (!storage) {
+    return null;
+  }
+
+  try {
+    const raw = storage.getItem(AUTH_SESSION_KEY);
+    if (!raw) {
+      return null;
+    }
+    return normalizeAuthSession(JSON.parse(raw));
+  } catch {
+    return null;
+  }
+};
+
+export const writeStoredAuthSession = (session: AuthSession | null) => {
+  const storage = getStorage();
+  if (!storage) {
+    return;
+  }
+
+  if (!session) {
+    storage.removeItem(AUTH_SESSION_KEY);
+    return;
+  }
+
+  storage.setItem(AUTH_SESSION_KEY, JSON.stringify(session));
+};
+
+export const clearStoredAuthSession = () => {
+  const storage = getStorage();
+  if (!storage) {
+    return;
+  }
+  storage.removeItem(AUTH_SESSION_KEY);
+};
+
+type BackendRequestOptions = {
+  method?: string;
+  body?: unknown;
+  token?: string | null;
+};
+
+export const backendAuthRequest = async <T,>(path: string, options: BackendRequestOptions = {}) => {
+  const method = options.method || 'GET';
+  const headers: Record<string, string> = {};
+
+  if (options.token) {
+    headers.Authorization = `Bearer ${options.token}`;
+  }
+
+  if (method !== 'GET' && method !== 'HEAD') {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method,
+    headers,
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  });
+
+  const payload = await response
+    .json()
+    .catch(() => ({ success: false, message: `Request failed (${response.status})` }));
+
+  if (!response.ok || !payload.success) {
+    const details = payload.error ? ` (${payload.error})` : '';
+    const error = new Error((payload.message || `Request failed (${response.status})`) + details) as Error & {
+      status?: number;
+    };
+    error.status = response.status;
+    throw error;
+  }
+
+  return payload.data as T;
+};
+
+const isSessionExpiringSoon = (session: AuthSession, thresholdSeconds = 30) => {
+  if (!session.expiresAt) {
+    return false;
+  }
+  return session.expiresAt <= Math.floor(Date.now() / 1000) + thresholdSeconds;
+};
+
+export const refreshStoredAuthSession = async () => {
+  const currentSession = readStoredAuthSession();
+  if (!currentSession?.refreshToken) {
+    clearStoredAuthSession();
+    return null;
+  }
+
+  const data = await backendAuthRequest<{ session: AuthSession | null }>('/api/auth/refresh', {
+    method: 'POST',
+    body: {
+      refreshToken: currentSession.refreshToken,
+    },
+  });
+
+  const nextSession = normalizeAuthSession(data.session);
+  writeStoredAuthSession(nextSession);
+  return nextSession;
+};
+
+export const getValidStoredAccessToken = async () => {
+  let session = readStoredAuthSession();
+  if (!session) {
+    return null;
+  }
+
+  if (isSessionExpiringSoon(session)) {
+    try {
+      session = await refreshStoredAuthSession();
+    } catch {
+      clearStoredAuthSession();
+      return null;
+    }
+  }
+
+  return session?.accessToken || null;
+};

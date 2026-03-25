@@ -1,0 +1,16 @@
+CRM Database
+
+Core customer data
+- customers: customer master record (name, type, status, source, owner org, created by, timestamps)
+- customer_profiles: extra business/personal details, lifecycle stage, tags
+- customer_contacts: phone/email contact points with primary flag
+- customer_addresses: billing/service addresses with primary flag
+- customer_notes: timeline notes + attachment references
+
+Control and tracking
+- customer_assignments: which employee is handling which customer
+- customer_activity: audit trail of create/update/status/archive/assignment actions
+
+Search and speed
+- Indexes for ownerOrgId, status, and createdAt patterns
+- Full-text search on customer name and customer notes
