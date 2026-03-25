@@ -1,0 +1,6 @@
+[build]
+  command = "npm --prefix temp/ic-crm-frontend run build"
+  publish = "temp/ic-crm-frontend/dist"
+
+[build.environment]
+  NODE_VERSION = "20"
