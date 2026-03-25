@@ -1,4 +1,5 @@
 import { getValidStoredAccessToken } from 'src/lib/backendAuth';
+import { fetchWithTimeout } from 'src/lib/fetchWithTimeout';
 
 const resolveApiBaseUrl = () => {
   const raw = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -36,7 +37,7 @@ const getAuthHeaders = async (includeJson = false) => {
 
 const request = async (url: string, method: string, arg?: unknown) => {
   const includeJson = method !== 'GET';
-  const response = await fetch(resolveUrl(url), {
+  const response = await fetchWithTimeout(resolveUrl(url), {
     method,
     headers: await getAuthHeaders(includeJson),
     body: includeJson ? JSON.stringify(arg || {}) : undefined,

@@ -1,3 +1,5 @@
+import { fetchWithTimeout, isAbortError } from 'src/lib/fetchWithTimeout';
+
 const resolveApiBaseUrl = () => {
   const raw = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:3000';
   return String(raw).replace(/\/+$/, '').replace(/\/api$/, '');
@@ -10,6 +12,7 @@ type RequestOptions = {
   orgId?: string | null;
   method?: string;
   body?: unknown;
+  signal?: AbortSignal;
 };
 
 export const crmRequest = async (path: string, options: RequestOptions) => {
@@ -25,12 +28,17 @@ export const crmRequest = async (path: string, options: RequestOptions) => {
 
   let response: Response;
   try {
-    response = await fetch(`${API_BASE_URL}${path}`, {
+    response = await fetchWithTimeout(`${API_BASE_URL}${path}`, {
       method,
       headers,
       body: options.body ? JSON.stringify(options.body) : undefined,
+      signal: options.signal,
     });
   } catch (networkError: any) {
+    if (isAbortError(networkError)) {
+      throw networkError;
+    }
+
     throw new Error(
       networkError?.message || 'Failed to fetch. Check backend URL, CORS, and server availability.',
     );

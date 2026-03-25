@@ -27,6 +27,7 @@ import Breadcrumb from 'src/layouts/full/shared/breadcrumb/Breadcrumb';
 import BlankCard from 'src/components/shared/BlankCard';
 import { crmRequest } from 'src/api/crm/client';
 import { useAuth } from 'src/context/AuthContext';
+import { isAbortError } from 'src/lib/fetchWithTimeout';
 
 type Member = {
   userId: string;
@@ -138,7 +139,7 @@ const Projects = () => {
   const resolveMemberName = (member: Member) =>
     `${member.firstName || ''} ${member.lastName || ''}`.trim() || member.email;
 
-  const loadData = React.useCallback(async () => {
+  const loadData = React.useCallback(async (signal?: AbortSignal) => {
     setLoading(true);
     setError('');
     try {
@@ -148,26 +149,39 @@ const Projects = () => {
       }
 
       const [projectsData, membersData] = await Promise.all([
-        crmRequest('/api/projects', { token, orgId: activeOrgId }),
+        crmRequest('/api/projects', { token, orgId: activeOrgId, signal }),
         crmRequest(
           activeOrgId ? `/api/users/members?orgId=${encodeURIComponent(activeOrgId)}` : '/api/users/members',
-          { token, orgId: activeOrgId },
+          { token, orgId: activeOrgId, signal },
         ),
       ]);
 
       setProjects(Array.isArray(projectsData) ? projectsData : []);
       setMembers(Array.isArray(membersData) ? membersData : []);
     } catch (loadError: any) {
+      if (isAbortError(loadError)) {
+        return;
+      }
       setError(loadError?.message || 'Failed to load projects workspace');
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) {
+        setLoading(false);
+      }
     }
   }, [activeOrgId, getAccessToken]);
 
   React.useEffect(() => {
-    loadData().catch(() => {
-      setLoading(false);
+    const controller = new AbortController();
+
+    loadData(controller.signal).catch(() => {
+      if (!controller.signal.aborted) {
+        setLoading(false);
+      }
     });
+
+    return () => {
+      controller.abort();
+    };
   }, [loadData]);
 
   const openCreate = () => {
@@ -328,31 +342,41 @@ const Projects = () => {
         },
       });
 
-      for (const userId of finalIds) {
-        await crmRequest(`/api/projects/${membersProject.id}/members`, {
-          token,
-          orgId: activeOrgId,
-          method: 'POST',
-          body: {
-            orgId: activeOrgId,
-            userId,
-            memberRole: membersOwnerId && userId === membersOwnerId ? 'owner' : 'member',
-          },
-        });
-      }
+      const existingRolesByUserId = new Map(
+        membersProject.members.map((member) => [member.userId, member.memberRole]),
+      );
 
-      for (const existing of membersProject.members) {
-        if (!finalIds.has(existing.userId)) {
-          await crmRequest(`/api/projects/${membersProject.id}/members/${existing.userId}`, {
-            token,
-            orgId: activeOrgId,
-            method: 'DELETE',
-            body: {
+      await Promise.all([
+        ...Array.from(finalIds)
+          .filter((userId) => {
+            const nextRole = membersOwnerId && userId === membersOwnerId ? 'owner' : 'member';
+            return existingRolesByUserId.get(userId) !== nextRole;
+          })
+          .map((userId) =>
+            crmRequest(`/api/projects/${membersProject.id}/members`, {
+              token,
               orgId: activeOrgId,
-            },
-          });
-        }
-      }
+              method: 'POST',
+              body: {
+                orgId: activeOrgId,
+                userId,
+                memberRole: membersOwnerId && userId === membersOwnerId ? 'owner' : 'member',
+              },
+            }),
+          ),
+        ...membersProject.members
+          .filter((existing) => !finalIds.has(existing.userId))
+          .map((existing) =>
+            crmRequest(`/api/projects/${membersProject.id}/members/${existing.userId}`, {
+              token,
+              orgId: activeOrgId,
+              method: 'DELETE',
+              body: {
+                orgId: activeOrgId,
+              },
+            }),
+          ),
+      ]);
 
       setMembersOpen(false);
       setInfo('Project assignments updated.');

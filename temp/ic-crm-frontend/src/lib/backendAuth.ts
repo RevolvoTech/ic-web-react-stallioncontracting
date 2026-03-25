@@ -1,3 +1,5 @@
+import { fetchWithTimeout } from './fetchWithTimeout';
+
 export type AuthSessionUser = {
   id: string;
   email: string | null;
@@ -92,6 +94,7 @@ type BackendRequestOptions = {
   method?: string;
   body?: unknown;
   token?: string | null;
+  signal?: AbortSignal;
 };
 
 export const backendAuthRequest = async <T,>(path: string, options: BackendRequestOptions = {}) => {
@@ -106,10 +109,11 @@ export const backendAuthRequest = async <T,>(path: string, options: BackendReque
     headers['Content-Type'] = 'application/json';
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetchWithTimeout(`${API_BASE_URL}${path}`, {
     method,
     headers,
     body: options.body ? JSON.stringify(options.body) : undefined,
+    signal: options.signal,
   });
 
   const payload = await response

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
   AuthSession,
   AuthSessionUser,
@@ -8,6 +8,7 @@ import {
   readStoredAuthSession,
   writeStoredAuthSession,
 } from 'src/lib/backendAuth';
+import { fetchWithTimeout } from 'src/lib/fetchWithTimeout';
 
 const resolveApiBaseUrl = () => {
   const raw = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -98,7 +99,7 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 const fetchMe = async (accessToken: string, orgId: string | null): Promise<MeResponse> => {
-  const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+  const response = await fetchWithTimeout(`${API_BASE_URL}/api/auth/me`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       ...(orgId ? { 'x-org-id': orgId } : {}),
@@ -138,6 +139,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(false);
   const [activeOrgId, setActiveOrgIdState] = useState<string | null>(readStoredActiveOrgId);
+  const skipNextOrgRefreshRef = useRef(false);
 
   const syncSessionState = (nextSession: AuthSession | null) => {
     setSession(nextSession);
@@ -199,7 +201,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const me = await loadProfileForToken(accessToken, activeOrgId);
       if (me) {
-        setActiveOrgIdState(me.activeOrg.orgId || null);
+        const resolvedOrgId = me.activeOrg.orgId || null;
+        if (resolvedOrgId !== activeOrgId) {
+          skipNextOrgRefreshRef.current = true;
+          setActiveOrgIdState(resolvedOrgId);
+        }
       }
     } finally {
       setProfileLoading(false);
@@ -340,6 +346,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     if (!session?.accessToken) {
+      return;
+    }
+
+    if (skipNextOrgRefreshRef.current) {
+      skipNextOrgRefreshRef.current = false;
       return;
     }
 

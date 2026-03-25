@@ -1,24 +1,64 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import React from 'react';
-import { Box, Grid, Alert, Button, Stack } from '@mui/material';
+import React, { lazy, startTransition, useEffect, useState } from 'react';
+import { Box, Grid, Alert, Button, Stack, Card, CardContent, Skeleton } from '@mui/material';
 import PageContainer from 'src/components/container/PageContainer';
+import Loadable from 'src/layouts/full/shared/loadable/Loadable';
 
-import TopCards from 'src/components/dashboards/modern/TopCards';
-import RevenueUpdates from 'src/components/dashboards/modern/RevenueUpdates';
-import YearlyBreakup from 'src/components/dashboards/modern/YearlyBreakup';
-import MonthlyEarnings from 'src/components/dashboards/modern/MonthlyEarnings';
-import EmployeeSalary from 'src/components/dashboards/modern/EmployeeSalary';
-import Customers from 'src/components/dashboards/modern/Customers';
-import Projects from 'src/components/dashboards/modern/Projects';
-import Social from 'src/components/dashboards/modern/Social';
-import SellingProducts from 'src/components/dashboards/modern/SellingProducts';
-import WeeklyStats from 'src/components/dashboards/modern/WeeklyStats';
-import TopPerformers from 'src/components/dashboards/modern/TopPerformers';
 import { useModernDashboardData } from './useModernDashboardData';
+
+const TopCards = Loadable(lazy(() => import('src/components/dashboards/modern/TopCards')));
+const RevenueUpdates = Loadable(lazy(() => import('src/components/dashboards/modern/RevenueUpdates')));
+const YearlyBreakup = Loadable(lazy(() => import('src/components/dashboards/modern/YearlyBreakup')));
+const MonthlyEarnings = Loadable(lazy(() => import('src/components/dashboards/modern/MonthlyEarnings')));
+const EmployeeSalary = Loadable(lazy(() => import('src/components/dashboards/modern/EmployeeSalary')));
+const Customers = Loadable(lazy(() => import('src/components/dashboards/modern/Customers')));
+const Projects = Loadable(lazy(() => import('src/components/dashboards/modern/Projects')));
+const Social = Loadable(lazy(() => import('src/components/dashboards/modern/Social')));
+const SellingProducts = Loadable(lazy(() => import('src/components/dashboards/modern/SellingProducts')));
+const WeeklyStats = Loadable(lazy(() => import('src/components/dashboards/modern/WeeklyStats')));
+const TopPerformers = Loadable(lazy(() => import('src/components/dashboards/modern/TopPerformers')));
+
+const DashboardPlaceholder = ({ height = 280 }: { height?: number }) => (
+  <Card variant="outlined">
+    <CardContent>
+      <Skeleton variant="text" width="40%" height={32} />
+      <Skeleton variant="rectangular" height={height} sx={{ mt: 2, borderRadius: 2 }} />
+    </CardContent>
+  </Card>
+);
+
+const scheduleDeferredWidgets = (callback: () => void) => {
+  if (typeof window === 'undefined') {
+    callback();
+    return () => {};
+  }
+
+  if ('requestIdleCallback' in window) {
+    const idleId = window.requestIdleCallback(() => callback(), { timeout: 500 });
+    return () => {
+      window.cancelIdleCallback(idleId);
+    };
+  }
+
+  const timeoutId = globalThis.setTimeout(callback, 150);
+  return () => {
+    globalThis.clearTimeout(timeoutId);
+  };
+};
 
 const Modern = () => {
   const dashboard = useModernDashboardData();
+  const [showDeferredWidgets, setShowDeferredWidgets] = useState(false);
+
+  useEffect(() => {
+    setShowDeferredWidgets(false);
+    return scheduleDeferredWidgets(() => {
+      startTransition(() => {
+        setShowDeferredWidgets(true);
+      });
+    });
+  }, []);
 
   return (
     (<PageContainer title="Modern Dashboard" description="this is Modern Dashboard page">
@@ -56,7 +96,7 @@ const Modern = () => {
               xs: 12,
               lg: 8
             }}>
-            <RevenueUpdates data={dashboard.revenue} />
+            {showDeferredWidgets ? <RevenueUpdates data={dashboard.revenue} /> : <DashboardPlaceholder height={320} />}
           </Grid>
           {/* column */}
           <Grid
@@ -71,7 +111,7 @@ const Modern = () => {
                   sm: 6,
                   lg: 12
                 }}>
-                <YearlyBreakup data={dashboard.yearly} />
+                {showDeferredWidgets ? <YearlyBreakup data={dashboard.yearly} /> : <DashboardPlaceholder height={180} />}
               </Grid>
               <Grid
                 size={{
@@ -79,7 +119,7 @@ const Modern = () => {
                   sm: 6,
                   lg: 12
                 }}>
-                <MonthlyEarnings data={dashboard.monthly} />
+                {showDeferredWidgets ? <MonthlyEarnings data={dashboard.monthly} /> : <DashboardPlaceholder height={180} />}
               </Grid>
             </Grid>
           </Grid>
@@ -89,7 +129,7 @@ const Modern = () => {
               xs: 12,
               lg: 4
             }}>
-            <EmployeeSalary data={dashboard.employeeSalary} />
+            {showDeferredWidgets ? <EmployeeSalary data={dashboard.employeeSalary} /> : <DashboardPlaceholder height={360} />}
           </Grid>
           {/* column */}
           <Grid
@@ -103,17 +143,17 @@ const Modern = () => {
                   xs: 12,
                   sm: 6
                 }}>
-                <Customers data={dashboard.customersCard} />
+                {showDeferredWidgets ? <Customers data={dashboard.customersCard} /> : <DashboardPlaceholder height={180} />}
               </Grid>
               <Grid
                 size={{
                   xs: 12,
                   sm: 6
                 }}>
-                <Projects data={dashboard.projectsCard} />
+                {showDeferredWidgets ? <Projects data={dashboard.projectsCard} /> : <DashboardPlaceholder height={180} />}
               </Grid>
               <Grid size={12}>
-                <Social data={dashboard.social} />
+                {showDeferredWidgets ? <Social data={dashboard.social} /> : <DashboardPlaceholder height={180} />}
               </Grid>
             </Grid>
           </Grid>
@@ -123,7 +163,7 @@ const Modern = () => {
               xs: 12,
               lg: 4
             }}>
-            <SellingProducts data={dashboard.selling} />
+            {showDeferredWidgets ? <SellingProducts data={dashboard.selling} /> : <DashboardPlaceholder height={360} />}
           </Grid>
           {/* column */}
           <Grid
@@ -131,7 +171,7 @@ const Modern = () => {
               xs: 12,
               lg: 4
             }}>
-            <WeeklyStats data={dashboard.weekly} />
+            {showDeferredWidgets ? <WeeklyStats data={dashboard.weekly} /> : <DashboardPlaceholder height={360} />}
           </Grid>
           {/* column */}
           <Grid
@@ -139,7 +179,7 @@ const Modern = () => {
               xs: 12,
               lg: 8
             }}>
-            <TopPerformers performers={dashboard.performers} />
+            {showDeferredWidgets ? <TopPerformers performers={dashboard.performers} /> : <DashboardPlaceholder height={360} />}
           </Grid>
         </Grid>
       </Box>

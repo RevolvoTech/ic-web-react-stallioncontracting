@@ -1,8 +1,9 @@
-import { createContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useState, useEffect, ReactNode, useCallback, useRef } from 'react';
 import { ContactType } from '../../types/apps/contact';
 import React from 'react';
 import { crmRequest } from 'src/api/crm/client';
 import { useAuth } from 'src/context/AuthContext';
+import { isAbortError } from 'src/lib/fetchWithTimeout';
 import user1 from 'src/assets/images/profile/user-1.jpg';
 import user2 from 'src/assets/images/profile/user-2.jpg';
 import user3 from 'src/assets/images/profile/user-3.jpg';
@@ -164,6 +165,7 @@ export const ContactContext = createContext<ContactContextType | any>(undefined)
 
 export const ContactContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { session, activeOrgId, getAccessToken } = useAuth();
+  const detailAbortRef = useRef<AbortController | null>(null);
 
   const [contacts, setContacts] = useState<ContactType[]>([]);
   const [starredContacts, setStarredContacts] = useState<Array<string | number>>([]);
@@ -174,7 +176,12 @@ export const ContactContextProvider: React.FC<{ children: ReactNode }> = ({ chil
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<any>(null);
 
-  const callApi = async <T,>(path: string, method = 'GET', body?: unknown): Promise<T> => {
+  const callApi = async <T,>(
+    path: string,
+    method = 'GET',
+    body?: unknown,
+    signal?: AbortSignal,
+  ): Promise<T> => {
     const token = await getAccessToken();
     if (!token) {
       throw new Error('Missing session token');
@@ -185,10 +192,11 @@ export const ContactContextProvider: React.FC<{ children: ReactNode }> = ({ chil
       orgId: activeOrgId,
       method,
       body,
+      signal,
     })) as T;
   };
 
-  const refreshCustomers = async () => {
+  const refreshCustomers = useCallback(async (signal?: AbortSignal) => {
     if (!session) {
       setContacts([]);
       setSelectedContact(null);
@@ -198,35 +206,58 @@ export const ContactContextProvider: React.FC<{ children: ReactNode }> = ({ chil
 
     setLoading(true);
     try {
-      const data = await callApi<{ items: CustomerListItem[] }>('/api/customers?page=1&pageSize=200');
+      const data = await callApi<{ items: CustomerListItem[] }>(
+        '/api/customers?page=1&pageSize=200',
+        'GET',
+        undefined,
+        signal,
+      );
       const mapped = data.items.map(mapListItemToContact);
       setContacts(mapped);
       setStarredContacts(mapped.filter((contact) => contact.starred).map((contact) => contact.id));
-
-      if (!selectedContact && mapped.length > 0) {
-        setSelectedContact(mapped[0]);
-      }
+      setSelectedContact((current) => {
+        if (mapped.length === 0) {
+          return null;
+        }
+        if (!current) {
+          return mapped[0];
+        }
+        return mapped.find((contact) => contact.id === current.id) || mapped[0];
+      });
       setError(null);
     } catch (apiError) {
+      if (isAbortError(apiError)) {
+        return;
+      }
       setError(apiError);
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) {
+        setLoading(false);
+      }
     }
-  };
+  }, [activeOrgId, getAccessToken, session]);
 
   useEffect(() => {
-    refreshCustomers().catch(() => {
-      setLoading(false);
+    const controller = new AbortController();
+
+    refreshCustomers(controller.signal).catch(() => {
+      if (!controller.signal.aborted) {
+        setLoading(false);
+      }
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    return () => {
+      controller.abort();
+      detailAbortRef.current?.abort();
+    };
   }, [session, activeOrgId]);
 
   const updateSearchTerm = (term: string) => {
     setSearchTerm(term);
   };
 
-  const fetchContactDetail = async (contactId: number | string) => {
-    const detail = await callApi<CustomerDetail>(`/api/customers/${contactId}`);
+  const fetchContactDetail = async (contactId: number | string, signal?: AbortSignal) => {
+    const detail = await callApi<CustomerDetail>(`/api/customers/${contactId}`, 'GET', undefined, signal);
     return mapDetailToContact(detail);
   };
 
@@ -308,11 +339,23 @@ export const ContactContextProvider: React.FC<{ children: ReactNode }> = ({ chil
 
   const selectContact = async (contact: ContactType) => {
     setSelectedContact(contact);
+    detailAbortRef.current?.abort();
+    const controller = new AbortController();
+    detailAbortRef.current = controller;
     try {
-      const freshDetail = await fetchContactDetail(contact.id);
-      setSelectedContact(freshDetail);
-    } catch {
+      const freshDetail = await fetchContactDetail(contact.id, controller.signal);
+      if (!controller.signal.aborted) {
+        setSelectedContact(freshDetail);
+      }
+    } catch (error) {
+      if (isAbortError(error)) {
+        return;
+      }
       // keep existing selected contact when detail fetch fails
+    } finally {
+      if (detailAbortRef.current === controller) {
+        detailAbortRef.current = null;
+      }
     }
   };
 

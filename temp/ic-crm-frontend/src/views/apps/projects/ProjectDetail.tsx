@@ -21,6 +21,7 @@ import Breadcrumb from 'src/layouts/full/shared/breadcrumb/Breadcrumb';
 import BlankCard from 'src/components/shared/BlankCard';
 import { crmRequest } from 'src/api/crm/client';
 import { useAuth } from 'src/context/AuthContext';
+import { isAbortError } from 'src/lib/fetchWithTimeout';
 
 type ProjectMember = {
   userId: string;
@@ -165,7 +166,7 @@ const ProjectDetail = () => {
   );
   const canManageFiles = isOrgProjectManager || (currentOrgRole === 'employee' && isProjectMember);
 
-  const loadProject = React.useCallback(async () => {
+  const loadProject = React.useCallback(async (signal?: AbortSignal) => {
     setLoading(true);
     setError('');
 
@@ -182,18 +183,24 @@ const ProjectDetail = () => {
       const data = await crmRequest(`/api/projects/${projectId}`, {
         token,
         orgId: activeOrgId,
+        signal,
       });
 
       setProject(data as ProjectDetailData);
     } catch (loadError: any) {
+      if (isAbortError(loadError)) {
+        return;
+      }
       setError(loadError?.message || 'Failed to load project detail');
       setProject(null);
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) {
+        setLoading(false);
+      }
     }
   }, [activeOrgId, getAccessToken, projectId]);
 
-  const loadFiles = React.useCallback(async () => {
+  const loadFiles = React.useCallback(async (signal?: AbortSignal) => {
     setFilesLoading(true);
     setFilesError('');
     try {
@@ -209,13 +216,19 @@ const ProjectDetail = () => {
       const data = await crmRequest(`/api/projects/${projectId}/files`, {
         token,
         orgId: activeOrgId,
+        signal,
       });
 
       setFiles(Array.isArray(data) ? (data as ProjectFile[]) : []);
     } catch (loadError: any) {
+      if (isAbortError(loadError)) {
+        return;
+      }
       setFilesError(loadError?.message || 'Failed to load project files');
     } finally {
-      setFilesLoading(false);
+      if (!signal?.aborted) {
+        setFilesLoading(false);
+      }
     }
   }, [activeOrgId, getAccessToken, projectId]);
 
@@ -313,10 +326,26 @@ const ProjectDetail = () => {
   };
 
   React.useEffect(() => {
-    Promise.all([loadProject(), loadFiles()]).catch(() => {
-      setLoading(false);
+    const controller = new AbortController();
+
+    Promise.all([loadProject(controller.signal), loadFiles(controller.signal)]).catch(() => {
+      if (!controller.signal.aborted) {
+        setLoading(false);
+      }
     });
+
+    return () => {
+      controller.abort();
+    };
   }, [loadFiles, loadProject]);
+
+  const handleRefreshProject = () => {
+    void loadProject();
+  };
+
+  const handleRefreshFiles = () => {
+    void loadFiles();
+  };
 
   return (
     <PageContainer title="Project Detail" description="Project detail workspace">
@@ -335,7 +364,7 @@ const ProjectDetail = () => {
               <Button variant="outlined" onClick={() => navigate('/apps/projects')}>
                 Back To Projects
               </Button>
-              <Button variant="contained" onClick={loadProject} disabled={loading}>
+              <Button variant="contained" onClick={handleRefreshProject} disabled={loading}>
                 Refresh
               </Button>
             </Stack>
@@ -539,12 +568,12 @@ const ProjectDetail = () => {
                       >
                         {uploadingFile ? 'Uploading...' : 'Upload File'}
                       </Button>
-                      <Button variant="text" disabled={filesLoading} onClick={loadFiles}>
+                      <Button variant="text" disabled={filesLoading} onClick={handleRefreshFiles}>
                         Refresh Files
                       </Button>
                     </Stack>
                   ) : (
-                    <Button variant="text" disabled={filesLoading} onClick={loadFiles}>
+                    <Button variant="text" disabled={filesLoading} onClick={handleRefreshFiles}>
                       Refresh Files
                     </Button>
                   )}
