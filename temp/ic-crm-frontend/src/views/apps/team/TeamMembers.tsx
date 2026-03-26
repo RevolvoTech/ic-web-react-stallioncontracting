@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   Alert,
+  Autocomplete,
   Box,
   Button,
   Chip,
@@ -8,6 +9,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
   FormControl,
   InputLabel,
   MenuItem,
@@ -138,6 +140,23 @@ const formatDate = (value: string | null | undefined) => {
   return date.toLocaleString();
 };
 
+const sectionCardSx = {
+  p: 3,
+  borderRadius: 3,
+  border: '1px solid',
+  borderColor: 'divider',
+  backgroundColor: 'background.paper',
+};
+
+const tableHeadCellSx = {
+  fontSize: '0.75rem',
+  fontWeight: 700,
+  color: 'text.secondary',
+  textTransform: 'uppercase',
+  letterSpacing: '0.04em',
+  borderBottomColor: 'divider',
+};
+
 const TeamMembers = () => {
   const { profile, activeOrgId, getAccessToken, setActiveOrgId } = useAuth();
   const [members, setMembers] = React.useState<Member[]>([]);
@@ -166,6 +185,24 @@ const TeamMembers = () => {
     null;
   const resolvedColor = resolveUiColor(teamForm.color || '#2563eb');
   const isValidColor = isHexColor(teamForm.color);
+  const activeMembers = members.filter((member) => member.isActive);
+  const selectableTeamMembers = members.filter(
+    (member) => member.isActive || teamForm.memberUserIds.includes(member.userId),
+  );
+  const selectedTeamMembers = selectableTeamMembers.filter((member) =>
+    teamForm.memberUserIds.includes(member.userId),
+  );
+  const pendingInvitationCount = invitations.filter((invitation) => invitation.status === 'pending').length;
+  const teamMembershipsByUserId = teams.reduce<Record<string, TeamItem[]>>((accumulator, team) => {
+    team.members.forEach((member) => {
+      if (!accumulator[member.userId]) {
+        accumulator[member.userId] = [];
+      }
+      accumulator[member.userId].push(team);
+    });
+
+    return accumulator;
+  }, {});
 
   React.useEffect(() => {
     if (!activeOrgId && resolvedOrgId) {
@@ -515,16 +552,67 @@ const TeamMembers = () => {
       <Breadcrumb title="Team & Roles" items={BCrumb} />
       <BlankCard>
         <Stack spacing={3} p={3}>
-          <Box>
-            <Typography variant="h5">Team Workspace</Typography>
-            <Typography variant="body2" color="textSecondary">
-              Manage reusable teams, org members, and invitation-based CRM access.
-            </Typography>
-            {resolvedOrgName ? (
-              <Typography variant="body2" color="textSecondary" mt={0.5}>
-                Managing {resolvedOrgName}.
-              </Typography>
-            ) : null}
+          <Box
+            sx={{
+              ...sectionCardSx,
+              background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.08) 0%, rgba(14, 165, 233, 0.08) 100%)',
+            }}
+          >
+            <Stack
+              direction={{ xs: 'column', lg: 'row' }}
+              spacing={2}
+              justifyContent="space-between"
+              alignItems={{ lg: 'center' }}
+            >
+              <Box>
+                <Typography variant="h4" fontWeight={700}>
+                  Team Workspace
+                </Typography>
+                <Typography variant="body1" color="text.secondary" mt={1}>
+                  Manage reusable teams, membership access, and invitation-driven onboarding from one place.
+                </Typography>
+                {resolvedOrgName ? (
+                  <Typography variant="body2" color="text.secondary" mt={1}>
+                    Managing <strong>{resolvedOrgName}</strong>.
+                  </Typography>
+                ) : null}
+              </Box>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+                <Box sx={{ ...sectionCardSx, minWidth: 150, p: 2.25 }}>
+                  <Typography variant="overline" color="text.secondary">
+                    Teams
+                  </Typography>
+                  <Typography variant="h4" fontWeight={700}>
+                    {teams.length}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Reusable groups
+                  </Typography>
+                </Box>
+                <Box sx={{ ...sectionCardSx, minWidth: 150, p: 2.25 }}>
+                  <Typography variant="overline" color="text.secondary">
+                    Active Members
+                  </Typography>
+                  <Typography variant="h4" fontWeight={700}>
+                    {activeMembers.length}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    In current org
+                  </Typography>
+                </Box>
+                <Box sx={{ ...sectionCardSx, minWidth: 150, p: 2.25 }}>
+                  <Typography variant="overline" color="text.secondary">
+                    Pending Invites
+                  </Typography>
+                  <Typography variant="h4" fontWeight={700}>
+                    {pendingInvitationCount}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Awaiting acceptance
+                  </Typography>
+                </Box>
+              </Stack>
+            </Stack>
           </Box>
 
           {!resolvedOrgId ? (
@@ -535,260 +623,136 @@ const TeamMembers = () => {
           ) : null}
           {error ? <Alert severity="error">{error}</Alert> : null}
           {info ? <Alert severity="success">{info}</Alert> : null}
-          {loading ? <Typography>Loading team workspace...</Typography> : null}
-
-          <Stack spacing={2}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Box>
-                <Typography variant="h6">Teams</Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Assign projects and tickets to teams, then manage members centrally.
-                </Typography>
-              </Box>
-              {canManageRoles ? (
-                <Button variant="contained" onClick={openCreateTeam} disabled={!resolvedOrgId}>
-                  Create Team
-                </Button>
-              ) : null}
-            </Stack>
-
-            {!loading ? (
-              <TableContainer>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Name</TableCell>
-                      <TableCell>Color</TableCell>
-                      <TableCell>Members</TableCell>
-                      <TableCell>Projects</TableCell>
-                      <TableCell>Tickets</TableCell>
-                      <TableCell align="right">Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {teams.map((team) => (
-                      <TableRow key={team.id}>
-                        <TableCell>
-                          <Stack spacing={0.5}>
-                            <Typography variant="subtitle2">{team.name}</Typography>
-                            <Typography variant="body2" color="textSecondary">
-                              {team.description || 'No description'}
-                            </Typography>
-                          </Stack>
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            size="small"
-                            label={team.color}
-                            sx={{
-                              width: 'fit-content',
-                              backgroundColor: hexToRgba(team.color, 0.16),
-                              color: getReadableTextColor(team.color),
-                              border: `1px solid ${resolveUiColor(team.color)}`,
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell>{team.memberCount}</TableCell>
-                        <TableCell>{team.projectCount}</TableCell>
-                        <TableCell>{team.ticketCount}</TableCell>
-                        <TableCell align="right">
-                          <Stack direction="row" spacing={1} justifyContent="flex-end">
-                            {canManageRoles ? (
-                              <Button size="small" variant="outlined" onClick={() => openEditTeam(team)}>
-                                Edit
-                              </Button>
-                            ) : null}
-                            {canManageRoles ? (
-                              <Button
-                                size="small"
-                                color="error"
-                                variant="outlined"
-                                onClick={() => void deleteTeam(team.id)}
-                              >
-                                Delete
-                              </Button>
-                            ) : null}
-                          </Stack>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                    {teams.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={6}>
-                          <Typography variant="body2" color="textSecondary">
-                            No teams created yet.
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                    ) : null}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            ) : null}
-          </Stack>
-
-          {!loading ? (
-            <TableContainer>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Name</TableCell>
-                    <TableCell>Email</TableCell>
-                    <TableCell>Global Role</TableCell>
-                    <TableCell>Org Role</TableCell>
-                    <TableCell>Status</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {members.map((member) => {
-                    const fullName = `${member.firstName || ''} ${member.lastName || ''}`.trim();
-                    return (
-                      <TableRow key={`${member.userId}-${member.orgId}`}>
-                        <TableCell>{fullName || 'Unnamed user'}</TableCell>
-                        <TableCell>{member.email}</TableCell>
-                        <TableCell>
-                          {member.globalRole ? <Chip size="small" label={member.globalRole} /> : '-'}
-                        </TableCell>
-                        <TableCell>
-                          {canManageRoles ? (
-                            <FormControl size="small" sx={{ minWidth: 160 }}>
-                              <InputLabel id={`role-label-${member.userId}`}>Org Role</InputLabel>
-                              <Select
-                                labelId={`role-label-${member.userId}`}
-                                label="Org Role"
-                                value={member.orgRole}
-                                onChange={(event) =>
-                                  updateMemberRole(
-                                    member.userId,
-                                    member.orgId,
-                                    event.target.value as 'employer' | 'employee' | 'investor',
-                                  )
-                                }
-                              >
-                                <MenuItem value="employer">employer</MenuItem>
-                                <MenuItem value="employee">employee</MenuItem>
-                                <MenuItem value="investor">investor</MenuItem>
-                              </Select>
-                            </FormControl>
-                          ) : (
-                            <Chip size="small" label={member.orgRole} />
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {canManageRoles ? (
-                            <Stack direction="row" alignItems="center" spacing={1}>
-                              <Switch
-                                size="small"
-                                checked={member.isActive}
-                                onChange={(event) =>
-                                  updateMemberStatus(member.userId, member.orgId, event.target.checked)
-                                }
-                              />
-                              <Typography variant="body2">
-                                {member.isActive ? 'Active' : 'Inactive'}
-                              </Typography>
-                            </Stack>
-                          ) : (
-                            <Typography variant="body2">{member.isActive ? 'Active' : 'Inactive'}</Typography>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          ) : null}
-
-          {canManageRoles ? (
-            <Stack spacing={2}>
-              <Box>
-                <Typography variant="h6">Invitations</Typography>
-                <Typography variant="body2" color="textSecondary">
-                  New CRM memberships are created only through invitations.
-                </Typography>
-              </Box>
-
-              <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'flex-end' }}>
-                <TextField
-                  label="Invite Email"
-                  type="email"
-                  value={inviteEmail}
-                  onChange={(event) => setInviteEmail(event.target.value)}
-                  fullWidth
-                />
-                <FormControl sx={{ minWidth: 180 }}>
-                  <InputLabel id="invite-role-label">Role</InputLabel>
-                  <Select
-                    labelId="invite-role-label"
-                    label="Role"
-                    value={inviteRole}
-                    onChange={(event) => setInviteRole(event.target.value as 'employer' | 'employee' | 'investor')}
-                  >
-                    <MenuItem value="employer">employer</MenuItem>
-                    <MenuItem value="employee">employee</MenuItem>
-                    <MenuItem value="investor">investor</MenuItem>
-                  </Select>
-                </FormControl>
-                <Button variant="contained" onClick={sendInvitation} disabled={inviting || !inviteEmail.trim()}>
-                  {inviting ? 'Sending...' : 'Send Invite'}
-                </Button>
+          <Box sx={sectionCardSx}>
+            <Stack spacing={2.5}>
+              <Stack
+                direction={{ xs: 'column', md: 'row' }}
+                justifyContent="space-between"
+                spacing={2}
+                alignItems={{ md: 'center' }}
+              >
+                <Box>
+                  <Typography variant="h5" fontWeight={700}>
+                    Teams
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" mt={0.75}>
+                    Assign projects and tickets to reusable teams, then manage membership centrally.
+                  </Typography>
+                </Box>
+                {canManageRoles ? (
+                  <Button variant="contained" onClick={openCreateTeam} disabled={!resolvedOrgId}>
+                    Create Team
+                  </Button>
+                ) : null}
               </Stack>
+
+              {loading ? <Typography color="text.secondary">Loading team workspace...</Typography> : null}
 
               {!loading ? (
                 <TableContainer>
-                  <Table size="small">
+                  <Table size="medium">
                     <TableHead>
                       <TableRow>
-                        <TableCell>Email</TableCell>
-                        <TableCell>Role</TableCell>
-                        <TableCell>Status</TableCell>
-                        <TableCell>Expires</TableCell>
-                        <TableCell>Invited By</TableCell>
-                        <TableCell>Accepted User</TableCell>
-                        <TableCell align="right">Actions</TableCell>
+                        <TableCell sx={tableHeadCellSx}>Team</TableCell>
+                        <TableCell sx={tableHeadCellSx}>Members</TableCell>
+                        <TableCell sx={tableHeadCellSx}>Workload</TableCell>
+                        <TableCell sx={tableHeadCellSx} align="right">
+                          Actions
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {invitations.map((invitation) => (
-                        <TableRow key={invitation.id}>
-                          <TableCell>{invitation.email}</TableCell>
-                          <TableCell>
-                            <Chip size="small" label={invitation.role} />
+                      {teams.map((team) => (
+                        <TableRow key={team.id} hover>
+                          <TableCell sx={{ py: 2.25 }}>
+                            <Stack spacing={1}>
+                              <Stack direction="row" spacing={1.25} alignItems="center" useFlexGap>
+                                <Box
+                                  sx={{
+                                    width: 14,
+                                    height: 14,
+                                    borderRadius: '50%',
+                                    backgroundColor: team.color,
+                                    border: '1px solid rgba(15, 23, 42, 0.18)',
+                                    flexShrink: 0,
+                                  }}
+                                />
+                                <Typography variant="subtitle1" fontWeight={700}>
+                                  {team.name}
+                                </Typography>
+                                <Chip
+                                  size="small"
+                                  label={team.color}
+                                  sx={{
+                                    backgroundColor: hexToRgba(team.color, 0.14),
+                                    color: getReadableTextColor(team.color),
+                                    border: `1px solid ${resolveUiColor(team.color)}`,
+                                  }}
+                                />
+                              </Stack>
+                              <Typography variant="body2" color="text.secondary">
+                                {team.description || 'No description yet.'}
+                              </Typography>
+                            </Stack>
                           </TableCell>
-                          <TableCell>
-                            <Chip size="small" color={statusChipColor(invitation.status)} label={invitation.status} />
+                          <TableCell sx={{ py: 2.25 }}>
+                            <Stack spacing={1}>
+                              <Typography variant="body2" fontWeight={600}>
+                                {team.memberCount} member{team.memberCount === 1 ? '' : 's'}
+                              </Typography>
+                              <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
+                                {team.members.slice(0, 3).map((member) => (
+                                  <Chip key={member.userId} size="small" label={member.fullName} />
+                                ))}
+                                {team.memberCount > 3 ? (
+                                  <Chip size="small" variant="outlined" label={`+${team.memberCount - 3} more`} />
+                                ) : null}
+                                {team.memberCount === 0 ? (
+                                  <Typography variant="body2" color="text.secondary">
+                                    No members assigned.
+                                  </Typography>
+                                ) : null}
+                              </Stack>
+                            </Stack>
                           </TableCell>
-                          <TableCell>{formatDate(invitation.expiresAt)}</TableCell>
-                          <TableCell>{invitation.invitedByEmail || '-'}</TableCell>
-                          <TableCell>{invitation.invitedUserEmail || '-'}</TableCell>
-                          <TableCell align="right">
+                          <TableCell sx={{ py: 2.25 }}>
+                            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                              <Chip size="small" variant="outlined" label={`${team.projectCount} projects`} />
+                              <Chip size="small" variant="outlined" label={`${team.ticketCount} tickets`} />
+                            </Stack>
+                          </TableCell>
+                          <TableCell sx={{ py: 2.25 }} align="right">
                             <Stack direction="row" spacing={1} justifyContent="flex-end">
-                              {invitation.status === 'pending' || invitation.status === 'expired' ? (
-                                <Button size="small" variant="outlined" onClick={() => resendInvitation(invitation.id)}>
-                                  Resend
+                              {canManageRoles ? (
+                                <Button size="small" variant="outlined" onClick={() => openEditTeam(team)}>
+                                  Edit
                                 </Button>
                               ) : null}
-                              {invitation.status === 'pending' || invitation.status === 'expired' ? (
+                              {canManageRoles ? (
                                 <Button
                                   size="small"
                                   color="error"
                                   variant="outlined"
-                                  onClick={() => revokeInvitation(invitation.id)}
+                                  onClick={() => void deleteTeam(team.id)}
                                 >
-                                  Revoke
+                                  Delete
                                 </Button>
                               ) : null}
                             </Stack>
                           </TableCell>
                         </TableRow>
                       ))}
-                      {invitations.length === 0 ? (
+                      {teams.length === 0 ? (
                         <TableRow>
-                          <TableCell colSpan={7}>
-                            <Typography variant="body2" color="textSecondary">
-                              No invitations yet.
-                            </Typography>
+                          <TableCell colSpan={4} sx={{ py: 5 }}>
+                            <Stack spacing={1} alignItems="flex-start">
+                              <Typography variant="subtitle1" fontWeight={700}>
+                                No teams created yet
+                              </Typography>
+                              <Typography variant="body2" color="text.secondary">
+                                Create teams to assign projects and tickets to groups instead of one user at a time.
+                              </Typography>
+                            </Stack>
                           </TableCell>
                         </TableRow>
                       ) : null}
@@ -797,20 +761,271 @@ const TeamMembers = () => {
                 </TableContainer>
               ) : null}
             </Stack>
+          </Box>
+
+          <Box sx={sectionCardSx}>
+            <Stack spacing={2.5}>
+              <Box>
+                <Typography variant="h5" fontWeight={700}>
+                  Members
+                </Typography>
+                <Typography variant="body2" color="text.secondary" mt={0.75}>
+                  Review org access, manage roles, and see each member’s team assignments.
+                </Typography>
+              </Box>
+
+              {!loading ? (
+                <TableContainer>
+                  <Table size="medium">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={tableHeadCellSx}>Member</TableCell>
+                        <TableCell sx={tableHeadCellSx}>Access</TableCell>
+                        <TableCell sx={tableHeadCellSx}>Teams</TableCell>
+                        <TableCell sx={tableHeadCellSx}>Status</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {members.map((member) => {
+                        const fullName = `${member.firstName || ''} ${member.lastName || ''}`.trim();
+                        const memberTeams = teamMembershipsByUserId[member.userId] || [];
+                        return (
+                          <TableRow key={`${member.userId}-${member.orgId}`} hover>
+                            <TableCell sx={{ py: 2.25 }}>
+                              <Stack spacing={0.5}>
+                                <Typography variant="subtitle1" fontWeight={700}>
+                                  {fullName || 'Unnamed user'}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                  {member.email}
+                                </Typography>
+                              </Stack>
+                            </TableCell>
+                            <TableCell sx={{ py: 2.25 }}>
+                              <Stack spacing={1.25}>
+                                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                                  {member.globalRole ? <Chip size="small" label={member.globalRole} /> : null}
+                                  {!member.globalRole ? (
+                                    <Typography variant="body2" color="text.secondary">
+                                      No global role
+                                    </Typography>
+                                  ) : null}
+                                </Stack>
+                                {canManageRoles ? (
+                                  <FormControl size="small" sx={{ minWidth: 180 }}>
+                                    <InputLabel id={`role-label-${member.userId}`}>Org Role</InputLabel>
+                                    <Select
+                                      id={`org-role-select-${member.userId}`}
+                                      name={`orgRole-${member.userId}`}
+                                      labelId={`role-label-${member.userId}`}
+                                      label="Org Role"
+                                      value={member.orgRole}
+                                      onChange={(event) =>
+                                        updateMemberRole(
+                                          member.userId,
+                                          member.orgId,
+                                          event.target.value as 'employer' | 'employee' | 'investor',
+                                        )
+                                      }
+                                    >
+                                      <MenuItem value="employer">employer</MenuItem>
+                                      <MenuItem value="employee">employee</MenuItem>
+                                      <MenuItem value="investor">investor</MenuItem>
+                                    </Select>
+                                  </FormControl>
+                                ) : (
+                                  <Chip size="small" variant="outlined" label={member.orgRole} />
+                                )}
+                              </Stack>
+                            </TableCell>
+                            <TableCell sx={{ py: 2.25 }}>
+                              <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
+                                {memberTeams.map((team) => (
+                                  <Chip
+                                    key={team.id}
+                                    size="small"
+                                    label={team.name}
+                                    sx={{
+                                      backgroundColor: hexToRgba(team.color, 0.12),
+                                      color: getReadableTextColor(team.color),
+                                      border: `1px solid ${resolveUiColor(team.color)}`,
+                                    }}
+                                  />
+                                ))}
+                                {!memberTeams.length ? (
+                                  <Typography variant="body2" color="text.secondary">
+                                    Not assigned to a team
+                                  </Typography>
+                                ) : null}
+                              </Stack>
+                            </TableCell>
+                            <TableCell sx={{ py: 2.25 }}>
+                              {canManageRoles ? (
+                                <Stack direction="row" alignItems="center" spacing={1}>
+                                  <Switch
+                                    size="small"
+                                    name={`member-status-${member.userId}`}
+                                    checked={member.isActive}
+                                    onChange={(event) =>
+                                      updateMemberStatus(member.userId, member.orgId, event.target.checked)
+                                    }
+                                  />
+                                  <Typography variant="body2">
+                                    {member.isActive ? 'Active' : 'Inactive'}
+                                  </Typography>
+                                </Stack>
+                              ) : (
+                                <Typography variant="body2">{member.isActive ? 'Active' : 'Inactive'}</Typography>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              ) : null}
+            </Stack>
+          </Box>
+
+          {canManageRoles ? (
+            <Box sx={sectionCardSx}>
+              <Stack spacing={2.5}>
+                <Box>
+                  <Typography variant="h5" fontWeight={700}>
+                    Invitations
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" mt={0.75}>
+                    New CRM memberships are created only through invitations.
+                  </Typography>
+                </Box>
+
+                <Stack
+                  direction={{ xs: 'column', md: 'row' }}
+                  spacing={2}
+                  alignItems={{ md: 'flex-end' }}
+                  sx={{
+                    p: 2.25,
+                    borderRadius: 3,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    backgroundColor: 'grey.50',
+                  }}
+                >
+                  <TextField
+                    id="invite-email"
+                    name="inviteEmail"
+                    label="Invite Email"
+                    type="email"
+                    value={inviteEmail}
+                    onChange={(event) => setInviteEmail(event.target.value)}
+                    fullWidth
+                  />
+                  <FormControl sx={{ minWidth: 190 }}>
+                    <InputLabel id="invite-role-label">Role</InputLabel>
+                    <Select
+                      id="invite-role"
+                      name="inviteRole"
+                      labelId="invite-role-label"
+                      label="Role"
+                      value={inviteRole}
+                      onChange={(event) =>
+                        setInviteRole(event.target.value as 'employer' | 'employee' | 'investor')
+                      }
+                    >
+                      <MenuItem value="employer">employer</MenuItem>
+                      <MenuItem value="employee">employee</MenuItem>
+                      <MenuItem value="investor">investor</MenuItem>
+                    </Select>
+                  </FormControl>
+                  <Button variant="contained" onClick={sendInvitation} disabled={inviting || !inviteEmail.trim()}>
+                    {inviting ? 'Sending...' : 'Send Invite'}
+                  </Button>
+                </Stack>
+
+                {!loading ? (
+                  <TableContainer>
+                    <Table size="medium">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell sx={tableHeadCellSx}>Email</TableCell>
+                          <TableCell sx={tableHeadCellSx}>Role</TableCell>
+                          <TableCell sx={tableHeadCellSx}>Status</TableCell>
+                          <TableCell sx={tableHeadCellSx}>Expires</TableCell>
+                          <TableCell sx={tableHeadCellSx}>Invited By</TableCell>
+                          <TableCell sx={tableHeadCellSx}>Accepted User</TableCell>
+                          <TableCell sx={tableHeadCellSx} align="right">
+                            Actions
+                          </TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {invitations.map((invitation) => (
+                          <TableRow key={invitation.id} hover>
+                            <TableCell sx={{ py: 2.25 }}>{invitation.email}</TableCell>
+                            <TableCell sx={{ py: 2.25 }}>
+                              <Chip size="small" label={invitation.role} />
+                            </TableCell>
+                            <TableCell sx={{ py: 2.25 }}>
+                              <Chip size="small" color={statusChipColor(invitation.status)} label={invitation.status} />
+                            </TableCell>
+                            <TableCell sx={{ py: 2.25 }}>{formatDate(invitation.expiresAt)}</TableCell>
+                            <TableCell sx={{ py: 2.25 }}>{invitation.invitedByEmail || '-'}</TableCell>
+                            <TableCell sx={{ py: 2.25 }}>{invitation.invitedUserEmail || '-'}</TableCell>
+                            <TableCell sx={{ py: 2.25 }} align="right">
+                              <Stack direction="row" spacing={1} justifyContent="flex-end">
+                                {invitation.status === 'pending' || invitation.status === 'expired' ? (
+                                  <Button size="small" variant="outlined" onClick={() => resendInvitation(invitation.id)}>
+                                    Resend
+                                  </Button>
+                                ) : null}
+                                {invitation.status === 'pending' || invitation.status === 'expired' ? (
+                                  <Button
+                                    size="small"
+                                    color="error"
+                                    variant="outlined"
+                                    onClick={() => revokeInvitation(invitation.id)}
+                                  >
+                                    Revoke
+                                  </Button>
+                                ) : null}
+                              </Stack>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                        {invitations.length === 0 ? (
+                          <TableRow>
+                            <TableCell colSpan={7} sx={{ py: 5 }}>
+                              <Typography variant="body2" color="text.secondary">
+                                No invitations yet.
+                              </Typography>
+                            </TableCell>
+                          </TableRow>
+                        ) : null}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                ) : null}
+              </Stack>
+            </Box>
           ) : null}
         </Stack>
       </BlankCard>
-      <Dialog open={teamDialogOpen} onClose={() => setTeamDialogOpen(false)} fullWidth maxWidth="sm">
+      <Dialog open={teamDialogOpen} onClose={() => setTeamDialogOpen(false)} fullWidth maxWidth="md">
         <DialogTitle>{editingTeamId ? 'Edit Team' : 'Create Team'}</DialogTitle>
         <DialogContent>
           <Stack spacing={2.5} mt={1}>
             <TextField
+              id="team-name"
+              name="teamName"
               label="Team Name"
               value={teamForm.name}
               onChange={(event) => setTeamForm((prev) => ({ ...prev, name: event.target.value }))}
               required
             />
             <TextField
+              id="team-description"
+              name="teamDescription"
               label="Description"
               value={teamForm.description}
               onChange={(event) => setTeamForm((prev) => ({ ...prev, description: event.target.value }))}
@@ -864,6 +1079,8 @@ const TeamMembers = () => {
                 })}
               </Stack>
               <TextField
+                id="team-color"
+                name="teamColor"
                 label="Hex Color"
                 value={teamForm.color}
                 onChange={(event) =>
@@ -885,31 +1102,65 @@ const TeamMembers = () => {
               />
             </Stack>
 
-            <FormControl fullWidth>
-              <InputLabel id="team-members-label">Team Members</InputLabel>
-              <Select
-                labelId="team-members-label"
-                label="Team Members"
+            <Divider />
+
+            <Stack spacing={1.25}>
+              <Box>
+                <Typography variant="subtitle1" fontWeight={700}>
+                  Team Members
+                </Typography>
+                <Typography variant="body2" color="text.secondary" mt={0.5}>
+                  Search and add as many active members as needed. Editing a team keeps existing members selected.
+                </Typography>
+              </Box>
+              <Autocomplete
                 multiple
-                value={teamForm.memberUserIds}
-                onChange={(event) => setTeamForm((prev) => ({ ...prev, memberUserIds: event.target.value as string[] }))}
-                renderValue={(selected) =>
-                  (selected as string[])
-                    .map((userId) => members.find((member) => member.userId === userId))
-                    .filter(Boolean)
-                    .map((member) => getMemberName(member as Member))
-                    .join(', ')
+                disableCloseOnSelect
+                filterSelectedOptions
+                options={selectableTeamMembers}
+                value={selectedTeamMembers}
+                onChange={(_, nextValue) =>
+                  setTeamForm((prev) => ({
+                    ...prev,
+                    memberUserIds: nextValue.map((member) => member.userId),
+                  }))
                 }
-              >
-                {members
-                  .filter((member) => member.isActive)
-                  .map((member) => (
-                    <MenuItem key={member.userId} value={member.userId}>
-                      {getMemberName(member)}
-                    </MenuItem>
-                  ))}
-              </Select>
-            </FormControl>
+                getOptionLabel={(option) => `${getMemberName(option)} (${option.email})`}
+                isOptionEqualToValue={(option, value) => option.userId === value.userId}
+                noOptionsText="No active members available"
+                renderTags={(value, getTagProps) =>
+                  value.map((member, index) => (
+                    <Chip {...getTagProps({ index })} key={member.userId} label={getMemberName(member)} size="small" />
+                  ))
+                }
+                renderOption={(props, option) => (
+                  <Box component="li" {...props} key={option.userId}>
+                    <Stack spacing={0.25}>
+                      <Typography variant="body2" fontWeight={600}>
+                        {getMemberName(option)}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {option.email} · {option.orgRole}
+                      </Typography>
+                    </Stack>
+                  </Box>
+                )}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    id="team-members"
+                    name="teamMembers"
+                    label="Add Team Members"
+                    placeholder={selectedTeamMembers.length ? '' : 'Search by name or email'}
+                    helperText={
+                      selectedTeamMembers.length
+                        ? `${selectedTeamMembers.length} member${selectedTeamMembers.length === 1 ? '' : 's'} selected`
+                        : 'Use this field to add multiple members quickly.'
+                    }
+                  />
+                )}
+              />
+            </Stack>
           </Stack>
         </DialogContent>
         <DialogActions>

@@ -17,7 +17,6 @@ const KanbanData: TodoCategory[] = [
         taskImage: img1,
         taskText: '',
         date: '24 july',
-        taskProperty: 'Design',
       },
       {
         id: '102',
@@ -26,7 +25,6 @@ const KanbanData: TodoCategory[] = [
         taskText:
           'Lorem ipsum dolor sit amet, consectetur adipisicing elit, o eiusmod tempor incid.',
         date: '24 july',
-        taskProperty: 'Mobile',
       },
       {
         id: '103',
@@ -34,7 +32,6 @@ const KanbanData: TodoCategory[] = [
         taskImage: '',
         taskText: '',
         date: '24 july',
-        taskProperty: 'Mobile',
       },
     ],
   },
@@ -48,7 +45,6 @@ const KanbanData: TodoCategory[] = [
         taskImage: '',
         taskText: '',
         date: '24 july',
-        taskProperty: 'Mobile',
         category: '',
       },
       {
@@ -57,7 +53,6 @@ const KanbanData: TodoCategory[] = [
         taskImage: img2,
         taskText: '',
         date: '24 july',
-        taskProperty: 'Design',
         category: '',
       },
       {
@@ -66,7 +61,6 @@ const KanbanData: TodoCategory[] = [
         taskImage: '',
         taskText: '',
         date: '24 july',
-        taskProperty: 'Mobile',
         category: '',
       },
     ],
@@ -82,7 +76,6 @@ const KanbanData: TodoCategory[] = [
         taskText:
           'Create user personas based on the research data to represent different user groups and their characteristics, gols, and behaviors..',
         date: '24 july',
-        taskProperty: 'UX Stage',
         category: 'Pending',
       },
       {
@@ -91,7 +84,6 @@ const KanbanData: TodoCategory[] = [
         taskImage: img3,
         taskText: '',
         date: '14 july',
-        taskProperty: 'Design',
         category: 'Pending',
       },
     ],
@@ -106,7 +98,6 @@ const KanbanData: TodoCategory[] = [
         taskImage: img4,
         taskText: '',
         date: '24 july',
-        taskProperty: 'Research',
         category: 'Done',
       },
       {
@@ -115,7 +106,6 @@ const KanbanData: TodoCategory[] = [
         taskImage: '',
         taskText: '',
         date: '24 july',
-        taskProperty: 'Data Science',
         category: 'Done',
       },
       {
@@ -124,7 +114,6 @@ const KanbanData: TodoCategory[] = [
         taskImage: '',
         taskText: '',
         date: '4 july',
-        taskProperty: 'Branding',
         category: 'Done',
       },
       {
@@ -134,25 +123,11 @@ const KanbanData: TodoCategory[] = [
         taskText:
           'research competitors and identify weakness and strengths each of them. comparing their product features, quelity...',
         date: '14 july',
-        taskProperty: 'UX Stage',
         category: 'Done',
       },
     ],
   },
 ];
-
-// Extracting unique task properties from TodoData
-const taskPropertiesSet = new Set<string>();
-
-// Using forEach loops instead of flatMap
-KanbanData.forEach((category) => {
-  category.child.forEach((task) => {
-    taskPropertiesSet.add(task.taskProperty);
-  });
-});
-
-// Convert Set to array
-export const TaskProperties = Array.from(taskPropertiesSet);
 
 export default KanbanData;
 

@@ -56,9 +56,14 @@ const TaskData: React.FC<TaskDataProps> = ({ task, onDeleteTask, index }: any) =
         newData: editedTaskData,
       }), false);
       if (response.status === 200) {
-        setEditedTask(editedTaskData);
         if (response?.data) {
           setTodoCategories(response.data);
+          const updatedTask = response.data
+            ?.flatMap((category: any) => category.child || [])
+            ?.find((item: any) => String(item.id) === String(editedTaskData.id));
+          setEditedTask(updatedTask || editedTaskData);
+        } else {
+          setEditedTask(editedTaskData);
         }
       } else {
         throw new Error("Failed to edit task");
@@ -89,28 +94,10 @@ const TaskData: React.FC<TaskDataProps> = ({ task, onDeleteTask, index }: any) =
   };
 
   useEffect(() => {
+    setEditedTask(task);
+  }, [task]);
 
-  }, [editedTask])
-
-
-  const taskDate = formatDate(editedTask?.date); // Get formatted task date
-
-  const backgroundColor =
-    editedTask?.taskProperty === 'Design'
-      ? 'success.main'
-      : editedTask?.taskProperty === 'Development'
-        ? 'warning.main'
-        : editedTask?.taskProperty === 'Mobile'
-          ? 'primary.main'
-          : editedTask?.taskProperty === 'UX Stage'
-            ? 'warning.main'
-            : editedTask?.taskProperty === 'Research'
-              ? 'secondary.main'
-              : editedTask?.taskProperty === 'Data Science'
-                ? 'error.main'
-                : editedTask?.taskProperty === 'Branding'
-                  ? 'success.main'
-                  : 'primary.contrastText';
+  const taskDate = formatDate(editedTask?.date);
 
   return (
     <Draggable draggableId={String(task?.id)} index={index}>
@@ -206,19 +193,6 @@ const TaskData: React.FC<TaskDataProps> = ({ task, onDeleteTask, index }: any) =
                 <IconCalendar size="1rem" />
                 <Typography variant="body2">  {taskDate}</Typography>
               </Stack>
-              <Box>
-                <Chip
-                  size="small"
-                  label={editedTask?.taskProperty}
-                  sx={{
-                    backgroundColor,
-                    color: 'white',
-                    borderRadius: '8px',
-                    fontSize: '11px',
-                    fontWeight: 400,
-                  }}
-                />
-              </Box>
             </Box>
           </BlankCard>
         </Box>

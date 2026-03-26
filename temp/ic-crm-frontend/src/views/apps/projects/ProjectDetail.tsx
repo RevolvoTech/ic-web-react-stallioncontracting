@@ -96,7 +96,6 @@ type ProjectDetailData = {
       id: number;
       title: string;
       dueDate: string | null;
-      taskProperty: string;
       listName: string | null;
     }>;
   };

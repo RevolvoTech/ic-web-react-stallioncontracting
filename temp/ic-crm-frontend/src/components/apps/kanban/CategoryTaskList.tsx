@@ -43,9 +43,10 @@ function CategoryTaskList({ id }: any) {
   const [newTaskData, setNewTaskData]: any = useState({
     task: '',
     taskText: '',
-    taskProperty: '',
     date: new Date().toISOString().split('T')[0],
     taskImage: '',
+    taskImageFile: null,
+    removeTaskImage: false,
     projectId: '',
   });
 
@@ -98,9 +99,10 @@ function CategoryTaskList({ id }: any) {
         setNewTaskData({
           task: '',
           taskText: '',
-          taskProperty: '',
           date: new Date().toISOString().split('T')[0],
           taskImage: '',
+          taskImageFile: null,
+          removeTaskImage: false,
           projectId: '',
         });
         if (response?.data) {
@@ -168,7 +170,6 @@ function CategoryTaskList({ id }: any) {
                       onSave={handleAddTask}
                       newTaskData={newTaskData}
                       setNewTaskData={setNewTaskData}
-                      updateTasks={() => setAllTasks([...allTasks, newTaskData])}
                     />
                   </>
                   <EditCategoryModal

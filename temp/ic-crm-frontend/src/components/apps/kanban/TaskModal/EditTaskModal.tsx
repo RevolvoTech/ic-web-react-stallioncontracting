@@ -1,65 +1,84 @@
-
-
 import { useEffect, useState } from 'react';
-import { TaskProperties } from '../../../../api/kanban/KanbanData';
 import {
+  Box,
   Button,
-
-  MenuItem,
-  DialogTitle,
-  DialogContent,
+  Dialog,
   DialogActions,
+  DialogContent,
+  DialogTitle,
   Grid,
+  MenuItem,
+  Stack,
+  Typography,
 } from '@mui/material';
-import Dialog from '@mui/material/Dialog';
-import CustomFormLabel from 'src/components/forms/theme-elements/CustomFormLabel';
-import CustomTextField from 'src/components/forms/theme-elements/CustomTextField';
-import CustomSelect from 'src/components/forms/theme-elements/CustomSelect';
 import useSWR from 'swr';
+import CustomFormLabel from 'src/components/forms/theme-elements/CustomFormLabel';
+import CustomSelect from 'src/components/forms/theme-elements/CustomSelect';
+import CustomTextField from 'src/components/forms/theme-elements/CustomTextField';
 import { getFetcher } from 'src/api/globalFetcher';
 import { crmSwrOptions } from 'src/lib/swrOptions';
+import { fileToBase64 } from 'src/lib/fileToBase64';
 
 function EditTaskModal({ show, onHide, editedTask, onSave }: any) {
   const { data: projectsData } = useSWR('/api/projects', getFetcher, crmSwrOptions);
   const [tempEditedTask, setTempEditedTask] = useState(editedTask);
-  const [newImageUrl, setNewImageUrl] = useState(editedTask?.taskImage || "");
-  const [imagePreview, setImagePreview] = useState(editedTask?.taskImage || "");
+  const [imagePreview, setImagePreview] = useState(editedTask?.taskImage || '');
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => {
-
     setTempEditedTask({
       ...editedTask,
+      taskImageFile: null,
+      removeTaskImage: false,
     });
-    setNewImageUrl(editedTask?.taskImage || "");
-    setImagePreview(editedTask?.taskImage || "");
+    setImagePreview(editedTask?.taskImage || '');
   }, [editedTask]);
 
-
-  // Function to handle changes in the task input fields
-  const handleChange = (e: { target: { name: any; value: any } }) => {
-    const { name, value } = e.target;
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
     setTempEditedTask({ ...tempEditedTask, [name]: value });
   };
 
-  // Function to handle changes in the task property
-  const handlePropertyChange = (property: any) => {
-    setTempEditedTask({ ...tempEditedTask, taskProperty: property });
+  const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    setUploadingImage(true);
+    try {
+      const contentBase64 = await fileToBase64(file);
+      const preview = `data:${file.type};base64,${contentBase64}`;
+      setImagePreview(preview);
+      setTempEditedTask({
+        ...tempEditedTask,
+        taskImage: preview,
+        taskImageFile: {
+          fileName: file.name,
+          mimeType: file.type,
+          contentBase64,
+        },
+        removeTaskImage: false,
+      });
+    } finally {
+      setUploadingImage(false);
+      event.target.value = '';
+    }
   };
 
-  // Function to handle saving the changes made to the task and hiding the modal
+  const handleRemoveImage = () => {
+    setImagePreview('');
+    setTempEditedTask({
+      ...tempEditedTask,
+      taskImage: '',
+      taskImageFile: null,
+      removeTaskImage: true,
+    });
+  };
+
   const handleSaveChanges = () => {
-    const updatedTask = { ...tempEditedTask, taskImage: newImageUrl };
-    onSave(updatedTask);
+    onSave(tempEditedTask);
     onHide();
-  };
-
-
-
-  // Function to handle new image URL input
-  const handleNewImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const url = e.target.value;
-    setNewImageUrl(url);
-    setImagePreview(url); // Update the preview with the new image URL
   };
 
   return (
@@ -68,23 +87,16 @@ function EditTaskModal({ show, onHide, editedTask, onSave }: any) {
       onClose={onHide}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
-
       slotProps={{
         paper: {
-          component: "form"
+          component: 'form',
         },
       }}
-
     >
       <DialogTitle id="alert-dialog-title">Edit Task</DialogTitle>
       <DialogContent>
         <Grid container spacing={3}>
-          <Grid
-            size={{
-              xs: 12,
-              sm: 6
-            }}>
-            {/* Task title */}
+          <Grid size={{ xs: 12, sm: 6 }}>
             <CustomFormLabel sx={{ mt: 0 }} htmlFor="task">
               Task Title
             </CustomFormLabel>
@@ -93,38 +105,11 @@ function EditTaskModal({ show, onHide, editedTask, onSave }: any) {
               name="task"
               variant="outlined"
               fullWidth
-              value={tempEditedTask?.task}
+              value={tempEditedTask?.task || ''}
               onChange={handleChange}
             />
           </Grid>
-          <Grid
-            size={{
-              xs: 12,
-              sm: 6
-            }}>
-            {/* Task property */}
-            <CustomFormLabel htmlFor="taskProperty" sx={{ mt: 0 }}>
-              Task Property *
-            </CustomFormLabel>
-            <CustomSelect
-              fullWidth
-              id="taskProperty"
-              variant="outlined"
-              value={tempEditedTask?.taskProperty}
-              onChange={(e: any) => handlePropertyChange(e.target.value)}
-            >
-              {TaskProperties.map((property) => (
-                <MenuItem key={property} value={property}>
-                  {property}
-                </MenuItem>
-              ))}
-            </CustomSelect>
-          </Grid>
-          <Grid
-            size={{
-              xs: 12,
-              sm: 6
-            }}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <CustomFormLabel htmlFor="projectId" sx={{ mt: 0 }}>
               Linked Project
             </CustomFormLabel>
@@ -133,8 +118,8 @@ function EditTaskModal({ show, onHide, editedTask, onSave }: any) {
               id="projectId"
               variant="outlined"
               value={tempEditedTask?.projectId || ''}
-              onChange={(e: any) =>
-                setTempEditedTask({ ...tempEditedTask, projectId: e.target.value })
+              onChange={(event: any) =>
+                setTempEditedTask({ ...tempEditedTask, projectId: event.target.value })
               }
             >
               <MenuItem value="">None</MenuItem>
@@ -146,11 +131,7 @@ function EditTaskModal({ show, onHide, editedTask, onSave }: any) {
               ))}
             </CustomSelect>
           </Grid>
-          <Grid
-            size={{
-              xs: 12,
-              sm: 6
-            }}>
+          <Grid size={12}>
             <CustomFormLabel sx={{ mt: 0 }} htmlFor="task-text">
               Text
             </CustomFormLabel>
@@ -159,39 +140,51 @@ function EditTaskModal({ show, onHide, editedTask, onSave }: any) {
               variant="outlined"
               fullWidth
               name="taskText"
-              value={tempEditedTask?.taskText}
+              value={tempEditedTask?.taskText || ''}
               onChange={handleChange}
             />
           </Grid>
-          <Grid
-            size={{
-              xs: 12,
-              sm: 6
-            }}>
-            <CustomFormLabel htmlFor="taskImage" sx={{ mt: 0 }}>
-              Image URL
+          <Grid size={12}>
+            <CustomFormLabel htmlFor="taskImageFile" sx={{ mt: 0 }}>
+              Task Image
             </CustomFormLabel>
-            <CustomTextField
-              id="taskImage"
-              variant="outlined"
-              fullWidth
-              value={newImageUrl}
-              onChange={handleNewImageUrlChange}
-            />
-            {imagePreview ? (
-              <Grid sx={{ mt: 2 }} size={12}>
-                <CustomFormLabel htmlFor="taskImage">Image Preview:</CustomFormLabel>
-                <img
-                  src={imagePreview}
-                  alt="Selected"
-                  style={{ maxWidth: '100%', height: 'auto', marginTop: '8px', borderRadius: "4px" }}
-
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }}>
+              <Button component="label" variant="outlined" disabled={uploadingImage}>
+                {uploadingImage ? 'Uploading...' : imagePreview ? 'Replace Image' : 'Upload Image'}
+                <input
+                  id="taskImageFile"
+                  hidden
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  onChange={handleImageChange}
                 />
-              </Grid>
+              </Button>
+              {imagePreview ? (
+                <Button color="error" variant="text" onClick={handleRemoveImage}>
+                  Remove Image
+                </Button>
+              ) : null}
+              <Typography variant="body2" color="text.secondary">
+                JPG, PNG, or WebP.
+              </Typography>
+            </Stack>
+            {imagePreview ? (
+              <Box
+                component="img"
+                src={imagePreview}
+                alt="Task preview"
+                sx={{
+                  mt: 2,
+                  width: '100%',
+                  maxHeight: 220,
+                  objectFit: 'cover',
+                  borderRadius: 2,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                }}
+              />
             ) : null}
           </Grid>
-
-
         </Grid>
       </DialogContent>
       <DialogActions>
