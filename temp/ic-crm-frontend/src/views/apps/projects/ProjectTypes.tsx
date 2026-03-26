@@ -9,6 +9,7 @@ import {
   DialogContent,
   DialogTitle,
   Divider,
+  FormLabel,
   Stack,
   Table,
   TableBody,
@@ -66,7 +67,6 @@ const normalizeColorInput = (value: string) => {
 
 const ProjectTypes = () => {
   const { profile, activeOrgId, getAccessToken } = useAuth();
-  const colorInputRef = React.useRef<HTMLInputElement | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState('');
@@ -321,19 +321,89 @@ const ProjectTypes = () => {
         </Stack>
       </BlankCard>
 
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} fullWidth maxWidth="xs">
+      <Dialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        fullWidth
+        maxWidth="sm"
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: 4,
+            },
+          },
+        }}
+      >
         <DialogTitle>{editingId ? 'Edit Project Type' : 'Add Project Type'}</DialogTitle>
         <DialogContent>
-          <Stack spacing={2} mt={1}>
+          <Stack spacing={2.5} mt={1}>
             <TextField
+              id="project-type-name"
+              name="projectTypeName"
               label="Type Name"
               value={form.name}
               onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+              placeholder="Electrical, Plumbing, Framing..."
               required
             />
-            <Stack spacing={1.5}>
-              <Typography variant="subtitle2">Color</Typography>
-              <Stack direction="row" flexWrap="wrap" gap={1}>
+            <Stack
+              spacing={1.75}
+              sx={{
+                p: 2,
+                borderRadius: 3,
+                border: '1px solid',
+                borderColor: 'divider',
+                backgroundColor: 'grey.50',
+              }}
+            >
+              <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={2}>
+                <Box>
+                  <FormLabel id="project-type-color-label">Color</FormLabel>
+                  <Typography variant="body2" color="textSecondary" mt={0.75}>
+                    Pick a project color used across the CRM.
+                  </Typography>
+                </Box>
+                <Stack
+                  direction="row"
+                  spacing={1.25}
+                  alignItems="center"
+                  sx={{
+                    px: 1.25,
+                    py: 1,
+                    borderRadius: 2,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    backgroundColor: 'background.paper',
+                    minWidth: 132,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 20,
+                      height: 20,
+                      borderRadius: '50%',
+                      backgroundColor: resolvedColor,
+                      border: '1px solid rgba(15, 23, 42, 0.18)',
+                      flexShrink: 0,
+                    }}
+                  />
+                  <Box>
+                    <Typography variant="caption" color="textSecondary" display="block" lineHeight={1.1}>
+                      Selected
+                    </Typography>
+                    <Typography variant="body2" fontWeight={600}>
+                      {resolvedColor}
+                    </Typography>
+                  </Box>
+                </Stack>
+              </Stack>
+              <Stack
+                direction="row"
+                flexWrap="wrap"
+                gap={1}
+                role="group"
+                aria-labelledby="project-type-color-label"
+              >
                 {PROJECT_TYPE_COLOR_PRESETS.map((preset) => {
                   const isSelected = resolvedColor === preset.color;
                   return (
@@ -343,11 +413,14 @@ const ProjectTypes = () => {
                       color="inherit"
                       onClick={() => updateFormColor(preset.color)}
                       sx={{
+                        justifyContent: 'flex-start',
+                        minWidth: 0,
                         px: 1.25,
-                        py: 0.75,
+                        py: 0.9,
                         borderColor: isSelected ? preset.color : 'divider',
                         backgroundColor: isSelected ? hexToRgba(preset.color, 0.14) : 'transparent',
                         color: 'text.primary',
+                        borderRadius: 2,
                       }}
                     >
                       <Stack direction="row" spacing={1} alignItems="center">
@@ -367,48 +440,53 @@ const ProjectTypes = () => {
                 })}
               </Stack>
               <Divider flexItem />
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }}>
-                <TextField
-                  label="Hex Color"
-                  value={form.color}
-                  onChange={(event) => updateFormColor(normalizeColorInput(event.target.value))}
-                  placeholder="#f97316"
-                  helperText={isValidColor ? 'Used across projects, calendar, and kanban.' : 'Enter a 6-digit hex color like #f97316.'}
-                  error={Boolean(form.color) && !isValidColor}
-                />
-                <Button variant="outlined" onClick={() => colorInputRef.current?.click()}>
-                  Custom Color
-                </Button>
-                <input
-                  ref={colorInputRef}
-                  type="color"
-                  value={isValidColor ? form.color : emptyForm.color}
-                  onChange={(event) => updateFormColor(event.target.value.toLowerCase())}
-                  style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
-                  tabIndex={-1}
-                  aria-hidden="true"
-                />
-              </Stack>
+              <TextField
+                id="project-type-color"
+                name="projectTypeColor"
+                label="Hex Color"
+                value={form.color}
+                onChange={(event) => updateFormColor(normalizeColorInput(event.target.value))}
+                placeholder="#f97316"
+                helperText={
+                  isValidColor
+                    ? 'Used across projects, calendar, and kanban.'
+                    : 'Enter a 6-digit hex color like #f97316.'
+                }
+                error={Boolean(form.color) && !isValidColor}
+              />
               <Box
                 sx={{
                   p: 2,
-                  borderRadius: 2,
+                  borderRadius: 2.5,
                   border: `1px solid ${resolvedColor}`,
-                  backgroundColor: hexToRgba(resolvedColor, 0.12),
+                  background: `linear-gradient(135deg, ${hexToRgba(resolvedColor, 0.18)} 0%, ${hexToRgba(resolvedColor, 0.08)} 100%)`,
                 }}
               >
-                <Stack spacing={1}>
+                <Stack spacing={1.25}>
                   <Typography variant="caption" color="textSecondary">
                     Preview
                   </Typography>
-                  <Chip
-                    label={form.name.trim() || 'Project Type Preview'}
-                    sx={{
-                      width: 'fit-content',
-                      backgroundColor: resolvedColor,
-                      color: getReadableTextColor(resolvedColor),
-                    }}
-                  />
+                  <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                    <Chip
+                      label={form.name.trim() || 'Project Type Preview'}
+                      sx={{
+                        width: 'fit-content',
+                        backgroundColor: resolvedColor,
+                        color: getReadableTextColor(resolvedColor),
+                        fontWeight: 600,
+                      }}
+                    />
+                    <Chip
+                      variant="outlined"
+                      label="Calendar Event"
+                      sx={{
+                        width: 'fit-content',
+                        borderColor: resolvedColor,
+                        color: resolvedColor,
+                        backgroundColor: 'background.paper',
+                      }}
+                    />
+                  </Stack>
                 </Stack>
               </Box>
             </Stack>

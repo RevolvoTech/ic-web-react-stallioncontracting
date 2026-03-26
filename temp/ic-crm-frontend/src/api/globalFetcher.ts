@@ -1,4 +1,8 @@
-import { getValidStoredAccessToken } from 'src/lib/backendAuth';
+import {
+  getValidStoredAccessToken,
+  notifyAuthInvalidated,
+  refreshStoredAuthSession,
+} from 'src/lib/backendAuth';
 import { fetchWithTimeout } from 'src/lib/fetchWithTimeout';
 
 const resolveApiBaseUrl = () => {
@@ -15,13 +19,13 @@ const resolveUrl = (url: string) => {
   return `${API_BASE_URL}${url}`;
 };
 
-const getAuthHeaders = async (includeJson = false) => {
+const getAuthHeaders = async (includeJson = false, accessToken?: string | null) => {
   const headers: Record<string, string> = {};
   if (includeJson) {
     headers['Content-Type'] = 'application/json';
   }
 
-  const token = await getValidStoredAccessToken();
+  const token = accessToken ?? (await getValidStoredAccessToken());
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
@@ -35,22 +39,38 @@ const getAuthHeaders = async (includeJson = false) => {
   return headers;
 };
 
+const parsePayload = async (response: Response) =>
+  response.json().catch(() => ({ msg: 'Invalid server response', success: false }));
+
 const request = async (url: string, method: string, arg?: unknown) => {
   const includeJson = method !== 'GET';
-  const response = await fetchWithTimeout(resolveUrl(url), {
-    method,
-    headers: await getAuthHeaders(includeJson),
-    body: includeJson ? JSON.stringify(arg || {}) : undefined,
-  });
+  const executeRequest = async (accessToken?: string | null) =>
+    fetchWithTimeout(resolveUrl(url), {
+      method,
+      headers: await getAuthHeaders(includeJson, accessToken),
+      body: includeJson ? JSON.stringify(arg || {}) : undefined,
+    });
 
-  const payload = await response
-    .json()
-    .catch(() => ({ msg: 'Invalid server response', success: false }));
+  let response = await executeRequest();
+  let payload = await parsePayload(response);
+
+  if (response.status === 401) {
+    const refreshedSession = await refreshStoredAuthSession().catch(() => null);
+    if (refreshedSession?.accessToken) {
+      response = await executeRequest(refreshedSession.accessToken);
+      payload = await parsePayload(response);
+    }
+  }
 
   if (!response.ok) {
     const message = payload?.message || payload?.msg || 'Request failed';
     const details = payload?.error ? ` (${payload.error})` : '';
-    throw new Error(`${message}${details}`);
+    const error = new Error(`${message}${details}`) as Error & { status?: number };
+    error.status = response.status;
+    if (response.status === 401) {
+      notifyAuthInvalidated('unauthorized');
+    }
+    throw error;
   }
 
   return payload;

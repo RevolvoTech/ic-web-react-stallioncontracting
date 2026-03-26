@@ -1,5 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  AUTH_INVALIDATED_EVENT,
+  AUTH_SESSION_UPDATED_EVENT,
   AuthSession,
   AuthSessionUser,
   backendAuthRequest,
@@ -373,6 +375,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       cancelled = true;
     };
   }, [refreshProfile, syncSessionState]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const handleSessionUpdated = (event: Event) => {
+      const detail = (event as CustomEvent<{ session?: AuthSession | null }>).detail;
+      const nextSession = detail?.session ?? readStoredAuthSession();
+      syncSessionState(nextSession);
+    };
+
+    const handleAuthInvalidated = () => {
+      clearLocalAuthState();
+    };
+
+    window.addEventListener(AUTH_SESSION_UPDATED_EVENT, handleSessionUpdated as EventListener);
+    window.addEventListener(AUTH_INVALIDATED_EVENT, handleAuthInvalidated);
+
+    return () => {
+      window.removeEventListener(AUTH_SESSION_UPDATED_EVENT, handleSessionUpdated as EventListener);
+      window.removeEventListener(AUTH_INVALIDATED_EVENT, handleAuthInvalidated);
+    };
+  }, [clearLocalAuthState, syncSessionState]);
 
   useEffect(() => {
     if (!session?.accessToken) {

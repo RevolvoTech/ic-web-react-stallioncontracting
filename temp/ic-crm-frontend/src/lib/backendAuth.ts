@@ -15,6 +15,8 @@ export type AuthSession = {
 };
 
 const AUTH_SESSION_KEY = 'crm_auth_session';
+export const AUTH_SESSION_UPDATED_EVENT = 'crm-auth-session-updated';
+export const AUTH_INVALIDATED_EVENT = 'crm-auth-invalidated';
 
 const resolveApiBaseUrl = () => {
   const raw = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -28,6 +30,14 @@ const getStorage = () => {
     return null;
   }
   return window.sessionStorage;
+};
+
+const dispatchBrowserEvent = (eventName: string, detail?: Record<string, unknown>) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.dispatchEvent(new CustomEvent(eventName, { detail }));
 };
 
 const normalizeAuthSession = (value: any): AuthSession | null => {
@@ -76,10 +86,12 @@ export const writeStoredAuthSession = (session: AuthSession | null) => {
 
   if (!session) {
     storage.removeItem(AUTH_SESSION_KEY);
+    dispatchBrowserEvent(AUTH_SESSION_UPDATED_EVENT, { session: null });
     return;
   }
 
   storage.setItem(AUTH_SESSION_KEY, JSON.stringify(session));
+  dispatchBrowserEvent(AUTH_SESSION_UPDATED_EVENT, { session });
 };
 
 export const clearStoredAuthSession = () => {
@@ -88,6 +100,11 @@ export const clearStoredAuthSession = () => {
     return;
   }
   storage.removeItem(AUTH_SESSION_KEY);
+  dispatchBrowserEvent(AUTH_SESSION_UPDATED_EVENT, { session: null });
+};
+
+export const notifyAuthInvalidated = (reason = 'unauthorized') => {
+  dispatchBrowserEvent(AUTH_INVALIDATED_EVENT, { reason });
 };
 
 type BackendRequestOptions = {
@@ -126,6 +143,9 @@ export const backendAuthRequest = async <T,>(path: string, options: BackendReque
       status?: number;
     };
     error.status = response.status;
+    if (response.status === 401) {
+      notifyAuthInvalidated('unauthorized');
+    }
     throw error;
   }
 
@@ -143,6 +163,9 @@ export const refreshStoredAuthSession = async () => {
   const currentSession = readStoredAuthSession();
   if (!currentSession?.refreshToken) {
     clearStoredAuthSession();
+    if (currentSession) {
+      notifyAuthInvalidated('missing_refresh_token');
+    }
     return null;
   }
 
@@ -169,6 +192,7 @@ export const getValidStoredAccessToken = async () => {
       session = await refreshStoredAuthSession();
     } catch {
       clearStoredAuthSession();
+      notifyAuthInvalidated('refresh_failed');
       return null;
     }
   }
