@@ -4,6 +4,7 @@ import { createContext, useState, useEffect } from 'react';
 import React from "react";
 import useSWR from 'swr';
 import { deleteFetcher, getFetcher, postFetcher, putFetcher } from 'src/api/globalFetcher';
+import { crmSwrOptions } from 'src/lib/swrOptions';
 import { NotesType } from 'src/types/apps/notes';
 
 
@@ -43,7 +44,7 @@ export const NotesProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const [selectedNoteId, setSelectedNoteId] = useState<number>(initialContext.selectedNoteId);
 
     // Fetch notes from the server
-    const { data: notesData, isLoading: isNotesLoading, error: notesError, mutate } = useSWR("/api/data/notes/NotesData", getFetcher)
+    const { data: notesData, isLoading: isNotesLoading, error: notesError, mutate } = useSWR("/api/data/notes/NotesData", getFetcher, crmSwrOptions)
     useEffect(() => {
         if (notesData) {
             setNotes(notesData.data);

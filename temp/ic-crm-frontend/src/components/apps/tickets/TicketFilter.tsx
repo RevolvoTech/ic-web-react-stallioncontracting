@@ -21,6 +21,7 @@ import useSWR from 'swr';
 import { TicketContext } from 'src/context/TicketContext';
 import { getFetcher } from 'src/api/globalFetcher';
 import { useAuth } from 'src/context/AuthContext';
+import { crmSwrOptions } from 'src/lib/swrOptions';
 
 const BoxStyled = styled(Box)(() => ({
   padding: '30px',
@@ -64,8 +65,8 @@ const defaultForm: TicketFormState = {
 const TicketFilter = () => {
   const { tickets, setFilter, addTicket }: any = useContext(TicketContext);
   const { profile } = useAuth();
-  const { data: membersData } = useSWR('/api/users/members', getFetcher);
-  const { data: projectsData } = useSWR('/api/projects', getFetcher);
+  const { data: membersData } = useSWR('/api/users/members', getFetcher, crmSwrOptions);
+  const { data: projectsData } = useSWR('/api/projects', getFetcher, crmSwrOptions);
   const [open, setOpen] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState('');

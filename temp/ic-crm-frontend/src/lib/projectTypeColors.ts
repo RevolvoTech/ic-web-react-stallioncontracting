@@ -6,6 +6,17 @@ const TOKEN_COLOR_MAP: Record<string, string> = {
   warning: '#fdd43f',
 };
 
+export const PROJECT_TYPE_COLOR_PRESETS = [
+  { label: 'Electric', color: '#f97316' },
+  { label: 'Plumbing', color: '#1d4ed8' },
+  { label: 'HVAC', color: '#0f766e' },
+  { label: 'Concrete', color: '#64748b' },
+  { label: 'Roofing', color: '#dc2626' },
+  { label: 'Finish', color: '#7c3aed' },
+  { label: 'Landscape', color: '#15803d' },
+  { label: 'Safety', color: '#ca8a04' },
+] as const;
+
 export const isHexColor = (value?: string | null) =>
   Boolean(value && /^#[0-9a-f]{6}$/i.test(String(value).trim()));
 

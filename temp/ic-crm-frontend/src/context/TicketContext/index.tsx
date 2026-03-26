@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect } from 'react';
 import { TicketType } from '../../types/apps/ticket';
 import { getFetcher, deleteFetcher, postFetcher } from 'src/api/globalFetcher';
+import { crmSwrOptions } from 'src/lib/swrOptions';
 
 import useSWR from 'swr';
 
@@ -38,7 +39,7 @@ export const TicketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const [error, setError] = useState<any>(null);
 
     // Fetch tickets from the API when the component mounts using useEffect
-    const { data: ticketsData, isLoading: isTicketsLoading, error: ticketsError, mutate } = useSWR("/api/data/ticket/TicketData", getFetcher)
+    const { data: ticketsData, isLoading: isTicketsLoading, error: ticketsError, mutate } = useSWR("/api/data/ticket/TicketData", getFetcher, crmSwrOptions)
     useEffect(() => {
         if (ticketsData) {
             setTickets(ticketsData.data);

@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { TodoCategory } from '../../types/apps/kanban';
 import { deleteFetcher, getFetcher, postFetcher } from 'src/api/globalFetcher';
+import { crmSwrOptions } from 'src/lib/swrOptions';
 import useSWR from 'swr';
 
 
@@ -37,7 +38,7 @@ export const KanbanDataContextProvider: React.FC<KanbanDataContextProps> = ({ ch
     const [loading, setLoading] = useState<boolean>(true)
 
     // Fetch todo data from the API
-    const { data: todosData, isLoading: isTodosLoading, error: todoError, mutate } = useSWR("/api/kanban", getFetcher,)
+    const { data: todosData, isLoading: isTodosLoading, error: todoError, mutate } = useSWR("/api/kanban", getFetcher, crmSwrOptions)
     useEffect(() => {
         if (todosData) {
             setTodoCategories(todosData.data);

@@ -16,6 +16,7 @@ import CustomTextField from 'src/components/forms/theme-elements/CustomTextField
 import CustomSelect from 'src/components/forms/theme-elements/CustomSelect';
 import useSWR from 'swr';
 import { getFetcher } from 'src/api/globalFetcher';
+import { crmSwrOptions } from 'src/lib/swrOptions';
 
 function AddNewList({
   show,
@@ -25,7 +26,7 @@ function AddNewList({
   setNewTaskData,
   updateTasks,
 }: any) {
-  const { data: projectsData } = useSWR('/api/projects', getFetcher);
+  const { data: projectsData } = useSWR('/api/projects', getFetcher, crmSwrOptions);
 
   const { task, taskText, taskProperty, taskImage, projectId } = newTaskData;
 

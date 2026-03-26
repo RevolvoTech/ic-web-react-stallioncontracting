@@ -1,38 +1,31 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import React, { lazy } from 'react';
+import React from 'react';
 import { createBrowserRouter, Navigate } from 'react-router';
-import Loadable from '../layouts/full/shared/loadable/Loadable';
 import { RequireAuth, RequireGuest } from './guards/AuthGuards';
+import FullLayout from '../layouts/full/FullLayout';
+import BlankLayout from '../layouts/blank/BlankLayout';
+import ModernDash from '../views/dashboard/Modern';
+import Contacts from '../views/apps/contacts/Contacts';
+import Chats from '../views/apps/chat/Chat';
 import Notes from '../views/apps/notes/Notes';
+import Tickets from '../views/apps/tickets/Tickets';
+import Calendar from '../views/apps/calendar/BigCalendar';
+import Kanban from '../views/apps/kanban/Kanban';
+import Onboarding from '../views/apps/onboarding/Onboarding';
+import TeamMembers from '../views/apps/team/TeamMembers';
+import ProfileSettings from '../views/pages/account-setting/AccountSetting';
+import InvoiceList from '../views/apps/invoice/List';
+import InvoiceCreate from '../views/apps/invoice/Create';
+import InvoiceEdit from '../views/apps/invoice/Edit';
+import InvoiceDetail from '../views/apps/invoice/Detail';
 import Projects from '../views/apps/projects/Projects';
 import ProjectTypes from '../views/apps/projects/ProjectTypes';
-
-/* Layouts */
-const FullLayout = Loadable(lazy(() => import('../layouts/full/FullLayout')));
-const BlankLayout = Loadable(lazy(() => import('../layouts/blank/BlankLayout')));
-
-/* CRM Apps */
-const ModernDash = Loadable(lazy(() => import('../views/dashboard/Modern')));
-const Contacts = Loadable(lazy(() => import('../views/apps/contacts/Contacts')));
-const Chats = Loadable(lazy(() => import('../views/apps/chat/Chat')));
-const Tickets = Loadable(lazy(() => import('../views/apps/tickets/Tickets')));
-const Calendar = Loadable(lazy(() => import('../views/apps/calendar/BigCalendar')));
-const Kanban = Loadable(lazy(() => import('../views/apps/kanban/Kanban')));
-const Onboarding = Loadable(lazy(() => import('../views/apps/onboarding/Onboarding')));
-const TeamMembers = Loadable(lazy(() => import('../views/apps/team/TeamMembers')));
-const ProfileSettings = Loadable(lazy(() => import('../views/pages/account-setting/AccountSetting')));
-const InvoiceList = Loadable(lazy(() => import('../views/apps/invoice/List')));
-const InvoiceCreate = Loadable(lazy(() => import('../views/apps/invoice/Create')));
-const InvoiceEdit = Loadable(lazy(() => import('../views/apps/invoice/Edit')));
-const InvoiceDetail = Loadable(lazy(() => import('../views/apps/invoice/Detail')));
-const ProjectDetail = Loadable(lazy(() => import('../views/apps/projects/ProjectDetail')));
-
-/* Authentication */
-const Login = Loadable(lazy(() => import('../views/authentication/auth1/Login')));
-const ForgotPassword = Loadable(lazy(() => import('../views/authentication/auth1/ForgotPassword')));
-const ResetPassword = Loadable(lazy(() => import('../views/authentication/auth1/ResetPassword')));
-const Error = Loadable(lazy(() => import('../views/authentication/Error')));
+import ProjectDetail from '../views/apps/projects/ProjectDetail';
+import Login from '../views/authentication/auth1/Login';
+import ForgotPassword from '../views/authentication/auth1/ForgotPassword';
+import ResetPassword from '../views/authentication/auth1/ResetPassword';
+import Error from '../views/authentication/Error';
 
 const Router = [
   {

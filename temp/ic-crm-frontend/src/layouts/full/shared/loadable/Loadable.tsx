@@ -10,7 +10,7 @@ import Spinner from 'src/views/spinner/Spinner';
 
 const isDynamicImportFailure = (error: unknown) => {
   const message = error instanceof Error ? error.message : String(error || '');
-  return /Failed to fetch dynamically imported module|Importing a module script failed|Loading chunk/i.test(
+  return /Failed to fetch dynamically imported module|Importing a module script failed|Expected a JavaScript-or-Wasm module script|Loading chunk/i.test(
     message,
   );
 };

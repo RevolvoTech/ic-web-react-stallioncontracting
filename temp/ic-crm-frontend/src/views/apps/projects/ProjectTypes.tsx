@@ -1,11 +1,14 @@
 import React from 'react';
 import {
   Alert,
+  Box,
   Button,
+  Chip,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
   Stack,
   Table,
   TableBody,
@@ -22,7 +25,13 @@ import BlankCard from 'src/components/shared/BlankCard';
 import { crmRequest } from 'src/api/crm/client';
 import { useAuth } from 'src/context/AuthContext';
 import { isAbortError } from 'src/lib/fetchWithTimeout';
-import { getReadableTextColor, hexToRgba, resolveUiColor } from 'src/lib/projectTypeColors';
+import {
+  getReadableTextColor,
+  hexToRgba,
+  isHexColor,
+  PROJECT_TYPE_COLOR_PRESETS,
+  resolveUiColor,
+} from 'src/lib/projectTypeColors';
 import { ProjectTypeOption } from 'src/types/projectTypes';
 
 const BCrumb = [
@@ -44,8 +53,20 @@ const emptyForm = {
   color: '#f97316',
 };
 
+const normalizeColorInput = (value: string) => {
+  const normalized = String(value || '')
+    .trim()
+    .replace(/^#/, '')
+    .replace(/[^0-9a-f]/gi, '')
+    .slice(0, 6)
+    .toLowerCase();
+
+  return normalized ? `#${normalized}` : '';
+};
+
 const ProjectTypes = () => {
   const { profile, activeOrgId, getAccessToken } = useAuth();
+  const colorInputRef = React.useRef<HTMLInputElement | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState('');
@@ -54,6 +75,8 @@ const ProjectTypes = () => {
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [form, setForm] = React.useState(emptyForm);
+  const resolvedColor = resolveUiColor(form.color || emptyForm.color);
+  const isValidColor = isHexColor(form.color);
 
   const isGlobalAdmin = profile?.user.globalRole === 'admin';
 
@@ -116,6 +139,13 @@ const ProjectTypes = () => {
       color: projectType.color,
     });
     setDialogOpen(true);
+  };
+
+  const updateFormColor = (nextColor: string) => {
+    setForm((prev) => ({
+      ...prev,
+      color: nextColor,
+    }));
   };
 
   const saveProjectType = async () => {
@@ -301,18 +331,96 @@ const ProjectTypes = () => {
               onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
               required
             />
-            <TextField
-              label="Color"
-              type="color"
-              value={form.color}
-              onChange={(event) => setForm((prev) => ({ ...prev, color: event.target.value }))}
-              InputLabelProps={{ shrink: true }}
-            />
+            <Stack spacing={1.5}>
+              <Typography variant="subtitle2">Color</Typography>
+              <Stack direction="row" flexWrap="wrap" gap={1}>
+                {PROJECT_TYPE_COLOR_PRESETS.map((preset) => {
+                  const isSelected = resolvedColor === preset.color;
+                  return (
+                    <Button
+                      key={preset.color}
+                      variant={isSelected ? 'contained' : 'outlined'}
+                      color="inherit"
+                      onClick={() => updateFormColor(preset.color)}
+                      sx={{
+                        px: 1.25,
+                        py: 0.75,
+                        borderColor: isSelected ? preset.color : 'divider',
+                        backgroundColor: isSelected ? hexToRgba(preset.color, 0.14) : 'transparent',
+                        color: 'text.primary',
+                      }}
+                    >
+                      <Stack direction="row" spacing={1} alignItems="center">
+                        <Box
+                          sx={{
+                            width: 14,
+                            height: 14,
+                            borderRadius: '50%',
+                            backgroundColor: preset.color,
+                            border: '1px solid rgba(15, 23, 42, 0.18)',
+                          }}
+                        />
+                        <Typography variant="body2">{preset.label}</Typography>
+                      </Stack>
+                    </Button>
+                  );
+                })}
+              </Stack>
+              <Divider flexItem />
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ sm: 'center' }}>
+                <TextField
+                  label="Hex Color"
+                  value={form.color}
+                  onChange={(event) => updateFormColor(normalizeColorInput(event.target.value))}
+                  placeholder="#f97316"
+                  helperText={isValidColor ? 'Used across projects, calendar, and kanban.' : 'Enter a 6-digit hex color like #f97316.'}
+                  error={Boolean(form.color) && !isValidColor}
+                />
+                <Button variant="outlined" onClick={() => colorInputRef.current?.click()}>
+                  Custom Color
+                </Button>
+                <input
+                  ref={colorInputRef}
+                  type="color"
+                  value={isValidColor ? form.color : emptyForm.color}
+                  onChange={(event) => updateFormColor(event.target.value.toLowerCase())}
+                  style={{ position: 'absolute', opacity: 0, pointerEvents: 'none' }}
+                  tabIndex={-1}
+                  aria-hidden="true"
+                />
+              </Stack>
+              <Box
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  border: `1px solid ${resolvedColor}`,
+                  backgroundColor: hexToRgba(resolvedColor, 0.12),
+                }}
+              >
+                <Stack spacing={1}>
+                  <Typography variant="caption" color="textSecondary">
+                    Preview
+                  </Typography>
+                  <Chip
+                    label={form.name.trim() || 'Project Type Preview'}
+                    sx={{
+                      width: 'fit-content',
+                      backgroundColor: resolvedColor,
+                      color: getReadableTextColor(resolvedColor),
+                    }}
+                  />
+                </Stack>
+              </Box>
+            </Stack>
           </Stack>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={() => void saveProjectType()} disabled={saving || !form.name.trim()}>
+          <Button
+            variant="contained"
+            onClick={() => void saveProjectType()}
+            disabled={saving || !form.name.trim() || !isValidColor}
+          >
             {saving ? 'Saving...' : 'Save'}
           </Button>
         </DialogActions>

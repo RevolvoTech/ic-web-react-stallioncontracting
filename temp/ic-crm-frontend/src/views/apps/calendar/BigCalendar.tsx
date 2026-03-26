@@ -31,6 +31,7 @@ import useSWR from 'swr';
 import { deleteFetcher, getFetcher, postFetcher, putFetcher } from 'src/api/globalFetcher';
 import { ProjectTypeOption } from 'src/types/projectTypes';
 import { getReadableTextColor, hexToRgba, isHexColor, resolveUiColor } from 'src/lib/projectTypeColors';
+import { crmSwrOptions } from 'src/lib/swrOptions';
 
 moment.locale('en-GB');
 const localizer = momentLocalizer(moment);
@@ -76,8 +77,8 @@ const BigCalendar = ({ isBreadcrumb = true }: { isBreadcrumb?: boolean }) => {
   const [color, setColor] = React.useState<string>("default");
   const [projectId, setProjectId] = React.useState<string>('');
   const [update, setUpdate] = React.useState<EvType | null>(null);
-  const { data: calendarData, mutate } = useSWR('/api/data/calendar/CalendarEvents', getFetcher);
-  const { data: projectsData } = useSWR('/api/projects', getFetcher);
+  const { data: calendarData, mutate } = useSWR('/api/data/calendar/CalendarEvents', getFetcher, crmSwrOptions);
+  const { data: projectsData } = useSWR('/api/projects', getFetcher, crmSwrOptions);
   const projects = React.useMemo(
     () => (Array.isArray(projectsData?.data) ? (projectsData.data as CalendarProject[]) : []),
     [projectsData],

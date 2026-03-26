@@ -17,9 +17,10 @@ import CustomTextField from 'src/components/forms/theme-elements/CustomTextField
 import CustomSelect from 'src/components/forms/theme-elements/CustomSelect';
 import useSWR from 'swr';
 import { getFetcher } from 'src/api/globalFetcher';
+import { crmSwrOptions } from 'src/lib/swrOptions';
 
 function EditTaskModal({ show, onHide, editedTask, onSave }: any) {
-  const { data: projectsData } = useSWR('/api/projects', getFetcher);
+  const { data: projectsData } = useSWR('/api/projects', getFetcher, crmSwrOptions);
   const [tempEditedTask, setTempEditedTask] = useState(editedTask);
   const [newImageUrl, setNewImageUrl] = useState(editedTask?.taskImage || "");
   const [imagePreview, setImagePreview] = useState(editedTask?.taskImage || "");
