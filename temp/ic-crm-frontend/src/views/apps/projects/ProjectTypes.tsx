@@ -67,7 +67,7 @@ const normalizeColorInput = (value: string) => {
 };
 
 const ProjectTypes = () => {
-  const { profile, activeOrgId, getAccessToken } = useAuth();
+  const { profile, getAccessToken } = useAuth();
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState('');
@@ -97,7 +97,6 @@ const ProjectTypes = () => {
 
       const data = await crmRequest('/api/project-types', {
         token,
-        orgId: activeOrgId,
         signal,
       });
 
@@ -112,7 +111,7 @@ const ProjectTypes = () => {
         setLoading(false);
       }
     }
-  }, [activeOrgId, getAccessToken, isGlobalAdmin]);
+  }, [getAccessToken, isGlobalAdmin]);
 
   React.useEffect(() => {
     const controller = new AbortController();
@@ -161,7 +160,6 @@ const ProjectTypes = () => {
       }
 
       const body = {
-        orgId: activeOrgId,
         name: form.name.trim(),
         color: form.color,
       };
@@ -169,13 +167,11 @@ const ProjectTypes = () => {
       const data = editingId
         ? await crmRequest(`/api/project-types/${editingId}`, {
             token,
-            orgId: activeOrgId,
             method: 'PATCH',
             body,
           })
         : await crmRequest('/api/project-types', {
             token,
-            orgId: activeOrgId,
             method: 'POST',
             body,
           });
@@ -201,11 +197,7 @@ const ProjectTypes = () => {
 
       const data = await crmRequest(`/api/project-types/${projectTypeId}`, {
         token,
-        orgId: activeOrgId,
         method: 'DELETE',
-        body: {
-          orgId: activeOrgId,
-        },
       });
 
       setProjectTypes(Array.isArray(data) ? (data as ProjectTypeOption[]) : []);
@@ -222,21 +214,18 @@ const ProjectTypes = () => {
         <Stack spacing={2} p={3}>
           <Typography variant="h5">Project Types</Typography>
           <Typography variant="body2" color="textSecondary">
-            Define the labels and colors used by projects, calendars, and linked tasks.
+            Define the global labels and colors used by projects, calendars, and linked tasks.
           </Typography>
 
           {!isGlobalAdmin ? (
             <Alert severity="error">Only the global admin can manage project types.</Alert>
-          ) : null}
-          {!activeOrgId && isGlobalAdmin ? (
-            <Alert severity="warning">Select an organization context before managing project types.</Alert>
           ) : null}
           {error ? <Alert severity="error">{error}</Alert> : null}
           {info ? <Alert severity="success">{info}</Alert> : null}
 
           {isGlobalAdmin ? (
             <Stack direction="row" justifyContent="flex-end">
-              <Button variant="contained" onClick={openCreate} disabled={!activeOrgId}>
+              <Button variant="contained" onClick={openCreate}>
                 Add Project Type
               </Button>
             </Stack>

@@ -46,12 +46,18 @@ type ProjectItem = {
   name: string;
 };
 
+type TeamItem = {
+  id: string;
+  name: string;
+};
+
 type TicketFormState = {
   ticketTitle: string;
   ticketDescription: string;
   Status: string;
   projectId: string;
   agentUserId: string;
+  assignedTeamId: string;
 };
 
 const defaultForm: TicketFormState = {
@@ -60,6 +66,7 @@ const defaultForm: TicketFormState = {
   Status: 'Open',
   projectId: '',
   agentUserId: '',
+  assignedTeamId: '',
 };
 
 const TicketFilter = () => {
@@ -67,6 +74,7 @@ const TicketFilter = () => {
   const { profile } = useAuth();
   const { data: membersData } = useSWR('/api/users/members', getFetcher, crmSwrOptions);
   const { data: projectsData } = useSWR('/api/projects', getFetcher, crmSwrOptions);
+  const { data: teamsData } = useSWR('/api/teams', getFetcher, crmSwrOptions);
   const [open, setOpen] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const [error, setError] = React.useState('');
@@ -78,6 +86,7 @@ const TicketFilter = () => {
   const members = (Array.isArray(membersData?.data) ? membersData.data : []) as MemberItem[];
   const activeMembers = members.filter((member) => member.isActive);
   const projects = (Array.isArray(projectsData?.data) ? projectsData.data : []) as ProjectItem[];
+  const teams = (Array.isArray(teamsData?.data) ? teamsData.data : []) as TeamItem[];
 
   React.useEffect(() => {
     if (!open || form.agentUserId || !profile?.user.id) {
@@ -136,6 +145,7 @@ const TicketFilter = () => {
         Status: form.Status,
         projectId: form.projectId || null,
         agentUserId: form.agentUserId || null,
+        assignedTeamId: form.assignedTeamId || null,
       });
 
       handleClose();
@@ -263,10 +273,28 @@ const TicketFilter = () => {
                   ))}
                 </Select>
               </FormControl>
-              <FormControl fullWidth>
-                <InputLabel id="ticket-status-label">Status</InputLabel>
-                <Select
-                  labelId="ticket-status-label"
+            <FormControl fullWidth>
+              <InputLabel id="ticket-team-label">Assigned Team</InputLabel>
+              <Select
+                labelId="ticket-team-label"
+                label="Assigned Team"
+                value={form.assignedTeamId}
+                onChange={handleFieldChange('assignedTeamId')}
+              >
+                <MenuItem value="">
+                  <em>None</em>
+                </MenuItem>
+                {teams.map((team) => (
+                  <MenuItem key={team.id} value={team.id}>
+                    {team.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth>
+              <InputLabel id="ticket-status-label">Status</InputLabel>
+              <Select
+                labelId="ticket-status-label"
                   label="Status"
                   value={form.Status}
                   onChange={handleFieldChange('Status')}

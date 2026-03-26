@@ -47,6 +47,13 @@ type ProjectMember = {
   fullName: string;
 };
 
+type ProjectTeam = {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+};
+
 type ProjectItem = {
   id: string;
   name: string;
@@ -62,6 +69,15 @@ type ProjectItem = {
   projectType: ProjectTypeOption | null;
   members: ProjectMember[];
   memberCount: number;
+  teams: ProjectTeam[];
+  teamCount: number;
+};
+
+type TeamItem = {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
 };
 
 type ProjectForm = {
@@ -74,6 +90,7 @@ type ProjectForm = {
   dueDate: string;
   ownerUserId: string;
   projectTypeId: string;
+  teamIds: string[];
 };
 
 const emptyForm: ProjectForm = {
@@ -86,6 +103,7 @@ const emptyForm: ProjectForm = {
   dueDate: '',
   ownerUserId: '',
   projectTypeId: '',
+  teamIds: [],
 };
 
 const BCrumb = [
@@ -123,12 +141,13 @@ const TypeChip = ({ projectType }: { projectType: ProjectTypeOption | null }) =>
 
 const Projects = () => {
   const navigate = useNavigate();
-  const { activeOrgId, getAccessToken, profile } = useAuth();
+  const { activeOrgId, getAccessToken, profile, setActiveOrgId } = useAuth();
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState('');
   const [info, setInfo] = React.useState('');
   const [projects, setProjects] = React.useState<ProjectItem[]>([]);
   const [projectTypes, setProjectTypes] = React.useState<ProjectTypeOption[]>([]);
+  const [teams, setTeams] = React.useState<TeamItem[]>([]);
   const [members, setMembers] = React.useState<Member[]>([]);
   const [membersLoaded, setMembersLoaded] = React.useState(false);
   const [membersLoading, setMembersLoading] = React.useState(false);
@@ -143,14 +162,27 @@ const Projects = () => {
   const [membersDialogLoading, setMembersDialogLoading] = React.useState(false);
   const [membersProject, setMembersProject] = React.useState<ProjectItem | null>(null);
   const [selectedMemberIds, setSelectedMemberIds] = React.useState<string[]>([]);
+  const [selectedTeamIds, setSelectedTeamIds] = React.useState<string[]>([]);
   const [membersOwnerId, setMembersOwnerId] = React.useState('');
   const [savingMembers, setSavingMembers] = React.useState(false);
 
   const currentUserId = profile?.user.id || null;
-  const currentOrgRole = profile?.activeOrg.orgRole || null;
+  const fallbackOrgId =
+    activeOrgId || profile?.activeOrg.orgId || profile?.user.defaultOrgId || profile?.memberships?.[0]?.org_id || null;
+  const resolvedOrgId = activeOrgId || fallbackOrgId;
+  const currentOrgRole =
+    profile?.activeOrg.orgRole ||
+    profile?.memberships?.find((membership) => membership.org_id === resolvedOrgId)?.role ||
+    null;
   const isGlobalAdmin = profile?.user.globalRole === 'admin';
   const isOrgProjectManager = Boolean(isGlobalAdmin || currentOrgRole === 'employer');
   const canCreateProject = isOrgProjectManager;
+
+  React.useEffect(() => {
+    if (!activeOrgId && resolvedOrgId) {
+      void setActiveOrgId(resolvedOrgId);
+    }
+  }, [activeOrgId, resolvedOrgId, setActiveOrgId]);
 
   const isProjectOwner = (project: ProjectItem) =>
     Boolean(currentUserId) &&
@@ -176,18 +208,27 @@ const Projects = () => {
     setLoading(true);
     setError('');
     try {
+      if (!resolvedOrgId) {
+        setProjects([]);
+        setProjectTypes([]);
+        setTeams([]);
+        return;
+      }
+
       const token = await getAccessToken();
       if (!token) {
         throw new Error('Missing session token');
       }
 
-      const [projectsData, projectTypesData] = await Promise.all([
-        crmRequest('/api/projects', { token, orgId: activeOrgId, signal }),
-        crmRequest('/api/project-types', { token, orgId: activeOrgId, signal }),
+      const [projectsData, projectTypesData, teamsData] = await Promise.all([
+        crmRequest('/api/projects', { token, orgId: resolvedOrgId, signal }),
+        crmRequest('/api/project-types', { token, signal }),
+        crmRequest('/api/teams', { token, orgId: resolvedOrgId, signal }),
       ]);
 
       setProjects(Array.isArray(projectsData) ? (projectsData as ProjectItem[]) : []);
       setProjectTypes(Array.isArray(projectTypesData) ? (projectTypesData as ProjectTypeOption[]) : []);
+      setTeams(Array.isArray(teamsData) ? (teamsData as TeamItem[]) : []);
     } catch (loadError: any) {
       if (isAbortError(loadError)) {
         return;
@@ -198,7 +239,7 @@ const Projects = () => {
         setLoading(false);
       }
     }
-  }, [activeOrgId, getAccessToken]);
+  }, [getAccessToken, resolvedOrgId]);
 
   React.useEffect(() => {
     const controller = new AbortController();
@@ -217,7 +258,7 @@ const Projects = () => {
   React.useEffect(() => {
     setMembers([]);
     setMembersLoaded(false);
-  }, [activeOrgId]);
+  }, [resolvedOrgId]);
 
   const ensureMembersLoaded = React.useCallback(async () => {
     if (membersLoaded) {
@@ -231,13 +272,13 @@ const Projects = () => {
         throw new Error('Missing session token');
       }
 
-      const membersPath = activeOrgId
-        ? `/api/users/members?orgId=${encodeURIComponent(activeOrgId)}`
+      const membersPath = resolvedOrgId
+        ? `/api/users/members?orgId=${encodeURIComponent(resolvedOrgId)}`
         : '/api/users/members';
 
       const data = await crmRequest(membersPath, {
         token,
-        orgId: activeOrgId,
+        orgId: resolvedOrgId,
       });
 
       const nextMembers = Array.isArray(data) ? (data as Member[]) : [];
@@ -247,7 +288,7 @@ const Projects = () => {
     } finally {
       setMembersLoading(false);
     }
-  }, [activeOrgId, getAccessToken, members, membersLoaded]);
+  }, [getAccessToken, members, membersLoaded, resolvedOrgId]);
 
   const loadProjectAssignments = React.useCallback(async (projectId: string) => {
     const token = await getAccessToken();
@@ -257,11 +298,11 @@ const Projects = () => {
 
     const data = await crmRequest(`/api/projects/${projectId}`, {
       token,
-      orgId: activeOrgId,
+      orgId: resolvedOrgId,
     });
 
     return data as ProjectItem;
-  }, [activeOrgId, getAccessToken]);
+  }, [getAccessToken, resolvedOrgId]);
 
   const openCreate = async () => {
     if (!canCreateProject) {
@@ -270,6 +311,10 @@ const Projects = () => {
 
     try {
       setError('');
+      if (!resolvedOrgId) {
+        setError('Select an organization before creating a project.');
+        return;
+      }
       if (!projectTypes.length) {
         setError('Create at least one project type before creating projects.');
         return;
@@ -304,6 +349,7 @@ const Projects = () => {
         dueDate: project.dueDate || '',
         ownerUserId: project.ownerUserId || '',
         projectTypeId: project.projectType?.id || '',
+        teamIds: project.teams.map((team) => team.id),
       });
       setFormOpen(true);
     } catch (openError: any) {
@@ -317,6 +363,10 @@ const Projects = () => {
     setSaving(true);
 
     try {
+      if (!resolvedOrgId) {
+        throw new Error('Organization context is required');
+      }
+
       if (formMode === 'create' && !canCreateProject) {
         throw new Error('Only employers and admins can create projects');
       }
@@ -335,18 +385,19 @@ const Projects = () => {
       }
 
       const body = {
-        orgId: activeOrgId,
+        orgId: resolvedOrgId,
         ...form,
         ownerUserId: form.ownerUserId || null,
         startDate: form.startDate || null,
         dueDate: form.dueDate || null,
         projectTypeId: form.projectTypeId,
+        teamIds: form.teamIds,
       };
 
       if (formMode === 'create') {
         await crmRequest('/api/projects', {
           token,
-          orgId: activeOrgId,
+          orgId: resolvedOrgId,
           method: 'POST',
           body,
         });
@@ -354,7 +405,7 @@ const Projects = () => {
       } else if (editingProjectId) {
         await crmRequest(`/api/projects/${editingProjectId}`, {
           token,
-          orgId: activeOrgId,
+          orgId: resolvedOrgId,
           method: 'PATCH',
           body,
         });
@@ -378,6 +429,9 @@ const Projects = () => {
       if (!project || !canManageProject(project)) {
         throw new Error('You are not allowed to delete this project');
       }
+      if (!resolvedOrgId) {
+        throw new Error('Organization context is required');
+      }
 
       const token = await getAccessToken();
       if (!token) {
@@ -386,10 +440,10 @@ const Projects = () => {
 
       await crmRequest(`/api/projects/${projectId}`, {
         token,
-        orgId: activeOrgId,
+        orgId: resolvedOrgId,
         method: 'DELETE',
         body: {
-          orgId: activeOrgId,
+          orgId: resolvedOrgId,
         },
       });
 
@@ -412,6 +466,7 @@ const Projects = () => {
       const projectDetail = await loadProjectAssignments(project.id);
       setMembersProject(projectDetail);
       setSelectedMemberIds(projectDetail.members.map((member) => member.userId));
+      setSelectedTeamIds(projectDetail.teams.map((team) => team.id));
       setMembersOwnerId(projectDetail.ownerUserId || '');
       setMembersOpen(true);
     } catch (dialogError: any) {
@@ -434,6 +489,9 @@ const Projects = () => {
       if (!canManageMembersProject) {
         throw new Error('You are not allowed to manage this project');
       }
+      if (!resolvedOrgId) {
+        throw new Error('Organization context is required');
+      }
 
       const token = await getAccessToken();
       if (!token) {
@@ -447,12 +505,13 @@ const Projects = () => {
 
       await crmRequest(`/api/projects/${membersProject.id}`, {
         token,
-        orgId: activeOrgId,
+        orgId: resolvedOrgId,
         method: 'PATCH',
         body: {
-          orgId: activeOrgId,
+          orgId: resolvedOrgId,
           ownerUserId: membersOwnerId || null,
           ...(membersProject.projectType?.id ? { projectTypeId: membersProject.projectType.id } : {}),
+          teamIds: selectedTeamIds,
         },
       });
 
@@ -469,10 +528,10 @@ const Projects = () => {
           .map((userId) =>
             crmRequest(`/api/projects/${membersProject.id}/members`, {
               token,
-              orgId: activeOrgId,
+              orgId: resolvedOrgId,
               method: 'POST',
               body: {
-                orgId: activeOrgId,
+                orgId: resolvedOrgId,
                 userId,
                 memberRole: membersOwnerId && userId === membersOwnerId ? 'owner' : 'member',
               },
@@ -483,10 +542,10 @@ const Projects = () => {
           .map((existing) =>
             crmRequest(`/api/projects/${membersProject.id}/members/${existing.userId}`, {
               token,
-              orgId: activeOrgId,
+              orgId: resolvedOrgId,
               method: 'DELETE',
               body: {
-                orgId: activeOrgId,
+                orgId: resolvedOrgId,
               },
             }),
           ),
@@ -516,7 +575,7 @@ const Projects = () => {
             <Box>
               <Typography variant="h5">Projects</Typography>
               <Typography variant="body2" color="textSecondary">
-                Project types drive project labeling and calendar colors across the CRM.
+                Global project types drive project labeling and calendar colors across the CRM.
               </Typography>
             </Box>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
@@ -533,6 +592,9 @@ const Projects = () => {
             </Stack>
           </Stack>
 
+          {!resolvedOrgId && !loading ? (
+            <Alert severity="warning">Select an organization context before managing projects and team assignments.</Alert>
+          ) : null}
           {!projectTypes.length && !loading ? (
             <Alert severity="warning">
               No project types are configured yet. A global admin needs to create project types before new projects can be created.
@@ -558,6 +620,7 @@ const Projects = () => {
                     <TableCell>Priority</TableCell>
                     <TableCell>Owner</TableCell>
                     <TableCell>Members</TableCell>
+                    <TableCell>Teams</TableCell>
                     <TableCell>Due Date</TableCell>
                     <TableCell align="right">Actions</TableCell>
                   </TableRow>
@@ -586,6 +649,7 @@ const Projects = () => {
                         </TableCell>
                         <TableCell>{project.ownerName || '-'}</TableCell>
                         <TableCell>{project.memberCount}</TableCell>
+                        <TableCell>{project.teamCount}</TableCell>
                         <TableCell>{project.dueDate || '-'}</TableCell>
                         <TableCell align="right">
                           <Stack direction="row" spacing={1} justifyContent="flex-end">
@@ -603,7 +667,7 @@ const Projects = () => {
                                 onClick={() => void openMembersDialog(project)}
                                 disabled={membersDialogLoading}
                               >
-                                Members
+                                Assignments
                               </Button>
                             ) : null}
                             {canManage ? (
@@ -628,7 +692,7 @@ const Projects = () => {
                   })}
                   {projects.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={8}>
+                      <TableCell colSpan={9}>
                         <Typography variant="body2" color="textSecondary">
                           No projects yet.
                         </Typography>
@@ -749,6 +813,27 @@ const Projects = () => {
                 ))}
               </Select>
             </FormControl>
+            <FormControl fullWidth>
+              <InputLabel id="project-teams-label">Assigned Teams</InputLabel>
+              <Select
+                labelId="project-teams-label"
+                label="Assigned Teams"
+                multiple
+                value={form.teamIds}
+                onChange={(event) => setForm((prev) => ({ ...prev, teamIds: event.target.value as string[] }))}
+                renderValue={(selected) =>
+                  (selected as string[])
+                    .map((teamId) => teams.find((team) => team.id === teamId)?.name || teamId)
+                    .join(', ')
+                }
+              >
+                {teams.map((team) => (
+                  <MenuItem key={team.id} value={team.id}>
+                    {team.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
           </Stack>
         </DialogContent>
         <DialogActions>
@@ -764,7 +849,7 @@ const Projects = () => {
       </Dialog>
 
       <Dialog open={membersOpen} onClose={() => setMembersOpen(false)} fullWidth maxWidth="sm">
-        <DialogTitle>Project Members</DialogTitle>
+        <DialogTitle>Project Assignments</DialogTitle>
         <DialogContent>
           {membersDialogLoading ? (
             <Typography mt={1}>Loading project assignments...</Typography>
@@ -785,6 +870,28 @@ const Projects = () => {
                   {members.map((member) => (
                     <MenuItem key={member.userId} value={member.userId}>
                       {resolveMemberName(member)}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl fullWidth>
+                <InputLabel id="teams-select-label">Assigned Teams</InputLabel>
+                <Select
+                  labelId="teams-select-label"
+                  label="Assigned Teams"
+                  multiple
+                  value={selectedTeamIds}
+                  disabled={!canManageMembersProject}
+                  onChange={(event) => setSelectedTeamIds(event.target.value as string[])}
+                  renderValue={(selected) =>
+                    (selected as string[])
+                      .map((teamId) => teams.find((team) => team.id === teamId)?.name || teamId)
+                      .join(', ')
+                  }
+                >
+                  {teams.map((team) => (
+                    <MenuItem key={team.id} value={team.id}>
+                      {team.name}
                     </MenuItem>
                   ))}
                 </Select>

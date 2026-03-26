@@ -32,6 +32,13 @@ type ProjectMember = {
   fullName: string;
 };
 
+type ProjectTeam = {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+};
+
 type ProjectDetailData = {
   id: string;
   name: string;
@@ -44,9 +51,12 @@ type ProjectDetailData = {
   ownerUserId: string | null;
   ownerName: string | null;
   currentUserMemberRole: 'owner' | 'member' | null;
+  currentUserHasTeamAccess: boolean;
   projectType: ProjectTypeOption | null;
   members: ProjectMember[];
   memberCount: number;
+  teams: ProjectTeam[];
+  teamCount: number;
   createdAt: string;
   updatedAt: string;
   summary: {
@@ -148,7 +158,7 @@ const BCrumb = [
 const ProjectDetail = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
-  const { activeOrgId, getAccessToken, profile } = useAuth();
+  const { activeOrgId, getAccessToken, profile, setActiveOrgId } = useAuth();
 
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState('');
@@ -160,15 +170,28 @@ const ProjectDetail = () => {
   const [uploadingFile, setUploadingFile] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const currentUserId = profile?.user.id || null;
-  const currentOrgRole = profile?.activeOrg.orgRole || null;
+  const fallbackOrgId =
+    activeOrgId || profile?.activeOrg.orgId || profile?.user.defaultOrgId || profile?.memberships?.[0]?.org_id || null;
+  const resolvedOrgId = activeOrgId || fallbackOrgId;
+  const currentOrgRole =
+    profile?.activeOrg.orgRole ||
+    profile?.memberships?.find((membership) => membership.org_id === resolvedOrgId)?.role ||
+    null;
   const isOrgProjectManager = Boolean(profile?.user.globalRole === 'admin' || currentOrgRole === 'employer');
   const isProjectMember = Boolean(
     project &&
       currentUserId &&
       (String(project.ownerUserId || '') === String(currentUserId) ||
-        project.members.some((member) => String(member.userId) === String(currentUserId))),
+        project.members.some((member) => String(member.userId) === String(currentUserId)) ||
+        project.currentUserHasTeamAccess),
   );
   const canManageFiles = isOrgProjectManager || (currentOrgRole === 'employee' && isProjectMember);
+
+  React.useEffect(() => {
+    if (!activeOrgId && resolvedOrgId) {
+      void setActiveOrgId(resolvedOrgId);
+    }
+  }, [activeOrgId, resolvedOrgId, setActiveOrgId]);
 
   const loadProject = React.useCallback(async (signal?: AbortSignal) => {
     setLoading(true);
@@ -186,7 +209,7 @@ const ProjectDetail = () => {
 
       const data = await crmRequest(`/api/projects/${projectId}`, {
         token,
-        orgId: activeOrgId,
+        orgId: resolvedOrgId,
         signal,
       });
 
@@ -202,7 +225,7 @@ const ProjectDetail = () => {
         setLoading(false);
       }
     }
-  }, [activeOrgId, getAccessToken, projectId]);
+  }, [getAccessToken, projectId, resolvedOrgId]);
 
   const loadFiles = React.useCallback(async (signal?: AbortSignal) => {
     setFilesLoading(true);
@@ -219,7 +242,7 @@ const ProjectDetail = () => {
 
       const data = await crmRequest(`/api/projects/${projectId}/files`, {
         token,
-        orgId: activeOrgId,
+        orgId: resolvedOrgId,
         signal,
       });
 
@@ -234,7 +257,7 @@ const ProjectDetail = () => {
         setFilesLoading(false);
       }
     }
-  }, [activeOrgId, getAccessToken, projectId]);
+  }, [getAccessToken, projectId, resolvedOrgId]);
 
   const fileToBase64 = (file: File): Promise<string> =>
     new Promise((resolve, reject) => {
@@ -274,10 +297,10 @@ const ProjectDetail = () => {
       const base64 = await fileToBase64(file);
       await crmRequest(`/api/projects/${projectId}/files`, {
         token,
-        orgId: activeOrgId,
+        orgId: resolvedOrgId,
         method: 'POST',
         body: {
-          orgId: activeOrgId,
+          orgId: resolvedOrgId,
           fileName: file.name,
           mimeType: file.type,
           contentBase64: base64,
@@ -315,10 +338,10 @@ const ProjectDetail = () => {
 
       const data = await crmRequest(`/api/projects/${projectId}/files/${fileId}`, {
         token,
-        orgId: activeOrgId,
+        orgId: resolvedOrgId,
         method: 'DELETE',
         body: {
-          orgId: activeOrgId,
+          orgId: resolvedOrgId,
         },
       });
 
@@ -415,6 +438,10 @@ const ProjectDetail = () => {
                   <Typography variant="subtitle2">Members</Typography>
                   <Typography variant="body2">{project.memberCount}</Typography>
                 </Stack>
+                <Stack spacing={1} flex={1}>
+                  <Typography variant="subtitle2">Teams</Typography>
+                  <Typography variant="body2">{project.teamCount}</Typography>
+                </Stack>
               </Stack>
 
               <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
@@ -437,6 +464,31 @@ const ProjectDetail = () => {
                 <Typography variant="body2" color="textSecondary">
                   {project.description || 'No description added yet.'}
                 </Typography>
+              </Stack>
+
+              <Stack spacing={1}>
+                <Typography variant="subtitle2">Assigned Teams</Typography>
+                {project.teams.length ? (
+                  <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                    {project.teams.map((team) => (
+                      <Chip
+                        key={team.id}
+                        size="small"
+                        label={team.name}
+                        sx={{
+                          width: 'fit-content',
+                          backgroundColor: hexToRgba(team.color, 0.16),
+                          color: getReadableTextColor(team.color),
+                          border: `1px solid ${resolveUiColor(team.color)}`,
+                        }}
+                      />
+                    ))}
+                  </Stack>
+                ) : (
+                  <Typography variant="body2" color="textSecondary">
+                    No teams assigned.
+                  </Typography>
+                )}
               </Stack>
 
               <Divider />

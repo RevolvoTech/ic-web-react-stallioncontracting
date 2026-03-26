@@ -11,6 +11,7 @@ type NewTicketPayload = {
     Status: string;
     projectId?: string | null;
     agentUserId?: string | null;
+    assignedTeamId?: string | null;
 };
 
 export interface TicketContextType {

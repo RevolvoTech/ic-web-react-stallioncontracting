@@ -161,7 +161,12 @@ const TicketListing = () => {
                         width: '35',
                       }}
                     />
-                    <Typography variant="h6">{ticket.AgentName}</Typography>
+                    <Box>
+                      <Typography variant="h6">{ticket.AgentName}</Typography>
+                      <Typography variant="body2" color="textSecondary">
+                        {ticket.teamName || 'No team'}
+                      </Typography>
+                    </Box>
                   </Stack>
                 </TableCell>
                 <TableCell>
