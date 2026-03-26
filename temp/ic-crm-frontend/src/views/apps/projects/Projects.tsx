@@ -200,6 +200,7 @@ const Projects = () => {
   const canSaveProjectForm =
     formMode === 'create' ? canCreateProject : Boolean(editingProject && canManageProject(editingProject));
   const canManageMembersProject = Boolean(membersProject && canManageProject(membersProject));
+  const showMissingProjectTypesWarning = !loading && !error && projectTypes.length === 0;
 
   const resolveMemberName = (member: Member) =>
     `${member.firstName || ''} ${member.lastName || ''}`.trim() || member.email;
@@ -595,9 +596,9 @@ const Projects = () => {
           {!resolvedOrgId && !loading ? (
             <Alert severity="warning">Select an organization context before managing projects and team assignments.</Alert>
           ) : null}
-          {!projectTypes.length && !loading ? (
+          {showMissingProjectTypesWarning ? (
             <Alert severity="warning">
-              No project types are configured yet. A global admin needs to create project types before new projects can be created.
+              No project types are currently available. A global admin can add one from Project Types. If you expected defaults, check backend migration health.
             </Alert>
           ) : null}
           {!canCreateProject ? (

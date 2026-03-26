@@ -222,6 +222,11 @@ const ProjectTypes = () => {
           ) : null}
           {error ? <Alert severity="error">{error}</Alert> : null}
           {info ? <Alert severity="success">{info}</Alert> : null}
+          {!loading && isGlobalAdmin && !error && projectTypes.length === 0 ? (
+            <Alert severity="warning">
+              No global project types are currently available. You can add one now. If you expected the default 8 types, check backend startup migration health.
+            </Alert>
+          ) : null}
 
           {isGlobalAdmin ? (
             <Stack direction="row" justifyContent="flex-end">
@@ -299,7 +304,7 @@ const ProjectTypes = () => {
                     <TableRow>
                       <TableCell colSpan={4}>
                         <Typography variant="body2" color="textSecondary">
-                          No project types configured yet.
+                          No global project types are currently available.
                         </Typography>
                       </TableCell>
                     </TableRow>
