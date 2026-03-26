@@ -33,6 +33,7 @@ import {
   PROJECT_TYPE_COLOR_PRESETS,
   resolveUiColor,
 } from 'src/lib/projectTypeColors';
+import { HexColorPicker } from 'react-colorful';
 import { ProjectTypeOption } from 'src/types/projectTypes';
 
 const BCrumb = [
@@ -440,6 +441,35 @@ const ProjectTypes = () => {
                 })}
               </Stack>
               <Divider flexItem />
+              <Box
+                sx={{
+                  p: 1.5,
+                  borderRadius: 2.5,
+                  backgroundColor: 'background.paper',
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  '.react-colorful': {
+                    width: '100%',
+                    height: 220,
+                  },
+                  '.react-colorful__saturation': {
+                    borderBottomWidth: '18px',
+                    borderRadius: '16px 16px 0 0',
+                  },
+                  '.react-colorful__hue': {
+                    height: 18,
+                    borderRadius: '0 0 16px 16px',
+                  },
+                  '.react-colorful__pointer': {
+                    width: 20,
+                    height: 20,
+                    borderWidth: '3px',
+                    boxShadow: '0 10px 24px rgba(15, 23, 42, 0.18)',
+                  },
+                }}
+              >
+                <HexColorPicker color={resolvedColor} onChange={updateFormColor} />
+              </Box>
               <TextField
                 id="project-type-color"
                 name="projectTypeColor"
