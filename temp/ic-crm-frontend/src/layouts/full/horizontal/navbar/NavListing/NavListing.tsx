@@ -7,6 +7,7 @@ import { Box, List, Theme, useMediaQuery } from '@mui/material';
 import NavItem from '../NavItem/NavItem';
 import NavCollapse from '../NavCollapse/NavCollapse';
 import { CustomizerContext } from 'src/context/CustomizerContext';
+import { useAuth } from 'src/context/AuthContext';
 
 const NavListing = () => {
   const { pathname } = useLocation();
@@ -14,14 +15,17 @@ const NavListing = () => {
   const pathWithoutLastPart = pathname.slice(0, pathname.lastIndexOf('/'));
 
   const { isCollapse, isSidebarHover } = useContext(CustomizerContext);
+  const { profile } = useAuth();
 
   const lgUp = useMediaQuery((theme: Theme) => theme.breakpoints.up('lg'));
   const hideMenu = lgUp ? isCollapse == "mini-sidebar" && !isSidebarHover : '';
+  const isGlobalAdmin = profile?.user.globalRole === 'admin';
+  const visibleMenuItems = Menudata.filter((item) => !item.adminOnly || isGlobalAdmin);
 
   return (
     <Box>
       <List sx={{ p: 0, display: 'flex', gap: '3px', zIndex: '100' }}>
-        {Menudata.map((item) => {
+        {visibleMenuItems.map((item) => {
           if (item.children) {
             return (
               <NavCollapse

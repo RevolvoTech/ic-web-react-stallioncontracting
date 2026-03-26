@@ -140,6 +140,7 @@ function EditTaskModal({ show, onHide, editedTask, onSave }: any) {
               {(Array.isArray(projectsData?.data) ? projectsData.data : []).map((project: any) => (
                 <MenuItem key={project.id} value={project.id}>
                   {project.name}
+                  {project.projectType ? ` (${project.projectType.name})` : ''}
                 </MenuItem>
               ))}
             </CustomSelect>
@@ -149,48 +150,44 @@ function EditTaskModal({ show, onHide, editedTask, onSave }: any) {
               xs: 12,
               sm: 6
             }}>
-            {/* Task text or image */}
-            {tempEditedTask?.taskImage ? (
-              <>
-                {/* Image handling */}
-                <CustomFormLabel htmlFor="taskImage" sx={{ mt: 0 }}>
-                  Image URL
-                </CustomFormLabel>
-                <CustomTextField
-                  id="taskImage"
-                  variant="outlined"
-                  fullWidth
-                  value={newImageUrl}
-                  onChange={handleNewImageUrlChange}
-                />
-                {imagePreview && (
-                  <Grid sx={{ mt: 2 }} size={12}>
-                    <CustomFormLabel htmlFor="taskImage">Image Preview:</CustomFormLabel>
-                    <img
-                      src={imagePreview}
-                      alt="Selected"
-                      style={{ maxWidth: '100%', height: 'auto', marginTop: '8px', borderRadius: "4px" }}
+            <CustomFormLabel sx={{ mt: 0 }} htmlFor="task-text">
+              Text
+            </CustomFormLabel>
+            <CustomTextField
+              id="task-text"
+              variant="outlined"
+              fullWidth
+              name="taskText"
+              value={tempEditedTask?.taskText}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid
+            size={{
+              xs: 12,
+              sm: 6
+            }}>
+            <CustomFormLabel htmlFor="taskImage" sx={{ mt: 0 }}>
+              Image URL
+            </CustomFormLabel>
+            <CustomTextField
+              id="taskImage"
+              variant="outlined"
+              fullWidth
+              value={newImageUrl}
+              onChange={handleNewImageUrlChange}
+            />
+            {imagePreview ? (
+              <Grid sx={{ mt: 2 }} size={12}>
+                <CustomFormLabel htmlFor="taskImage">Image Preview:</CustomFormLabel>
+                <img
+                  src={imagePreview}
+                  alt="Selected"
+                  style={{ maxWidth: '100%', height: 'auto', marginTop: '8px', borderRadius: "4px" }}
 
-                    />
-                  </Grid>
-                )}
-              </>
-            ) : (
-              <>
-                {/* Task text */}
-                <CustomFormLabel sx={{ mt: 0 }} htmlFor="task-text">
-                  Text
-                </CustomFormLabel>
-                <CustomTextField
-                  id="task-text"
-                  variant="outlined"
-                  fullWidth
-                  name="taskText"
-                  value={tempEditedTask?.taskText}
-                  onChange={handleChange}
                 />
-              </>
-            )}
+              </Grid>
+            ) : null}
           </Grid>
 
 

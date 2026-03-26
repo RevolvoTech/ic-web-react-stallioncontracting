@@ -40,7 +40,7 @@ function AddNewList({
 
 
   const isFormValid = () => {
-    return task && taskText && taskProperty && taskImage;
+    return task && taskText && taskProperty;
   };
   return (
     (<Dialog
@@ -124,7 +124,7 @@ function AddNewList({
                 setNewTaskData({ ...newTaskData, taskImage: e.target.value })
               }
             />
-            {taskImage !== undefined && (
+            {taskImage ? (
               <img
 
                 src={taskImage}
@@ -134,7 +134,7 @@ function AddNewList({
                 }}
 
               />
-            )}
+            ) : null}
           </Grid>
           <Grid
             size={{
@@ -193,6 +193,7 @@ function AddNewList({
               {(Array.isArray(projectsData?.data) ? projectsData.data : []).map((project: any) => (
                 <MenuItem key={project.id} value={project.id}>
                   {project.name}
+                  {project.projectType ? ` (${project.projectType.name})` : ''}
                 </MenuItem>
               ))}
             </CustomSelect>

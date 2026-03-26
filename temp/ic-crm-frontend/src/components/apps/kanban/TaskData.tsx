@@ -19,6 +19,7 @@ import {
 import BlankCard from '../../shared/BlankCard';
 import dayjs from 'dayjs';
 import { mutate } from 'swr';
+import { getReadableTextColor, hexToRgba, resolveUiColor } from 'src/lib/projectTypeColors';
 
 interface TaskDataProps {
   task: { id: any };
@@ -181,9 +182,23 @@ const TaskData: React.FC<TaskDataProps> = ({ task, onDeleteTask, index }: any) =
             )}
             {editedTask?.projectName && (
               <Box px={2} pb={1}>
-                <Typography variant="caption" color="textSecondary">
-                  Project: {editedTask.projectName}
-                </Typography>
+                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                  <Typography variant="caption" color="textSecondary">
+                    Project: {editedTask.projectName}
+                  </Typography>
+                  {editedTask?.projectTypeName && editedTask?.projectTypeColor ? (
+                    <Chip
+                      size="small"
+                      label={editedTask.projectTypeName}
+                      sx={{
+                        height: 22,
+                        backgroundColor: hexToRgba(editedTask.projectTypeColor, 0.16),
+                        color: getReadableTextColor(editedTask.projectTypeColor),
+                        border: `1px solid ${resolveUiColor(editedTask.projectTypeColor)}`,
+                      }}
+                    />
+                  ) : null}
+                </Stack>
               </Box>
             )}
             <Box display="flex" alignItems="center" justifyContent="space-between" px={2} py={1}>

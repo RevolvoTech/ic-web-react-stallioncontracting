@@ -79,7 +79,9 @@ export const KanbanDataContextProvider: React.FC<KanbanDataContextProps> = ({ ch
     const addCategory = async (categoryName: string) => {
         try {
             const response = await mutate(postFetcher('/api/kanban/add-category', { categoryName }), false);
-            setTodoCategories([...todoCategories, response.data]);
+            if (response?.data) {
+                setTodoCategories((prev) => [...prev, response.data]);
+            }
         } catch (error: any) {
             handleError(error);
         }
@@ -98,6 +100,8 @@ export const KanbanDataContextProvider: React.FC<KanbanDataContextProps> = ({ ch
 
     const moveTask = (_: any, sourceCategoryId: any, destinationCategoryId: any, sourceIndex: number, destinationIndex: number) => {
 
+        const previousCategories = todoCategories;
+
         setTodoCategories((prevCategories) => {
             // Find the source and destination categories
             const sourceCategoryIndex = prevCategories.findIndex(cat => cat.id.toString() === sourceCategoryId);
@@ -107,12 +111,20 @@ export const KanbanDataContextProvider: React.FC<KanbanDataContextProps> = ({ ch
                 return prevCategories; // Return previous state if categories are not found
             }
             // Clone the source and destination categories
-            const updatedCategories = [...prevCategories];
-            const sourceCategory = { ...updatedCategories[sourceCategoryIndex] };
-            const destinationCategory = { ...updatedCategories[destinationCategoryIndex] };
+            const updatedCategories = prevCategories.map((category) => ({
+                ...category,
+                child: [...category.child],
+            }));
+            const sourceCategory = { ...updatedCategories[sourceCategoryIndex], child: [...updatedCategories[sourceCategoryIndex].child] };
+            const destinationCategory = sourceCategoryIndex === destinationCategoryIndex
+                ? sourceCategory
+                : { ...updatedCategories[destinationCategoryIndex], child: [...updatedCategories[destinationCategoryIndex].child] };
 
             // Remove the task from the source category
             const taskToMove = sourceCategory.child.splice(sourceIndex, 1)[0];
+            if (!taskToMove) {
+                return prevCategories;
+            }
 
             // Insert the task into the destination category at the specified index
             destinationCategory.child.splice(destinationIndex, 0, taskToMove);
@@ -140,6 +152,7 @@ export const KanbanDataContextProvider: React.FC<KanbanDataContextProps> = ({ ch
                 }
             })
             .catch((error: any) => {
+                setTodoCategories(previousCategories);
                 handleError(error);
             });
     };

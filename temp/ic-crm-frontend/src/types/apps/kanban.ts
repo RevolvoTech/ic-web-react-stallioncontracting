@@ -7,6 +7,8 @@ export interface TodoTask {
   taskProperty: string;
   projectId?: string | null;
   projectName?: string | null;
+  projectTypeName?: string | null;
+  projectTypeColor?: string | null;
   category?: string | any;
 }
 

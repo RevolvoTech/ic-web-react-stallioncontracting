@@ -29,6 +29,8 @@ import BlankCard from 'src/components/shared/BlankCard';
 import Breadcrumb from 'src/layouts/full/shared/breadcrumb/Breadcrumb';
 import useSWR from 'swr';
 import { deleteFetcher, getFetcher, postFetcher, putFetcher } from 'src/api/globalFetcher';
+import { ProjectTypeOption } from 'src/types/projectTypes';
+import { getReadableTextColor, hexToRgba, isHexColor, resolveUiColor } from 'src/lib/projectTypeColors';
 
 moment.locale('en-GB');
 const localizer = momentLocalizer(moment);
@@ -42,6 +44,15 @@ type EvType = {
   color?: string;
   projectId?: string | null;
   kind?: 'calendar' | 'project_timeline';
+  projectType?: ProjectTypeOption | null;
+};
+
+type CalendarProject = {
+  id: string;
+  name: string;
+  projectType: ProjectTypeOption | null;
+  startDate?: string | null;
+  dueDate?: string | null;
 };
 
 const BCrumb = [
@@ -67,6 +78,14 @@ const BigCalendar = ({ isBreadcrumb = true }: { isBreadcrumb?: boolean }) => {
   const [update, setUpdate] = React.useState<EvType | null>(null);
   const { data: calendarData, mutate } = useSWR('/api/data/calendar/CalendarEvents', getFetcher);
   const { data: projectsData } = useSWR('/api/projects', getFetcher);
+  const projects = React.useMemo(
+    () => (Array.isArray(projectsData?.data) ? (projectsData.data as CalendarProject[]) : []),
+    [projectsData],
+  );
+  const selectedProject = React.useMemo(
+    () => projects.find((project) => project.id === projectId) || null,
+    [projectId, projects],
+  );
 
   const ColorVariation = [
     {
@@ -113,6 +132,7 @@ const BigCalendar = ({ isBreadcrumb = true }: { isBreadcrumb?: boolean }) => {
           allDay: Boolean(item.allDay),
           projectId: item.projectId || null,
           kind: 'calendar',
+          projectType: item.projectType || null,
         } as EvType;
       })
       .filter(Boolean) as EvType[];
@@ -124,9 +144,8 @@ const BigCalendar = ({ isBreadcrumb = true }: { isBreadcrumb?: boolean }) => {
   }, [calendarData]);
 
   const projectTimelineEvents = React.useMemo(() => {
-    const projects = Array.isArray(projectsData?.data) ? projectsData.data : [];
     return projects
-      .map((project: any) => {
+      .map((project) => {
         if (!project?.id || !project?.startDate || !project?.dueDate) {
           return null;
         }
@@ -143,13 +162,14 @@ const BigCalendar = ({ isBreadcrumb = true }: { isBreadcrumb?: boolean }) => {
           start: startDate.toDate(),
           end: dueDate.add(1, 'day').toDate(),
           allDay: true,
-          color: 'azure',
+          color: project.projectType?.color || 'azure',
           projectId: project.id,
           kind: 'project_timeline',
+          projectType: project.projectType || null,
         } as EvType;
       })
       .filter(Boolean) as EvType[];
-  }, [projectsData]);
+  }, [projects]);
 
   const mergedEvents = React.useMemo(
     () => [...calevents, ...projectTimelineEvents],
@@ -187,7 +207,7 @@ const BigCalendar = ({ isBreadcrumb = true }: { isBreadcrumb?: boolean }) => {
     }
 
     setTitle(newEditEvent.title || '');
-    setColor(newEditEvent.color || 'default');
+    setColor(isHexColor(newEditEvent.color) ? 'default' : newEditEvent.color || 'default');
     setStart(dayjs(newEditEvent.start));
     setEnd(dayjs(newEditEvent.end));
     setProjectId((newEditEvent as any).projectId || '');
@@ -271,6 +291,17 @@ const BigCalendar = ({ isBreadcrumb = true }: { isBreadcrumb?: boolean }) => {
   };
 
   const eventColors = (event: EvType) => {
+    if (isHexColor(event.color)) {
+      const resolved = resolveUiColor(event.color);
+      return {
+        style: {
+          backgroundColor: hexToRgba(resolved, 0.16),
+          color: getReadableTextColor(resolved),
+          borderColor: resolved,
+        },
+      };
+    }
+
     if (event.color) {
       return { className: `event-${event.color}` };
     }
@@ -297,6 +328,7 @@ const BigCalendar = ({ isBreadcrumb = true }: { isBreadcrumb?: boolean }) => {
   };
 
   const isDateRangeInvalid = start && end && dayjs(start).isAfter(dayjs(end));
+  const linkedProjectColor = selectedProject?.projectType?.color || null;
 
   return (
     <PageContainer title="Calendar" description="this is Calendar">
@@ -366,13 +398,29 @@ const BigCalendar = ({ isBreadcrumb = true }: { isBreadcrumb?: boolean }) => {
                 <MenuItem value="">
                   <em>None</em>
                 </MenuItem>
-                {(Array.isArray(projectsData?.data) ? projectsData.data : []).map((project: any) => (
+                {projects.map((project) => (
                   <MenuItem key={project.id} value={project.id}>
                     {project.name}
+                    {project.projectType ? ` (${project.projectType.name})` : ''}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
+            {linkedProjectColor ? (
+              <Typography
+                variant="body2"
+                sx={{
+                  px: 1.5,
+                  py: 1,
+                  borderRadius: 1,
+                  backgroundColor: hexToRgba(linkedProjectColor, 0.16),
+                  color: getReadableTextColor(linkedProjectColor),
+                  border: `1px solid ${resolveUiColor(linkedProjectColor)}`,
+                }}
+              >
+                This event will use the linked project type color.
+              </Typography>
+            ) : null}
             {/* ------------------------------------------- */}
             {/* Selection of Start and end date */}
             {/* ------------------------------------------- */}
@@ -409,30 +457,31 @@ const BigCalendar = ({ isBreadcrumb = true }: { isBreadcrumb?: boolean }) => {
             {/* ------------------------------------------- */}
             {/* Calendar Event Color*/}
             {/* ------------------------------------------- */}
-            <Typography variant="h6" fontWeight={600} my={2}>
-              Select Event Color
-            </Typography>
-            {/* ------------------------------------------- */}
-            {/* colors for event */}
-            {/* ------------------------------------------- */}
-            {ColorVariation.map((mcolor) => {
-              return (
-                <Fab
-                  color="primary"
-                  style={{ backgroundColor: mcolor.eColor }}
-                  sx={{
-                    marginRight: "3px",
-                    transition: "0.1s ease-in",
-                    scale: mcolor.value === color ? "0.9" : "0.7",
-                  }}
-                  size="small"
-                  key={mcolor.id}
-                  onClick={() => selectinputChangeHandler(mcolor.value)}
-                >
-                  {mcolor.value === color ? <IconCheck width={16} /> : ""}
-                </Fab>
-              );
-            })}
+            {!linkedProjectColor ? (
+              <>
+                <Typography variant="h6" fontWeight={600} my={2}>
+                  Select Event Color
+                </Typography>
+                {ColorVariation.map((mcolor) => {
+                  return (
+                    <Fab
+                      color="primary"
+                      style={{ backgroundColor: mcolor.eColor }}
+                      sx={{
+                        marginRight: "3px",
+                        transition: "0.1s ease-in",
+                        scale: mcolor.value === color ? "0.9" : "0.7",
+                      }}
+                      size="small"
+                      key={mcolor.id}
+                      onClick={() => selectinputChangeHandler(mcolor.value)}
+                    >
+                      {mcolor.value === color ? <IconCheck width={16} /> : ""}
+                    </Fab>
+                  );
+                })}
+              </>
+            ) : null}
           </DialogContent>
           {/* ------------------------------------------- */}
           {/* Action for dialog */}

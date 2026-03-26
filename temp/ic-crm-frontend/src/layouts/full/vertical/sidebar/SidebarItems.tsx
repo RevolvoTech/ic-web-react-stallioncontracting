@@ -9,22 +9,26 @@ import NavCollapse from './NavCollapse';
 import NavGroup from './NavGroup/NavGroup';
 
 import { CustomizerContext } from 'src/context/CustomizerContext';
+import { useAuth } from 'src/context/AuthContext';
 
 const SidebarItems = () => {
   const { pathname } = useLocation();
   const pathDirect = pathname;
   const pathWithoutLastPart = pathname.slice(0, pathname.lastIndexOf('/'));
   const { isSidebarHover, isCollapse, isMobileSidebar, setIsMobileSidebar } = useContext(CustomizerContext);
+  const { profile } = useAuth();
 
   const lgUp = useMediaQuery((theme: any) => theme.breakpoints.up('lg'));
   const hideMenu: any = lgUp ? isCollapse == "mini-sidebar" && !isSidebarHover : '';
+  const isGlobalAdmin = profile?.user.globalRole === 'admin';
+  const visibleMenuItems = Menuitems.filter((item) => !item.adminOnly || isGlobalAdmin);
 
 
 
   return (
     <Box sx={{ px: 3 }}>
       <List sx={{ pt: 0 }} className="sidebarNav">
-        {Menuitems.map((item) => {
+        {visibleMenuItems.map((item) => {
           // {/********SubHeader**********/}
           if (item.subheader) {
             return <NavGroup item={item} hideMenu={hideMenu} key={item.subheader} />;

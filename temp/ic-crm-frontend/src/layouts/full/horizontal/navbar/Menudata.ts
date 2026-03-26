@@ -19,6 +19,7 @@ interface MenuitemsType {
   icon?: any;
   href?: string;
   children?: MenuitemsType[];
+  adminOnly?: boolean;
 }
 
 const Menudata: MenuitemsType[] = [
@@ -87,6 +88,13 @@ const Menudata: MenuitemsType[] = [
     title: 'Team & Roles',
     icon: IconShieldLock,
     href: '/apps/team',
+  },
+  {
+    id: uniqueId(),
+    title: 'Project Types',
+    icon: IconShieldLock,
+    href: '/apps/project-types',
+    adminOnly: true,
   },
 ];
 

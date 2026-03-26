@@ -45,7 +45,7 @@ function CategoryTaskList({ id }: any) {
     taskText: '',
     taskProperty: '',
     date: new Date().toISOString().split('T')[0],
-    taskImage: 'https://adminmart.github.io/template_api/images/website-template/endeavor/endeavor-nextjs-14-website-template.jpg',
+    taskImage: '',
     projectId: '',
   });
 
@@ -100,7 +100,7 @@ function CategoryTaskList({ id }: any) {
           taskText: '',
           taskProperty: '',
           date: new Date().toISOString().split('T')[0],
-          taskImage: 'https://adminmart.github.io/template_api/images/website-template/endeavor/endeavor-nextjs-14-website-template.jpg',
+          taskImage: '',
           projectId: '',
         });
         if (response?.data) {
@@ -156,23 +156,21 @@ function CategoryTaskList({ id }: any) {
               </Typography>
               <Stack direction="row">
                 <Box>
-                  {category.name === 'Todo' && (
-                    <>
-                      <Tooltip title="Add Task">
-                        <IconButton onClick={handleShowModal}>
-                          <IconPlus size="1rem" />
-                        </IconButton>
-                      </Tooltip>
-                      <AddNewTaskModal
-                        show={showModal}
-                        onHide={handleCloseModal}
-                        onSave={handleAddTask}
-                        newTaskData={newTaskData}
-                        setNewTaskData={setNewTaskData}
-                        updateTasks={() => setAllTasks([...allTasks, newTaskData])}
-                      />
-                    </>
-                  )}
+                  <>
+                    <Tooltip title="Add Task">
+                      <IconButton onClick={handleShowModal}>
+                        <IconPlus size="1rem" />
+                      </IconButton>
+                    </Tooltip>
+                    <AddNewTaskModal
+                      show={showModal}
+                      onHide={handleCloseModal}
+                      onSave={handleAddTask}
+                      newTaskData={newTaskData}
+                      setNewTaskData={setNewTaskData}
+                      updateTasks={() => setAllTasks([...allTasks, newTaskData])}
+                    />
+                  </>
                   <EditCategoryModal
                     showModal={showEditCategoryModal}
                     handleCloseModal={handleCloseEditCategoryModal}

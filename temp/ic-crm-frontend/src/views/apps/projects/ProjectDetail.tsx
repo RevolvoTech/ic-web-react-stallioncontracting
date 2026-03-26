@@ -22,6 +22,8 @@ import BlankCard from 'src/components/shared/BlankCard';
 import { crmRequest } from 'src/api/crm/client';
 import { useAuth } from 'src/context/AuthContext';
 import { isAbortError } from 'src/lib/fetchWithTimeout';
+import { getReadableTextColor, hexToRgba, resolveUiColor } from 'src/lib/projectTypeColors';
+import { ProjectTypeOption } from 'src/types/projectTypes';
 
 type ProjectMember = {
   userId: string;
@@ -41,6 +43,8 @@ type ProjectDetailData = {
   dueDate: string | null;
   ownerUserId: string | null;
   ownerName: string | null;
+  currentUserMemberRole: 'owner' | 'member' | null;
+  projectType: ProjectTypeOption | null;
   members: ProjectMember[];
   memberCount: number;
   createdAt: string;
@@ -376,6 +380,25 @@ const ProjectDetail = () => {
           {!loading && project ? (
             <Stack spacing={3}>
               <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+                <Stack spacing={1} flex={1}>
+                  <Typography variant="subtitle2">Project Type</Typography>
+                  {project.projectType ? (
+                    <Chip
+                      size="small"
+                      label={project.projectType.name}
+                      sx={{
+                        width: 'fit-content',
+                        backgroundColor: hexToRgba(project.projectType.color, 0.16),
+                        color: getReadableTextColor(project.projectType.color),
+                        border: `1px solid ${resolveUiColor(project.projectType.color)}`,
+                      }}
+                    />
+                  ) : (
+                    <Typography variant="body2" color="textSecondary">
+                      Unassigned
+                    </Typography>
+                  )}
+                </Stack>
                 <Stack spacing={1} flex={1}>
                   <Typography variant="subtitle2">Status</Typography>
                   <Chip size="small" label={project.status} sx={{ width: 'fit-content' }} />

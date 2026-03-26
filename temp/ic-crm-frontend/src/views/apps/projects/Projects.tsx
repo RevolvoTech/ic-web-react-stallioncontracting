@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router';
 import {
   Alert,
+  Box,
   Button,
   Chip,
   Dialog,
@@ -28,6 +29,8 @@ import BlankCard from 'src/components/shared/BlankCard';
 import { crmRequest } from 'src/api/crm/client';
 import { useAuth } from 'src/context/AuthContext';
 import { isAbortError } from 'src/lib/fetchWithTimeout';
+import { getReadableTextColor, hexToRgba, resolveUiColor } from 'src/lib/projectTypeColors';
+import { ProjectTypeOption } from 'src/types/projectTypes';
 
 type Member = {
   userId: string;
@@ -55,6 +58,8 @@ type ProjectItem = {
   dueDate: string | null;
   ownerUserId: string | null;
   ownerName: string | null;
+  currentUserMemberRole: 'owner' | 'member' | null;
+  projectType: ProjectTypeOption | null;
   members: ProjectMember[];
   memberCount: number;
 };
@@ -68,6 +73,7 @@ type ProjectForm = {
   startDate: string;
   dueDate: string;
   ownerUserId: string;
+  projectTypeId: string;
 };
 
 const emptyForm: ProjectForm = {
@@ -79,6 +85,7 @@ const emptyForm: ProjectForm = {
   startDate: '',
   dueDate: '',
   ownerUserId: '',
+  projectTypeId: '',
 };
 
 const BCrumb = [
@@ -91,6 +98,29 @@ const BCrumb = [
   },
 ];
 
+const TypeChip = ({ projectType }: { projectType: ProjectTypeOption | null }) => {
+  if (!projectType) {
+    return (
+      <Typography variant="body2" color="textSecondary">
+        Unassigned
+      </Typography>
+    );
+  }
+
+  return (
+    <Chip
+      size="small"
+      label={projectType.name}
+      sx={{
+        width: 'fit-content',
+        backgroundColor: hexToRgba(projectType.color, 0.16),
+        color: getReadableTextColor(projectType.color),
+        border: `1px solid ${resolveUiColor(projectType.color)}`,
+      }}
+    />
+  );
+};
+
 const Projects = () => {
   const navigate = useNavigate();
   const { activeOrgId, getAccessToken, profile } = useAuth();
@@ -98,7 +128,10 @@ const Projects = () => {
   const [error, setError] = React.useState('');
   const [info, setInfo] = React.useState('');
   const [projects, setProjects] = React.useState<ProjectItem[]>([]);
+  const [projectTypes, setProjectTypes] = React.useState<ProjectTypeOption[]>([]);
   const [members, setMembers] = React.useState<Member[]>([]);
+  const [membersLoaded, setMembersLoaded] = React.useState(false);
+  const [membersLoading, setMembersLoading] = React.useState(false);
 
   const [formOpen, setFormOpen] = React.useState(false);
   const [formMode, setFormMode] = React.useState<'create' | 'edit'>('create');
@@ -107,6 +140,7 @@ const Projects = () => {
   const [saving, setSaving] = React.useState(false);
 
   const [membersOpen, setMembersOpen] = React.useState(false);
+  const [membersDialogLoading, setMembersDialogLoading] = React.useState(false);
   const [membersProject, setMembersProject] = React.useState<ProjectItem | null>(null);
   const [selectedMemberIds, setSelectedMemberIds] = React.useState<string[]>([]);
   const [membersOwnerId, setMembersOwnerId] = React.useState('');
@@ -114,15 +148,14 @@ const Projects = () => {
 
   const currentUserId = profile?.user.id || null;
   const currentOrgRole = profile?.activeOrg.orgRole || null;
-  const isOrgProjectManager = Boolean(profile?.user.globalRole === 'admin' || currentOrgRole === 'employer');
+  const isGlobalAdmin = profile?.user.globalRole === 'admin';
+  const isOrgProjectManager = Boolean(isGlobalAdmin || currentOrgRole === 'employer');
   const canCreateProject = isOrgProjectManager;
 
   const isProjectOwner = (project: ProjectItem) =>
     Boolean(currentUserId) &&
     (String(project.ownerUserId || '') === String(currentUserId) ||
-      project.members.some(
-        (member) => String(member.userId) === String(currentUserId) && member.memberRole === 'owner',
-      ));
+      project.currentUserMemberRole === 'owner');
 
   const canManageProject = (project: ProjectItem) => {
     if (isOrgProjectManager) {
@@ -148,16 +181,13 @@ const Projects = () => {
         throw new Error('Missing session token');
       }
 
-      const [projectsData, membersData] = await Promise.all([
+      const [projectsData, projectTypesData] = await Promise.all([
         crmRequest('/api/projects', { token, orgId: activeOrgId, signal }),
-        crmRequest(
-          activeOrgId ? `/api/users/members?orgId=${encodeURIComponent(activeOrgId)}` : '/api/users/members',
-          { token, orgId: activeOrgId, signal },
-        ),
+        crmRequest('/api/project-types', { token, orgId: activeOrgId, signal }),
       ]);
 
-      setProjects(Array.isArray(projectsData) ? projectsData : []);
-      setMembers(Array.isArray(membersData) ? membersData : []);
+      setProjects(Array.isArray(projectsData) ? (projectsData as ProjectItem[]) : []);
+      setProjectTypes(Array.isArray(projectTypesData) ? (projectTypesData as ProjectTypeOption[]) : []);
     } catch (loadError: any) {
       if (isAbortError(loadError)) {
         return;
@@ -184,33 +214,101 @@ const Projects = () => {
     };
   }, [loadData]);
 
-  const openCreate = () => {
+  React.useEffect(() => {
+    setMembers([]);
+    setMembersLoaded(false);
+  }, [activeOrgId]);
+
+  const ensureMembersLoaded = React.useCallback(async () => {
+    if (membersLoaded) {
+      return members;
+    }
+
+    setMembersLoading(true);
+    try {
+      const token = await getAccessToken();
+      if (!token) {
+        throw new Error('Missing session token');
+      }
+
+      const membersPath = activeOrgId
+        ? `/api/users/members?orgId=${encodeURIComponent(activeOrgId)}`
+        : '/api/users/members';
+
+      const data = await crmRequest(membersPath, {
+        token,
+        orgId: activeOrgId,
+      });
+
+      const nextMembers = Array.isArray(data) ? (data as Member[]) : [];
+      setMembers(nextMembers);
+      setMembersLoaded(true);
+      return nextMembers;
+    } finally {
+      setMembersLoading(false);
+    }
+  }, [activeOrgId, getAccessToken, members, membersLoaded]);
+
+  const loadProjectAssignments = React.useCallback(async (projectId: string) => {
+    const token = await getAccessToken();
+    if (!token) {
+      throw new Error('Missing session token');
+    }
+
+    const data = await crmRequest(`/api/projects/${projectId}`, {
+      token,
+      orgId: activeOrgId,
+    });
+
+    return data as ProjectItem;
+  }, [activeOrgId, getAccessToken]);
+
+  const openCreate = async () => {
     if (!canCreateProject) {
       return;
     }
-    setFormMode('create');
-    setEditingProjectId(null);
-    setForm(emptyForm);
-    setFormOpen(true);
+
+    try {
+      setError('');
+      if (!projectTypes.length) {
+        setError('Create at least one project type before creating projects.');
+        return;
+      }
+
+      await ensureMembersLoaded();
+      setFormMode('create');
+      setEditingProjectId(null);
+      setForm(emptyForm);
+      setFormOpen(true);
+    } catch (openError: any) {
+      setError(openError?.message || 'Failed to open project form');
+    }
   };
 
-  const openEdit = (project: ProjectItem) => {
+  const openEdit = async (project: ProjectItem) => {
     if (!canManageProject(project)) {
       return;
     }
-    setFormMode('edit');
-    setEditingProjectId(project.id);
-    setForm({
-      name: project.name || '',
-      code: project.code || '',
-      description: project.description || '',
-      status: project.status || 'planned',
-      priority: project.priority || 'medium',
-      startDate: project.startDate || '',
-      dueDate: project.dueDate || '',
-      ownerUserId: project.ownerUserId || '',
-    });
-    setFormOpen(true);
+
+    try {
+      await ensureMembersLoaded();
+      setFormMode('edit');
+      setEditingProjectId(project.id);
+      setForm({
+        name: project.name || '',
+        code: project.code || '',
+        description: project.description || '',
+        status: project.status || 'planned',
+        priority: project.priority || 'medium',
+        startDate: project.startDate || '',
+        dueDate: project.dueDate || '',
+        ownerUserId: project.ownerUserId || '',
+        projectTypeId: project.projectType?.id || '',
+      });
+      setFormOpen(true);
+    } catch (openError: any) {
+      setError(openError?.message || 'Failed to open project form');
+    }
   };
 
   const saveProject = async () => {
@@ -221,6 +319,10 @@ const Projects = () => {
     try {
       if (formMode === 'create' && !canCreateProject) {
         throw new Error('Only employers and admins can create projects');
+      }
+
+      if (!form.projectTypeId) {
+        throw new Error('Project type is required');
       }
 
       if (formMode === 'edit' && (!editingProject || !canManageProject(editingProject))) {
@@ -238,6 +340,7 @@ const Projects = () => {
         ownerUserId: form.ownerUserId || null,
         startDate: form.startDate || null,
         dueDate: form.dueDate || null,
+        projectTypeId: form.projectTypeId,
       };
 
       if (formMode === 'create') {
@@ -297,15 +400,25 @@ const Projects = () => {
     }
   };
 
-  const openMembersDialog = (project: ProjectItem) => {
+  const openMembersDialog = async (project: ProjectItem) => {
     if (!canManageProject(project)) {
       return;
     }
-    setMembersProject(project);
-    const current = project.members.map((member) => member.userId);
-    setSelectedMemberIds(current);
-    setMembersOwnerId(project.ownerUserId || '');
-    setMembersOpen(true);
+
+    setError('');
+    setMembersDialogLoading(true);
+    try {
+      await ensureMembersLoaded();
+      const projectDetail = await loadProjectAssignments(project.id);
+      setMembersProject(projectDetail);
+      setSelectedMemberIds(projectDetail.members.map((member) => member.userId));
+      setMembersOwnerId(projectDetail.ownerUserId || '');
+      setMembersOpen(true);
+    } catch (dialogError: any) {
+      setError(dialogError?.message || 'Failed to load project assignments');
+    } finally {
+      setMembersDialogLoading(false);
+    }
   };
 
   const saveMembers = async () => {
@@ -339,6 +452,7 @@ const Projects = () => {
         body: {
           orgId: activeOrgId,
           ownerUserId: membersOwnerId || null,
+          ...(membersProject.projectType?.id ? { projectTypeId: membersProject.projectType.id } : {}),
         },
       });
 
@@ -393,19 +507,42 @@ const Projects = () => {
       <Breadcrumb title="Projects App" items={BCrumb} />
       <BlankCard>
         <Stack spacing={2} p={3}>
-          <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ sm: 'center' }} spacing={2}>
-            <Typography variant="h5">Projects</Typography>
-            {canCreateProject ? (
-              <Button variant="contained" onClick={openCreate}>
-                Create Project
-              </Button>
-            ) : (
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            justifyContent="space-between"
+            alignItems={{ sm: 'center' }}
+            spacing={2}
+          >
+            <Box>
+              <Typography variant="h5">Projects</Typography>
               <Typography variant="body2" color="textSecondary">
-                Only employers and admins can create projects. Project owners can manage their own projects.
+                Project types drive project labeling and calendar colors across the CRM.
               </Typography>
-            )}
+            </Box>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+              {isGlobalAdmin ? (
+                <Button variant="outlined" onClick={() => navigate('/apps/project-types')}>
+                  Project Types
+                </Button>
+              ) : null}
+              {canCreateProject ? (
+                <Button variant="contained" onClick={() => void openCreate()}>
+                  Create Project
+                </Button>
+              ) : null}
+            </Stack>
           </Stack>
 
+          {!projectTypes.length && !loading ? (
+            <Alert severity="warning">
+              No project types are configured yet. A global admin needs to create project types before new projects can be created.
+            </Alert>
+          ) : null}
+          {!canCreateProject ? (
+            <Alert severity="info">
+              Only employers and admins can create projects. Project owners can still manage their assigned projects.
+            </Alert>
+          ) : null}
           {error ? <Alert severity="error">{error}</Alert> : null}
           {info ? <Alert severity="success">{info}</Alert> : null}
           {loading ? <Typography>Loading projects...</Typography> : null}
@@ -416,6 +553,7 @@ const Projects = () => {
                 <TableHead>
                   <TableRow>
                     <TableCell>Name</TableCell>
+                    <TableCell>Type</TableCell>
                     <TableCell>Status</TableCell>
                     <TableCell>Priority</TableCell>
                     <TableCell>Owner</TableCell>
@@ -428,56 +566,69 @@ const Projects = () => {
                   {projects.map((project) => {
                     const canManage = canManageProject(project);
                     return (
-                    <TableRow key={project.id}>
-                      <TableCell>
-                        <Stack spacing={0.5}>
-                          <Typography variant="subtitle2">{project.name}</Typography>
-                          <Typography variant="body2" color="textSecondary">
-                            {project.code || '-'}
-                          </Typography>
-                        </Stack>
-                      </TableCell>
-                      <TableCell>
-                        <Chip size="small" label={project.status} />
-                      </TableCell>
-                      <TableCell>
-                        <Chip size="small" variant="outlined" label={project.priority} />
-                      </TableCell>
-                      <TableCell>{project.ownerName || '-'}</TableCell>
-                      <TableCell>{project.memberCount}</TableCell>
-                      <TableCell>{project.dueDate || '-'}</TableCell>
-                      <TableCell align="right">
-                        <Stack direction="row" spacing={1} justifyContent="flex-end">
-                          <Button
-                            size="small"
-                            variant="contained"
-                            onClick={() => navigate(`/apps/projects/${project.id}`)}
-                          >
-                            View
-                          </Button>
-                          {canManage ? (
-                            <Button size="small" variant="outlined" onClick={() => openMembersDialog(project)}>
-                              Members
+                      <TableRow key={project.id}>
+                        <TableCell>
+                          <Stack spacing={0.5}>
+                            <Typography variant="subtitle2">{project.name}</Typography>
+                            <Typography variant="body2" color="textSecondary">
+                              {project.code || '-'}
+                            </Typography>
+                          </Stack>
+                        </TableCell>
+                        <TableCell>
+                          <TypeChip projectType={project.projectType} />
+                        </TableCell>
+                        <TableCell>
+                          <Chip size="small" label={project.status} />
+                        </TableCell>
+                        <TableCell>
+                          <Chip size="small" variant="outlined" label={project.priority} />
+                        </TableCell>
+                        <TableCell>{project.ownerName || '-'}</TableCell>
+                        <TableCell>{project.memberCount}</TableCell>
+                        <TableCell>{project.dueDate || '-'}</TableCell>
+                        <TableCell align="right">
+                          <Stack direction="row" spacing={1} justifyContent="flex-end">
+                            <Button
+                              size="small"
+                              variant="contained"
+                              onClick={() => navigate(`/apps/projects/${project.id}`)}
+                            >
+                              View
                             </Button>
-                          ) : null}
-                          {canManage ? (
-                            <Button size="small" variant="outlined" onClick={() => openEdit(project)}>
-                              Edit
-                            </Button>
-                          ) : null}
-                          {canManage ? (
-                            <Button size="small" color="error" variant="outlined" onClick={() => deleteProject(project.id)}>
-                              Delete
-                            </Button>
-                          ) : null}
-                        </Stack>
-                      </TableCell>
-                    </TableRow>
+                            {canManage ? (
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                onClick={() => void openMembersDialog(project)}
+                                disabled={membersDialogLoading}
+                              >
+                                Members
+                              </Button>
+                            ) : null}
+                            {canManage ? (
+                              <Button size="small" variant="outlined" onClick={() => void openEdit(project)}>
+                                Edit
+                              </Button>
+                            ) : null}
+                            {canManage ? (
+                              <Button
+                                size="small"
+                                color="error"
+                                variant="outlined"
+                                onClick={() => void deleteProject(project.id)}
+                              >
+                                Delete
+                              </Button>
+                            ) : null}
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
                     );
                   })}
                   {projects.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7}>
+                      <TableCell colSpan={8}>
                         <Typography variant="body2" color="textSecondary">
                           No projects yet.
                         </Typography>
@@ -513,6 +664,21 @@ const Projects = () => {
               value={form.description}
               onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
             />
+            <FormControl fullWidth required>
+              <InputLabel id="project-type-label">Project Type</InputLabel>
+              <Select
+                labelId="project-type-label"
+                label="Project Type"
+                value={form.projectTypeId}
+                onChange={(event) => setForm((prev) => ({ ...prev, projectTypeId: String(event.target.value) }))}
+              >
+                {projectTypes.map((projectType) => (
+                  <MenuItem key={projectType.id} value={projectType.id}>
+                    {projectType.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               <FormControl fullWidth>
                 <InputLabel id="project-status-label">Status</InputLabel>
@@ -565,7 +731,7 @@ const Projects = () => {
                 onChange={(event) => setForm((prev) => ({ ...prev, dueDate: event.target.value }))}
               />
             </Stack>
-            <FormControl fullWidth>
+            <FormControl fullWidth disabled={membersLoading}>
               <InputLabel id="project-owner-label">Owner</InputLabel>
               <Select
                 labelId="project-owner-label"
@@ -587,7 +753,11 @@ const Projects = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setFormOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={saveProject} disabled={saving || !form.name.trim() || !canSaveProjectForm}>
+          <Button
+            variant="contained"
+            onClick={() => void saveProject()}
+            disabled={saving || !form.name.trim() || !form.projectTypeId || !canSaveProjectForm}
+          >
             {saving ? 'Saving...' : 'Save'}
           </Button>
         </DialogActions>
@@ -596,56 +766,64 @@ const Projects = () => {
       <Dialog open={membersOpen} onClose={() => setMembersOpen(false)} fullWidth maxWidth="sm">
         <DialogTitle>Project Members</DialogTitle>
         <DialogContent>
-          <Stack spacing={2} mt={1}>
-            <FormControl fullWidth>
-              <InputLabel id="members-owner-label">Project Owner</InputLabel>
-              <Select
-                labelId="members-owner-label"
-                label="Project Owner"
-                value={membersOwnerId}
-                disabled={!canManageMembersProject}
-                onChange={(event) => setMembersOwnerId(String(event.target.value))}
-              >
-                <MenuItem value="">
-                  <em>None</em>
-                </MenuItem>
-                {members.map((member) => (
-                  <MenuItem key={member.userId} value={member.userId}>
-                    {resolveMemberName(member)}
+          {membersDialogLoading ? (
+            <Typography mt={1}>Loading project assignments...</Typography>
+          ) : (
+            <Stack spacing={2} mt={1}>
+              <FormControl fullWidth>
+                <InputLabel id="members-owner-label">Project Owner</InputLabel>
+                <Select
+                  labelId="members-owner-label"
+                  label="Project Owner"
+                  value={membersOwnerId}
+                  disabled={!canManageMembersProject}
+                  onChange={(event) => setMembersOwnerId(String(event.target.value))}
+                >
+                  <MenuItem value="">
+                    <em>None</em>
                   </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            <FormControl fullWidth>
-              <InputLabel id="members-select-label">Assigned Members</InputLabel>
-              <Select
-                labelId="members-select-label"
-                label="Assigned Members"
-                multiple
-                value={selectedMemberIds}
-                disabled={!canManageMembersProject}
-                onChange={(event) => setSelectedMemberIds(event.target.value as string[])}
-                renderValue={(selected) =>
-                  (selected as string[])
-                    .map((userId) => {
-                      const member = members.find((item) => item.userId === userId);
-                      return member ? resolveMemberName(member) : userId;
-                    })
-                    .join(', ')
-                }
-              >
-                {members.map((member) => (
-                  <MenuItem key={member.userId} value={member.userId}>
-                    {resolveMemberName(member)}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Stack>
+                  {members.map((member) => (
+                    <MenuItem key={member.userId} value={member.userId}>
+                      {resolveMemberName(member)}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl fullWidth>
+                <InputLabel id="members-select-label">Assigned Members</InputLabel>
+                <Select
+                  labelId="members-select-label"
+                  label="Assigned Members"
+                  multiple
+                  value={selectedMemberIds}
+                  disabled={!canManageMembersProject}
+                  onChange={(event) => setSelectedMemberIds(event.target.value as string[])}
+                  renderValue={(selected) =>
+                    (selected as string[])
+                      .map((userId) => {
+                        const member = members.find((item) => item.userId === userId);
+                        return member ? resolveMemberName(member) : userId;
+                      })
+                      .join(', ')
+                  }
+                >
+                  {members.map((member) => (
+                    <MenuItem key={member.userId} value={member.userId}>
+                      {resolveMemberName(member)}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Stack>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setMembersOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={saveMembers} disabled={savingMembers || !canManageMembersProject}>
+          <Button
+            variant="contained"
+            onClick={() => void saveMembers()}
+            disabled={savingMembers || membersDialogLoading || !canManageMembersProject}
+          >
             {savingMembers ? 'Saving...' : 'Save Assignments'}
           </Button>
         </DialogActions>
