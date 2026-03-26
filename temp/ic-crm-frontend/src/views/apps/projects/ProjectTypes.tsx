@@ -271,14 +271,14 @@ const ProjectTypes = () => {
                             variant="caption"
                             sx={{
                               px: 1,
-                              py: 0.25,
-                              borderRadius: 1,
-                              backgroundColor: hexToRgba(projectType.color, 0.16),
+                              py: 0.45,
+                              borderRadius: 999,
+                              backgroundColor: resolveUiColor(projectType.color),
                               color: getReadableTextColor(projectType.color),
-                              border: `1px solid ${resolveUiColor(projectType.color)}`,
+                              fontWeight: 700,
                             }}
                           >
-                            Preview
+                            {projectType.name}
                           </Typography>
                         </Stack>
                       </TableCell>

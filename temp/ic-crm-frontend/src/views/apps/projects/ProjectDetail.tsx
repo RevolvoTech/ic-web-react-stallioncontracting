@@ -24,6 +24,7 @@ import { useAuth } from 'src/context/AuthContext';
 import { isAbortError } from 'src/lib/fetchWithTimeout';
 import { getReadableTextColor, hexToRgba, resolveUiColor } from 'src/lib/projectTypeColors';
 import { ProjectTypeOption } from 'src/types/projectTypes';
+import { ProjectTimelineResponse } from 'src/types/timeline';
 
 type ProjectMember = {
   userId: string;
@@ -162,9 +163,12 @@ const ProjectDetail = () => {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState('');
   const [project, setProject] = React.useState<ProjectDetailData | null>(null);
+  const [timeline, setTimeline] = React.useState<ProjectTimelineResponse | null>(null);
   const [files, setFiles] = React.useState<ProjectFile[]>([]);
   const [filesLoading, setFilesLoading] = React.useState(false);
+  const [timelineLoading, setTimelineLoading] = React.useState(false);
   const [filesError, setFilesError] = React.useState('');
+  const [timelineError, setTimelineError] = React.useState('');
   const [filesInfo, setFilesInfo] = React.useState('');
   const [uploadingFile, setUploadingFile] = React.useState(false);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
@@ -254,6 +258,40 @@ const ProjectDetail = () => {
     } finally {
       if (!signal?.aborted) {
         setFilesLoading(false);
+      }
+    }
+  }, [getAccessToken, projectId, resolvedOrgId]);
+
+  const loadTimelineSummary = React.useCallback(async (signal?: AbortSignal) => {
+    setTimelineLoading(true);
+    setTimelineError('');
+
+    try {
+      if (!projectId) {
+        throw new Error('Project id is missing in URL');
+      }
+
+      const token = await getAccessToken();
+      if (!token) {
+        throw new Error('Missing session token');
+      }
+
+      const data = await crmRequest(`/api/projects/${projectId}/timeline`, {
+        token,
+        orgId: resolvedOrgId,
+        signal,
+      });
+
+      setTimeline(data as ProjectTimelineResponse);
+    } catch (loadError: any) {
+      if (isAbortError(loadError)) {
+        return;
+      }
+      setTimelineError(loadError?.message || 'Failed to load timeline summary');
+      setTimeline(null);
+    } finally {
+      if (!signal?.aborted) {
+        setTimelineLoading(false);
       }
     }
   }, [getAccessToken, projectId, resolvedOrgId]);
@@ -354,7 +392,7 @@ const ProjectDetail = () => {
   React.useEffect(() => {
     const controller = new AbortController();
 
-    Promise.all([loadProject(controller.signal), loadFiles(controller.signal)]).catch(() => {
+    Promise.all([loadProject(controller.signal), loadFiles(controller.signal), loadTimelineSummary(controller.signal)]).catch(() => {
       if (!controller.signal.aborted) {
         setLoading(false);
       }
@@ -363,7 +401,7 @@ const ProjectDetail = () => {
     return () => {
       controller.abort();
     };
-  }, [loadFiles, loadProject]);
+  }, [loadFiles, loadProject, loadTimelineSummary]);
 
   const handleRefreshProject = () => {
     void loadProject();
@@ -371,6 +409,10 @@ const ProjectDetail = () => {
 
   const handleRefreshFiles = () => {
     void loadFiles();
+  };
+
+  const handleRefreshTimeline = () => {
+    void loadTimelineSummary();
   };
 
   return (
@@ -410,9 +452,9 @@ const ProjectDetail = () => {
                       label={project.projectType.name}
                       sx={{
                         width: 'fit-content',
-                        backgroundColor: hexToRgba(project.projectType.color, 0.16),
+                        backgroundColor: resolveUiColor(project.projectType.color),
                         color: getReadableTextColor(project.projectType.color),
-                        border: `1px solid ${resolveUiColor(project.projectType.color)}`,
+                        fontWeight: 700,
                       }}
                     />
                   ) : (
@@ -464,6 +506,59 @@ const ProjectDetail = () => {
                   {project.description || 'No description added yet.'}
                 </Typography>
               </Stack>
+
+              <Box
+                border={1}
+                borderColor="divider"
+                borderRadius={1.5}
+                p={2}
+                sx={{
+                  background:
+                    'linear-gradient(135deg, rgba(97,93,255,0.06), rgba(57,182,154,0.06))',
+                }}
+              >
+                <Stack
+                  direction={{ xs: 'column', md: 'row' }}
+                  justifyContent="space-between"
+                  spacing={2}
+                  alignItems={{ xs: 'flex-start', md: 'center' }}
+                >
+                  <Box>
+                    <Typography variant="h6">Timeline</Typography>
+                    <Typography variant="body2" color="textSecondary" sx={{ mt: 0.5 }}>
+                      Open the full project timeline to review phases, milestone notes, and linked records.
+                    </Typography>
+                  </Box>
+                  <Stack direction="row" spacing={1}>
+                    <Button variant="outlined" onClick={handleRefreshTimeline} disabled={timelineLoading}>
+                      Refresh Timeline
+                    </Button>
+                    <Button variant="contained" onClick={() => navigate(`/apps/projects/${project.id}/timeline`)}>
+                      Open Timeline
+                    </Button>
+                  </Stack>
+                </Stack>
+
+                {timelineError ? <Alert severity="error" sx={{ mt: 2 }}>{timelineError}</Alert> : null}
+                {timelineLoading ? <LinearProgress sx={{ mt: 2 }} /> : null}
+
+                {timeline?.milestones?.length ? (
+                  <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 2 }}>
+                    {timeline.milestones.slice(0, 5).map((milestone) => (
+                      <Chip
+                        key={milestone.id}
+                        label={`${milestone.title}${milestone.date ? ` · ${formatDate(milestone.date)}` : ''}`}
+                        onClick={() => navigate(`/apps/projects/${project.id}/timeline`)}
+                        sx={{ borderRadius: 2 }}
+                      />
+                    ))}
+                  </Stack>
+                ) : timeline && !timelineLoading ? (
+                  <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
+                    No timeline milestones have been added yet.
+                  </Typography>
+                ) : null}
+              </Box>
 
               <Stack spacing={1}>
                 <Typography variant="subtitle2">Assigned Teams</Typography>

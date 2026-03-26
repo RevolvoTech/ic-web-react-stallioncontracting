@@ -22,6 +22,8 @@ import InvoiceDetail from '../views/apps/invoice/Detail';
 import Projects from '../views/apps/projects/Projects';
 import ProjectTypes from '../views/apps/projects/ProjectTypes';
 import ProjectDetail from '../views/apps/projects/ProjectDetail';
+import ProjectTimeline from '../views/apps/timeline/ProjectTimeline';
+import PortfolioTimeline from '../views/apps/timeline/PortfolioTimeline';
 import Login from '../views/authentication/auth1/Login';
 import ForgotPassword from '../views/authentication/auth1/ForgotPassword';
 import ResetPassword from '../views/authentication/auth1/ResetPassword';
@@ -46,8 +48,10 @@ const Router = [
       { path: '/apps/calendar', element: <Calendar isBreadcrumb={true} /> },
       { path: '/apps/kanban', element: <Kanban /> },
       { path: '/apps/projects', element: <Projects /> },
+      { path: '/apps/timeline', element: <PortfolioTimeline /> },
       { path: '/apps/project-types', element: <ProjectTypes /> },
       { path: '/apps/projects/:projectId', element: <ProjectDetail /> },
+      { path: '/apps/projects/:projectId/timeline', element: <ProjectTimeline /> },
       { path: '/apps/team', element: <TeamMembers /> },
       { path: '/apps/profile', element: <ProfileSettings /> },
       { path: '/apps/invoice', element: <Navigate to="/apps/invoice/list" /> },

@@ -29,7 +29,7 @@ import BlankCard from 'src/components/shared/BlankCard';
 import { crmRequest } from 'src/api/crm/client';
 import { useAuth } from 'src/context/AuthContext';
 import { isAbortError } from 'src/lib/fetchWithTimeout';
-import { getReadableTextColor, hexToRgba, resolveUiColor } from 'src/lib/projectTypeColors';
+import { getReadableTextColor, resolveUiColor } from 'src/lib/projectTypeColors';
 import { ProjectTypeOption } from 'src/types/projectTypes';
 
 type Member = {
@@ -131,9 +131,9 @@ const TypeChip = ({ projectType }: { projectType: ProjectTypeOption | null }) =>
       label={projectType.name}
       sx={{
         width: 'fit-content',
-        backgroundColor: hexToRgba(projectType.color, 0.16),
+        backgroundColor: resolveUiColor(projectType.color),
         color: getReadableTextColor(projectType.color),
-        border: `1px solid ${resolveUiColor(projectType.color)}`,
+        fontWeight: 700,
       }}
     />
   );

@@ -73,6 +73,12 @@ const Menuitems: MenuitemsType[] = [
   },
   {
     id: uniqueId(),
+    title: 'Timeline',
+    icon: IconCalendar,
+    href: '/apps/timeline',
+  },
+  {
+    id: uniqueId(),
     title: 'Kanban',
     icon: IconNotebook,
     href: '/apps/kanban',
