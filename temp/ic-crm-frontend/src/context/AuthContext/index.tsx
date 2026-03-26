@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
   AuthSession,
   AuthSessionUser,
@@ -29,6 +29,24 @@ const clearStoredActiveOrgId = () => {
     return;
   }
   window.sessionStorage.removeItem('crm_active_org_id');
+};
+
+const sameSessionUser = (left: AuthSessionUser | null, right: AuthSessionUser | null) =>
+  left?.id === right?.id && left?.email === right?.email;
+
+const sameAuthSession = (left: AuthSession | null, right: AuthSession | null) => {
+  if (!left || !right) {
+    return left === right;
+  }
+
+  return (
+    left.accessToken === right.accessToken &&
+    left.refreshToken === right.refreshToken &&
+    left.expiresAt === right.expiresAt &&
+    left.expiresIn === right.expiresIn &&
+    left.tokenType === right.tokenType &&
+    sameSessionUser(left.user, right.user)
+  );
 };
 
 type Membership = {
@@ -141,30 +159,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [activeOrgId, setActiveOrgIdState] = useState<string | null>(readStoredActiveOrgId);
   const skipNextOrgRefreshRef = useRef(false);
 
-  const syncSessionState = (nextSession: AuthSession | null) => {
-    setSession(nextSession);
-    setUser(nextSession?.user || null);
-  };
+  const syncSessionState = useCallback((nextSession: AuthSession | null) => {
+    setSession((current) => (sameAuthSession(current, nextSession) ? current : nextSession));
+    setUser((current) => {
+      const nextUser = nextSession?.user || null;
+      return sameSessionUser(current, nextUser) ? current : nextUser;
+    });
+  }, []);
 
-  const applySession = (nextSession: AuthSession | null) => {
+  const applySession = useCallback((nextSession: AuthSession | null) => {
     writeStoredAuthSession(nextSession);
     syncSessionState(nextSession);
-  };
+  }, [syncSessionState]);
 
-  const clearLocalAuthState = () => {
+  const clearLocalAuthState = useCallback(() => {
     clearStoredAuthSession();
     syncSessionState(null);
     setProfile(null);
     setAuthError(null);
     setActiveOrgIdState(null);
     clearStoredActiveOrgId();
-  };
+  }, [syncSessionState]);
 
-  const handleUnauthorizedSession = async () => {
+  const handleUnauthorizedSession = useCallback(async () => {
     clearLocalAuthState();
-  };
+  }, [clearLocalAuthState]);
 
-  const loadProfileForToken = async (accessToken: string, orgId: string | null) => {
+  const loadProfileForToken = useCallback(async (accessToken: string, orgId: string | null) => {
     try {
       const me = await fetchMe(accessToken, orgId);
       setProfile(me);
@@ -180,15 +201,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setAuthError(resolveAuthErrorMessage(error));
       return null;
     }
-  };
+  }, [handleUnauthorizedSession]);
 
-  const getAccessToken = async () => {
+  const getAccessToken = useCallback(async () => {
     const accessToken = await getValidStoredAccessToken();
-    syncSessionState(readStoredAuthSession());
+    const storedSession = readStoredAuthSession();
+    syncSessionState(storedSession);
     return accessToken;
-  };
+  }, [syncSessionState]);
 
-  const refreshProfile = async () => {
+  const refreshProfile = useCallback(async () => {
     const accessToken = await getAccessToken();
 
     if (!accessToken) {
@@ -210,9 +232,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setProfileLoading(false);
     }
-  };
+  }, [activeOrgId, getAccessToken, loadProfileForToken]);
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string) => {
     setAuthError(null);
     const data = await backendAuthRequest<{ session: AuthSession | null }>('/api/auth/login', {
       method: 'POST',
@@ -228,9 +250,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     applySession(data.session);
     await refreshProfile();
-  };
+  }, [applySession, refreshProfile]);
 
-  const signUp = async (
+  const signUp = useCallback(async (
     email: string,
     password: string,
     firstName: string,
@@ -260,18 +282,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       email: data.email || email,
       needsEmailVerification: Boolean(data.needsEmailVerification),
     };
-  };
+  }, [applySession, refreshProfile]);
 
-  const requestPasswordReset = async (email: string) => {
+  const requestPasswordReset = useCallback(async (email: string) => {
     await backendAuthRequest('/api/auth/password/reset-request', {
       method: 'POST',
       body: {
         email,
       },
     });
-  };
+  }, []);
 
-  const completeRecoverySession = async (code: string) => {
+  const completeRecoverySession = useCallback(async (code: string) => {
     const data = await backendAuthRequest<{ session: AuthSession | null }>('/api/auth/recovery/exchange', {
       method: 'POST',
       body: {
@@ -285,9 +307,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     applySession(data.session);
     setAuthError(null);
-  };
+  }, [applySession]);
 
-  const updatePassword = async (password: string) => {
+  const updatePassword = useCallback(async (password: string) => {
     const accessToken = await getAccessToken();
     if (!accessToken) {
       throw new Error('Missing session token');
@@ -300,9 +322,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         password,
       },
     });
-  };
+  }, [getAccessToken]);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     const currentSession = readStoredAuthSession();
 
     try {
@@ -318,13 +340,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       clearLocalAuthState();
     }
-  };
+  }, [clearLocalAuthState]);
 
-  const setActiveOrgId = async (orgId: string | null) => {
-    setActiveOrgIdState(orgId);
-  };
+  const setActiveOrgId = useCallback(async (orgId: string | null) => {
+    setActiveOrgIdState((current) => (current === orgId ? current : orgId));
+  }, []);
 
   useEffect(() => {
+    let cancelled = false;
+
     const bootstrap = async () => {
       try {
         syncSessionState(readStoredAuthSession());
@@ -334,15 +358,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           await refreshProfile();
         }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     bootstrap().catch(() => {
-      setLoading(false);
+      if (!cancelled) {
+        setLoading(false);
+      }
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, [refreshProfile, syncSessionState]);
 
   useEffect(() => {
     if (!session?.accessToken) {
@@ -358,8 +388,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setProfile(null);
       setAuthError('Your CRM profile could not be refreshed. Refresh the page or sign in again.');
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeOrgId]);
+  }, [activeOrgId, refreshProfile, session?.accessToken]);
 
   useEffect(() => {
     if (activeOrgId) {
@@ -388,8 +417,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setActiveOrgId,
       getAccessToken,
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [session, user, profile, authError, loading, profileLoading, activeOrgId],
+    [
+      session,
+      user,
+      profile,
+      authError,
+      loading,
+      profileLoading,
+      activeOrgId,
+      signIn,
+      signUp,
+      requestPasswordReset,
+      completeRecoverySession,
+      updatePassword,
+      signOut,
+      refreshProfile,
+      setActiveOrgId,
+      getAccessToken,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
