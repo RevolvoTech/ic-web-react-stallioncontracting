@@ -1,11 +1,8 @@
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, ReactNode, Dispatch, SetStateAction } from 'react';
 import { TodoCategory } from '../../types/apps/kanban';
 import { deleteFetcher, getFetcher, postFetcher } from 'src/api/globalFetcher';
 import { crmSwrOptions } from 'src/lib/swrOptions';
-import useSWR from 'swr';
-
-
-
+import useSWR, { mutate as mutateCache } from 'swr';
 
 interface KanbanDataContextProps {
     children: ReactNode;
@@ -19,8 +16,8 @@ interface KanbanContextType {
     deleteTodo: (taskId: number) => Promise<void>;
     setError: (errorMessage: any) => void;
     loading: boolean;
-    error: null;
-    setTodoCategories: (id: TodoCategory[]) => void;
+    error: unknown;
+    setTodoCategories: Dispatch<SetStateAction<TodoCategory[]>>;
     moveTask: (
         taskId: number,
         sourceCategoryId: string,
@@ -32,16 +29,83 @@ interface KanbanContextType {
 
 export const KanbanDataContext = createContext<KanbanContextType>({} as KanbanContextType);
 
+const KANBAN_KEY = '/api/kanban';
+
+const isRecord = (value: unknown): value is Record<string, any> =>
+    typeof value === 'object' && value !== null;
+
+const normalizeCategory = (value: unknown): TodoCategory | null => {
+    if (!isRecord(value) || value.id == null) {
+        return null;
+    }
+
+    const child = Array.isArray(value.child)
+        ? value.child
+        : Array.isArray(value.tasks)
+            ? value.tasks
+            : Array.isArray(value.items)
+                ? value.items
+                : [];
+
+    return {
+        ...value,
+        id: value.id,
+        name: typeof value.name === 'string' ? value.name : String(value.title ?? ''),
+        child,
+    } as TodoCategory;
+};
+
+const extractCategoryArray = (payload: unknown): TodoCategory[] | null => {
+    const rawCategories = Array.isArray(payload)
+        ? payload
+        : isRecord(payload) && Array.isArray(payload.data)
+            ? payload.data
+            : null;
+
+    if (!rawCategories) {
+        return null;
+    }
+
+    return rawCategories
+        .map((category) => normalizeCategory(category))
+        .filter((category): category is TodoCategory => Boolean(category));
+};
+
+const extractSingleCategory = (payload: unknown): TodoCategory | null => {
+    const candidate = isRecord(payload) && !Array.isArray(payload.data) && payload.data !== undefined
+        ? payload.data
+        : payload;
+
+    return normalizeCategory(candidate);
+};
+
+const buildKanbanCachePayload = (categories: TodoCategory[], payload?: unknown) => {
+    const source = isRecord(payload) ? payload : {};
+
+    return {
+        ...source,
+        status: typeof source.status === 'number' ? source.status : 200,
+        msg: typeof source.msg === 'string' ? source.msg : 'success',
+        data: categories,
+    };
+};
+
 export const KanbanDataContextProvider: React.FC<KanbanDataContextProps> = ({ children }) => {
     const [todoCategories, setTodoCategories] = useState<TodoCategory[]>([]);
     const [error, setError] = useState<any>(null);
     const [loading, setLoading] = useState<boolean>(true)
 
     // Fetch todo data from the API
-    const { data: todosData, isLoading: isTodosLoading, error: todoError, mutate } = useSWR("/api/kanban", getFetcher, crmSwrOptions)
+    const { data: todosData, isLoading: isTodosLoading, error: todoError } = useSWR(KANBAN_KEY, getFetcher, crmSwrOptions)
     useEffect(() => {
         if (todosData) {
-            setTodoCategories(todosData.data);
+            const nextCategories = extractCategoryArray(todosData);
+            if (nextCategories) {
+                setTodoCategories(nextCategories);
+                setError(null);
+            } else {
+                setError(new Error('Invalid Kanban data received from the server.'));
+            }
             setLoading(isTodosLoading);
         } else if (todoError) {
             setError(todoError);
@@ -55,47 +119,83 @@ export const KanbanDataContextProvider: React.FC<KanbanDataContextProps> = ({ ch
         setError(errorMessage);
     };
 
+    const replaceCategories = (categories: TodoCategory[], payload?: unknown) => {
+        setTodoCategories(categories);
+        void mutateCache(KANBAN_KEY, buildKanbanCachePayload(categories, payload), false);
+    };
+
+    const revalidateCategories = async () => {
+        await mutateCache(KANBAN_KEY);
+    };
+
     const deleteCategory = async (categoryId: string) => {
         try {
-            const response = await mutate(deleteFetcher('/api/kanban/delete-category', { data: { categoryId } }), false);
-            if (response?.data) {
-                setTodoCategories(response.data);
+            const response = await deleteFetcher('/api/kanban/delete-category', { categoryId, id: categoryId });
+            const nextCategories = extractCategoryArray(response);
+            if (nextCategories) {
+                replaceCategories(nextCategories, response);
+            } else {
+                await revalidateCategories();
             }
         } catch (error: any) {
             handleError(error);
+            throw error;
         }
     };
 
     const clearAllTasks = async (categoryId: string) => {
         try {
-            const response = await mutate(deleteFetcher('/api/TodoData/clearTasks', { data: { categoryId } }), false);
-            if (response?.data) {
-                setTodoCategories(response.data);
+            const response = await deleteFetcher('/api/TodoData/clearTasks', { categoryId });
+            const nextCategories = extractCategoryArray(response);
+            if (nextCategories) {
+                replaceCategories(nextCategories, response);
+            } else {
+                await revalidateCategories();
             }
         } catch (error: any) {
             handleError(error);
+            throw error;
         }
     };
 
     const addCategory = async (categoryName: string) => {
         try {
-            const response = await mutate(postFetcher('/api/kanban/add-category', { categoryName }), false);
-            if (response?.data) {
-                setTodoCategories((prev) => [...prev, response.data]);
+            const response = await postFetcher('/api/kanban/add-category', { categoryName });
+            const nextCategories = extractCategoryArray(response);
+            if (nextCategories) {
+                replaceCategories(nextCategories, response);
+                return;
             }
+
+            const newCategory = extractSingleCategory(response);
+            if (newCategory) {
+                const updatedCategories = [
+                    ...todoCategories.filter((category) => String(category.id) !== String(newCategory.id)),
+                    newCategory,
+                ];
+                replaceCategories(updatedCategories, response);
+                return;
+            }
+
+            await revalidateCategories();
         } catch (error: any) {
             handleError(error);
+            throw error;
         }
     };
 
     const deleteTodo = async (taskId: number) => {
         try {
-            const response = await mutate(deleteFetcher('/api/TodoData/deleteTask', { data: { taskId } }), false);
-            if (response?.data) {
-                setTodoCategories(response.data);
+            const response = await deleteFetcher('/api/TodoData/deleteTask', { taskId });
+            const nextCategories = extractCategoryArray(response);
+            if (nextCategories) {
+                replaceCategories(nextCategories, response);
+            } else {
+                await revalidateCategories();
             }
         } catch (error: any) {
             handleError(error);
+            throw error;
         }
     };
 
@@ -137,23 +237,24 @@ export const KanbanDataContextProvider: React.FC<KanbanDataContextProps> = ({ ch
             return updatedCategories;
         });
 
-        mutate(
-            postFetcher('/api/kanban/move-task', {
+        postFetcher('/api/kanban/move-task', {
                 taskId: String(_),
                 sourceCategoryId,
                 destinationCategoryId,
                 sourceIndex,
                 destinationIndex,
-            }),
-            false,
-        )
+            })
             .then((response: any) => {
-                if (response?.data) {
-                    setTodoCategories(response.data);
+                const nextCategories = extractCategoryArray(response);
+                if (nextCategories) {
+                    replaceCategories(nextCategories, response);
+                } else {
+                    void revalidateCategories();
                 }
             })
             .catch((error: any) => {
                 setTodoCategories(previousCategories);
+                void mutateCache(KANBAN_KEY, buildKanbanCachePayload(previousCategories), false);
                 handleError(error);
             });
     };

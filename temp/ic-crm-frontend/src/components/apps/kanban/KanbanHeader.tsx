@@ -29,7 +29,7 @@ function KanbanHeader() {
   //Handles Add a new category.
   const handleSave = async () => {
     try {
-      addCategory(listName);
+      await addCategory(listName.trim());
       setListName('');
       setShow(false);
     } catch (error: any) {
