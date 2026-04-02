@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
 import "./Contact.scss";
@@ -146,6 +147,15 @@ const Contact = () => {
                   <textarea id="message" name="message" rows="5" />
                 </div>
 
+                <p className="form-disclaimer">
+                  By submitting this form and providing your mobile number, you
+                  agree to receive project updates and quote notifications from
+                  Stallion Contracting. Reply "STOP" or "UNSUBSCRIBE" to opt
+                  out. Message and data rates may apply. View our{" "}
+                  <Link to="/privacy-policy">Privacy Policy</Link> and{" "}
+                  <Link to="/sms-terms">SMS Terms</Link>.
+                </p>
+
                 <button
                   type="submit"
                   className="submit-button"
@@ -169,7 +179,10 @@ const Contact = () => {
                     <span className="material-icons">error</span>
                     <div className="message-content">
                       <strong>Oops! Something went wrong.</strong>
-                      <p>Please try again or contact us directly at info@stallioncontractingut.com</p>
+                      <p>
+                        Please try again or contact us directly at
+                        ContractingStallion@gmail.com
+                      </p>
                     </div>
                   </div>
                 )}

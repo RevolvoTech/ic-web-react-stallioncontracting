@@ -14,6 +14,9 @@ import ServiceFraming from "./Pages/ServiceFraming";
 import ServiceConcrete from "./Pages/ServiceConcrete";
 import ServiceDrywall from "./Pages/ServiceDrywall";
 import ServiceMore from "./Pages/ServiceMore";
+import PrivacyPolicy from "./Pages/PrivacyPolicy";
+import TermsOfService from "./Pages/TermsOfService";
+import SmsTerms from "./Pages/SmsTerms";
 
 function App() {
   return (
@@ -33,6 +36,9 @@ function App() {
           <Route path="/services/drywall" element={<ServiceDrywall />} />
           <Route path="/services/more" element={<ServiceMore />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/sms-terms" element={<SmsTerms />} />
         </Routes>
         <Footer />
       </div>

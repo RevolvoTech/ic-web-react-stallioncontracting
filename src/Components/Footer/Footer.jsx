@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import "./Footer.scss";
 import logo from "../../assets/logo.svg";
 import revolvoLogo from "../../assets/revolvo_logo.png";
@@ -11,9 +12,8 @@ const Footer = () => {
           <div className="footer-section footer-brand">
             <img src={logo} alt="Logo" className="footer-logo" />
             <p>
-              Professional roofing solutions with over 20 years of experience.
-              Your trusted partner for all residential and commercial roofing
-              needs.
+              Contracting support for roofing, concrete, and basement projects
+              throughout the Wasatch Valley.
             </p>
             <div className="footer-social">
               <a href="#" aria-label="Facebook">
@@ -35,22 +35,16 @@ const Footer = () => {
             <h4>Services</h4>
             <ul>
               <li>
-                <a href="#services">Residential Roofing</a>
+                <a href="/services#roofing">Roofing</a>
               </li>
               <li>
-                <a href="#services">Commercial Roofing</a>
+                <a href="/services#concrete">Concrete</a>
               </li>
               <li>
-                <a href="#services">Emergency Repairs</a>
+                <a href="/services#basement">Basement Projects</a>
               </li>
               <li>
-                <a href="#services">Roof Maintenance</a>
-              </li>
-              <li>
-                <a href="#services">Gutter Services</a>
-              </li>
-              <li>
-                <a href="#services">Roof Inspections</a>
+                <Link to="/contact">Get Your Quote</Link>
               </li>
             </ul>
           </div>
@@ -59,22 +53,22 @@ const Footer = () => {
             <h4>Company</h4>
             <ul>
               <li>
-                <a href="#about">About Us</a>
+                <a href="/#about">About Us</a>
               </li>
               <li>
-                <a href="#projects">Our Projects</a>
+                <Link to="/services">Services</Link>
               </li>
               <li>
-                <a href="#testimonials">Testimonials</a>
+                <a href="/#testimonials">Testimonials</a>
               </li>
               <li>
-                <a href="#contact">Contact</a>
+                <Link to="/contact">Contact</Link>
               </li>
               <li>
-                <a href="#careers">Careers</a>
+                <Link to="/privacy-policy">Privacy Policy</Link>
               </li>
               <li>
-                <a href="#warranty">Warranty</a>
+                <Link to="/sms-terms">SMS Terms</Link>
               </li>
             </ul>
           </div>
@@ -91,7 +85,7 @@ const Footer = () => {
             <div className="contact-item">
               <span className="material-icons">email</span>
               <div>
-                <p>info@stallioncontractingut.com</p>
+                <p>ContractingStallion@gmail.com</p>
                 <p>Email address</p>
               </div>
             </div>
@@ -103,9 +97,9 @@ const Footer = () => {
             <div className="footer-legal">
               <p>&copy; {new Date().getFullYear()} Stallion Contracting. All rights reserved.</p>
               <div className="footer-links">
-                <a href="#privacy">Privacy Policy</a>
-                <a href="#terms">Terms of Service</a>
-                <a href="#sitemap">Sitemap</a>
+                <Link to="/privacy-policy">Privacy Policy</Link>
+                <Link to="/terms-of-service">Terms of Service</Link>
+                <Link to="/sms-terms">SMS Terms</Link>
               </div>
             </div>
             <div className="footer-certifications">

@@ -139,6 +139,20 @@
               }
             }
 
+            .form-disclaimer {
+              margin: -0.25rem 0 0;
+              text-align: left;
+              color: #6b7280;
+              font-size: 0.9rem;
+              line-height: 1.7;
+
+              a {
+                color: #f36900;
+                text-decoration: none;
+                font-weight: 600;
+              }
+            }
+
             .form-message {
               display: flex;
               align-items: flex-start;
