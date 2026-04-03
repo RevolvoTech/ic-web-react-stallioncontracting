@@ -12,8 +12,9 @@ const Footer = () => {
           <div className="footer-section footer-brand">
             <img src={logo} alt="Logo" className="footer-logo" />
             <p>
-              Contracting support for roofing, concrete, and basement projects
-              throughout the Wasatch Valley.
+              Professional roofing solutions with over 20 years of experience.
+              Your trusted partner for all residential and commercial roofing
+              needs.
             </p>
             <div className="footer-social">
               <a href="#" aria-label="Facebook">
@@ -35,16 +36,34 @@ const Footer = () => {
             <h4>Services</h4>
             <ul>
               <li>
-                <a href="/services#roofing">Roofing</a>
+                <Link to="/services/roofing">
+                  Residential Roofing
+                </Link>
               </li>
               <li>
-                <a href="/services#concrete">Concrete</a>
+                <Link to="/services/roofing">
+                  Commercial Roofing
+                </Link>
               </li>
               <li>
-                <a href="/services#basement">Basement Projects</a>
+                <Link to="/services/more">
+                  Emergency Repairs
+                </Link>
               </li>
               <li>
-                <Link to="/contact">Get Your Quote</Link>
+                <Link to="/services/roofing">
+                  Roof Maintenance
+                </Link>
+              </li>
+              <li>
+                <Link to="/services/more">
+                  Gutter Services
+                </Link>
+              </li>
+              <li>
+                <Link to="/services/roofing">
+                  Roof Inspections
+                </Link>
               </li>
             </ul>
           </div>
@@ -56,7 +75,7 @@ const Footer = () => {
                 <a href="/#about">About Us</a>
               </li>
               <li>
-                <Link to="/services">Services</Link>
+                <a href="/#gallery">Our Projects</a>
               </li>
               <li>
                 <a href="/#testimonials">Testimonials</a>
@@ -65,10 +84,14 @@ const Footer = () => {
                 <Link to="/contact">Contact</Link>
               </li>
               <li>
-                <Link to="/privacy-policy">Privacy Policy</Link>
+                <a
+                  href="mailto:info@stallioncontractingut.com?subject=Careers%20at%20Stallion%20Contracting"
+                >
+                  Careers
+                </a>
               </li>
               <li>
-                <Link to="/sms-terms">SMS Terms</Link>
+                <Link to="/contact">Warranty</Link>
               </li>
             </ul>
           </div>
@@ -85,7 +108,7 @@ const Footer = () => {
             <div className="contact-item">
               <span className="material-icons">email</span>
               <div>
-                <p>ContractingStallion@gmail.com</p>
+                <p>info@stallioncontractingut.com</p>
                 <p>Email address</p>
               </div>
             </div>
@@ -99,7 +122,7 @@ const Footer = () => {
               <div className="footer-links">
                 <Link to="/privacy-policy">Privacy Policy</Link>
                 <Link to="/terms-of-service">Terms of Service</Link>
-                <Link to="/sms-terms">SMS Terms</Link>
+                <a href="/sitemap.xml">Sitemap</a>
               </div>
             </div>
             <div className="footer-certifications">
