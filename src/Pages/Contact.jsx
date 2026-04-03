@@ -37,7 +37,7 @@ const Contact = () => {
           access_key: formData.get("access_key"),
           name: formData.get("name"),
           email: formData.get("email"),
-          address: formData.get("address"),
+          zipcode: formData.get("zipcode"),
           phone: phone,
           message: formData.get("message"),
           subject: formData.get("subject"),
@@ -81,6 +81,12 @@ const Contact = () => {
                 Let us know how we can help. Fill out the form and we'll get back
                 to you as soon as possible.
               </p>
+              <div className="contact-details">
+                <div className="contact-detail">
+                  <span className="material-icons">phone</span>
+                  <a href="tel:8018005311">801-800-5311</a>
+                </div>
+              </div>
             </div>
 
             <div className="right">
@@ -119,8 +125,8 @@ const Contact = () => {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="address">Address</label>
-                  <input type="text" id="address" name="address" required />
+                  <label htmlFor="zipcode">Zipcode</label>
+                  <input type="text" id="zipcode" name="zipcode" required />
                 </div>
 
                 <div className="form-group">
@@ -181,7 +187,7 @@ const Contact = () => {
                       <strong>Oops! Something went wrong.</strong>
                       <p>
                         Please try again or contact us directly at
-                        ContractingStallion@gmail.com
+                        {" "}info@stallioncontractingut.com
                       </p>
                     </div>
                   </div>

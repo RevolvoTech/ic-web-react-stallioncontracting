@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import Header from "../Components/Header/Header";
 import Services from "../Components/Services/Services";
 import About from "../Components/About/About";
-import Testimonials from "../Components/Testimonials/Testimonials";
 import Gallery from "../Components/Gallery/Gallery";
 import "./Home.scss";
 
@@ -43,7 +42,6 @@ const Home = () => {
       <Header />
       <Services />
       <Gallery />
-      <Testimonials />
       <About />
       
       {/* Scroll to top button - only visible when mobile quote button shows */}

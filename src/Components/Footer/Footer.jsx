@@ -78,20 +78,7 @@ const Footer = () => {
                 <a href="/#gallery">Our Projects</a>
               </li>
               <li>
-                <a href="/#testimonials">Testimonials</a>
-              </li>
-              <li>
-                <Link to="/contact">Contact</Link>
-              </li>
-              <li>
-                <a
-                  href="mailto:info@stallioncontractingut.com?subject=Careers%20at%20Stallion%20Contracting"
-                >
-                  Careers
-                </a>
-              </li>
-              <li>
-                <Link to="/contact">Warranty</Link>
+                <Link to="/contact">Contact Us</Link>
               </li>
             </ul>
           </div>
@@ -102,14 +89,12 @@ const Footer = () => {
               <span className="material-icons">phone</span>
               <div>
                 <p>801-800-5311</p>
-                <p>Phone number</p>
               </div>
             </div>
             <div className="contact-item">
               <span className="material-icons">email</span>
               <div>
                 <p>info@stallioncontractingut.com</p>
-                <p>Email address</p>
               </div>
             </div>
           </div>
@@ -122,7 +107,7 @@ const Footer = () => {
               <div className="footer-links">
                 <Link to="/privacy-policy">Privacy Policy</Link>
                 <Link to="/terms-of-service">Terms of Service</Link>
-                <a href="/sitemap.xml">Sitemap</a>
+                <Link to="/sitemap">Sitemap</Link>
               </div>
             </div>
             <div className="footer-certifications">

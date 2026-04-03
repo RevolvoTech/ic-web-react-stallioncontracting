@@ -95,23 +95,6 @@ const About = () => {
                   Because to us, it's never just construction —<br />
                   it's building trust.
                 </p>
-
-                <div className="story-highlights">
-                  <div className="highlight">
-                    <span className="material-icons">home_work</span>
-                    <div>
-                      <h4>305+ Projects</h4>
-                      <p>Successfully completed</p>
-                    </div>
-                  </div>
-                  <div className="highlight">
-                    <span className="material-icons">groups</span>
-                    <div>
-                      <h4>15+ Team Members</h4>
-                      <p>Certified professionals</p>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -163,16 +146,23 @@ const About = () => {
 
           <div className={`cta-section ${isVisible ? "animate" : ""}`}>
             <div className="cta-content">
+              <span className="cta-kicker">Free Project Estimate</span>
               <h3>Get your quote at no cost today</h3>
+              <p>
+                Call us today or fill out our quick form. We respond to every
+                inquiry with the right next step.
+              </p>
               <div className="cta-buttons">
+                <button className="cta-phone" onClick={handleCallClick}>
+                  <span className="material-icons">call</span>
+                  801-800-5311
+                </button>
                 <button className="cta-primary" onClick={handleContactClick}>
-                  Get your Quote
-                  <span className="material-icons">arrow_forward</span>
+                  Request a Free Quote
                 </button>
-                <button className="cta-secondary" onClick={handleCallClick}>
-                  <span className="material-icons">phone</span>
-                  Call Now
-                </button>
+              </div>
+              <div className="cta-meta">
+                No obligation • Upfront pricing • Licensed & insured
               </div>
             </div>
           </div>

@@ -17,6 +17,7 @@ import ServiceMore from "./Pages/ServiceMore";
 import PrivacyPolicy from "./Pages/PrivacyPolicy";
 import TermsOfService from "./Pages/TermsOfService";
 import SmsTerms from "./Pages/SmsTerms";
+import Sitemap from "./Pages/Sitemap";
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/sms-terms" element={<SmsTerms />} />
+          <Route path="/sitemap" element={<Sitemap />} />
         </Routes>
         <Footer />
       </div>

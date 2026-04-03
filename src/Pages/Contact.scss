@@ -56,6 +56,32 @@
           p {
             color: #4b5563;
           }
+
+          .contact-details {
+            margin-top: 1.5rem;
+          }
+
+          .contact-detail {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.65rem;
+            padding: 0.9rem 1rem;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+
+            .material-icons {
+              color: #f36900;
+              font-size: 1.2rem;
+            }
+
+            a {
+              color: #1f2937;
+              text-decoration: none;
+              font-weight: 700;
+            }
+          }
         }
 
         .right {

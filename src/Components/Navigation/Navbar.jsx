@@ -67,8 +67,6 @@ const Navbar = () => {
     location.pathname === "/services" ||
     location.pathname.startsWith("/services/");
   const isHomeActive = location.pathname === "/" && activeLink === "home";
-  const isTestimonialsActive =
-    location.pathname === "/" && activeLink === "testimonials";
   const isAboutActive = location.pathname === "/" && activeLink === "about";
 
   useEffect(() => {
@@ -223,14 +221,6 @@ const Navbar = () => {
               </div>
             </div>
           </div>
-
-          <a
-            href="#testimonials"
-            className={isTestimonialsActive ? "active" : ""}
-            onClick={(e) => handleLinkClick("testimonials", e)}
-          >
-            Testimonials
-          </a>
 
           <a
             href="#about"
